@@ -1,0 +1,181 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login & Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+  --glass: rgba(255,255,255,0.08);
+  --accent1: #00fff0; --accent2: #7c4dff;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family: 'Poppins', sans-serif;
+  background: radial-gradient(1200px 600px at 10% 20%, rgba(124,77,255,0.12), transparent),
+              radial-gradient(900px 500px at 90% 80%, rgba(0,255,240,0.06), transparent),
+              linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+  display:flex; align-items:center; justify-content:center; padding:40px;
+}
+.wrap{display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap;}
+.card{
+  width:380px; padding:28px; border-radius:20px; color:#fff;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 8px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+  backdrop-filter: blur(10px);
+}
+.brand{display:flex;flex-direction:column;align-items:center;margin-bottom:8px}
+.logo{
+  width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),#ff6a88);
+  display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;margin-bottom:10px
+}
+h2{margin:6px 0 6px 0;text-align:center}
+.subtitle{font-size:13px;color:rgba(255,255,255,0.75);text-align:center;margin-bottom:18px}
+.input-group{position:relative;margin-top:12px}
+.input-group input{width:100%;padding:14px 44px 14px 44px;border-radius:12px;border:none;outline:none;font-size:14px;background:rgba(255,255,255,0.9);color:#0b1220;transition:box-shadow .18s, transform .12s}
+.input-group input:focus{box-shadow:0 6px 18px rgba(0,0,0,0.25);transform:translateY(-2px)}
+.input-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:20px;height:20px;opacity:0.9}
+.input-action{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;padding:6px;border-radius:8px;cursor:pointer}
+.input-label{position:absolute;left:44px;top:12px;font-size:12px;color:#6b7280;pointer-events:none;transition:all .16s}
+.input-group input:not(:placeholder-shown) + .input-label,
+.input-group input:focus + .input-label{top:-10px;font-size:11px;color:var(--accent1);}
+.btn{width:100%;padding:12px;border-radius:12px;border:none;cursor:pointer;font-weight:700;color:#fff;background:linear-gradient(90deg,#ff512f,#dd2476);margin-top:18px;box-shadow:0 8px 20px rgba(221,36,118,0.14);transition:transform .14s}
+.btn:hover{transform:translateY(-4px)}
+.muted{font-size:13px;color:rgba(255,255,255,0.75);text-align:center;margin-top:12px}
+#error{color:#ffd54d;text-align:center;margin-top:12px;font-weight:600}
+
+/* Profile card tweaks */
+.profile-card{width:320px;padding:22px;border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.06)}
+.profile-card p{margin:8px 0;color:#e6f7f6}
+.profile-card span{color:var(--accent1);font-weight:700}
+
+@media (max-width:780px){.wrap{flex-direction:column;align-items:center}.card{width:92vw}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="login">
+    <div class="brand">
+      <div class="logo">LP</div>
+      <h2>Welcome Back</h2>
+      <div class="subtitle">Sign in to continue to your dashboard</div>
+    </div>
+
+    <div class="input-group">
+      <input id="username" type="text" placeholder=" " autocomplete="username">
+      <label class="input-label">Username</label>
+      <svg class="input-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="#6b7280"/>
+        <path d="M2 22c0-4.418 3.582-8 8-8h4c4.418 0 8 3.582 8 8" fill="#6b7280"/>
+      </svg>
+    </div>
+
+    <div class="input-group">
+      <input id="password" type="password" placeholder=" " autocomplete="current-password">
+      <label class="input-label">Password</label>
+      <svg class="input-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5c-7 0-10 6-10 7s3 7 10 7 10-6 10-7-3-7-10-7z" fill="#6b7280"/>
+      </svg>
+      <button class="input-action" id="togglePwd" aria-label="Toggle password">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path id="eye" d="M12 5c-7 0-10 6-10 7s3 7 10 7 10-6 10-7-3-7-10-7z" stroke="#0b1220" stroke-width="1.2" fill="none"/>
+        </svg>
+      </button>
+    </div>
+
+    <button id="loginBtn" class="btn">Sign In</button>
+    <div id="error"></div>
+    <div class="muted">Or continue with</div>
+  </div>
+
+  <div id="dataBlock" style="display:none">
+    <div class="profile-card" id="profile" style="display:none">
+      <h3 style="margin-top:4px;margin-bottom:8px">USER PROFILE</h3>
+      <p><b>User ID:</b> <span id="uid"></span></p>
+      <p><b>Username:</b> <span id="uname"></span></p>
+      <p><b>Email:</b> <span id="email"></span></p>
+      <button id="logoutBtn" class="btn" style="background:linear-gradient(90deg,#00c6ff,#0072ff);margin-top:14px">Logout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let token = "";
+document.getElementById("loginBtn").addEventListener("click", login);
+document.getElementById("logoutBtn").addEventListener("click", logout);
+document.getElementById("togglePwd").addEventListener("click", function(e){
+  e.preventDefault(); const p = document.getElementById('password'); p.type = p.type === 'password' ? 'text' : 'password';
+});
+
+async function login() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorDiv = document.getElementById("error");
+    errorDiv.innerText = "";
+
+    if(!username || !password){
+        errorDiv.innerText = "Please enter username and password";
+        return;
+    }
+
+    try {
+        const response = await fetch("http://192.168.1.7:8080/auth/login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ username, password })
+        });
+
+        if(!response.ok){
+            const text = await response.text();
+            throw new Error(text || "Invalid username or password");
+        }
+
+        const data = await response.json();
+        token = data.token;
+        await loadProfile(token);
+
+    } catch(err){
+        errorDiv.innerText = err.message;
+    }
+}
+
+async function loadProfile(token){
+    try {
+        const response = await fetch("http://192.168.1.7:8080/user/profile", {
+            headers: { "Authorization": "Bearer " + token }
+        });
+
+        if(!response.ok){
+            throw new Error("Failed to fetch profile");
+        }
+
+        const user = await response.json();
+        document.getElementById("login").style.display = "none";
+        document.getElementById("dataBlock").style.display = "block";
+        document.getElementById("profile").style.display = "block";
+        document.getElementById("uid").innerText = user.userId || user.id || '';
+        document.getElementById("uname").innerText = user.username || '';
+        document.getElementById("email").innerText = user.email || '';
+
+    } catch(err){
+        alert(err.message);
+    }
+}
+
+function logout(){
+    token = "";
+    document.getElementById("profile").style.display = "none";
+    document.getElementById("dataBlock").style.display = "none";
+    document.getElementById("login").style.display = "block";
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+    document.getElementById("error").innerText = "";
+}
+</script>
+</body>
+</html>
+
