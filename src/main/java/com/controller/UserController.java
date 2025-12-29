@@ -13,12 +13,6 @@ import com.security.CustomUserDetails;
 @RequestMapping("/user")
 @CrossOrigin(origins = "*")
 public class UserController {
-	
-	
-//	@GetMapping("/test")
-//	public Object test(Authentication auth) {
-//	    return auth.getAuthorities();
-//	}
 
     @GetMapping("/profile")
     public UserProfileResponse profile(Authentication authentication) {

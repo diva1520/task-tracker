@@ -1,6 +1,6 @@
 package com.dto;
 
- import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 import com.entity.Task;
 
@@ -19,7 +19,9 @@ public class TaskResponse {
     private String title;
     private String description;
     private LocalDateTime createdAt;
-
+    private com.entity.Status status;
+    private LocalDateTime completedAt;
+    private LocalDateTime dueDate;
     
     public static TaskResponse fromEntity(Task task) {
         TaskResponse dto = new TaskResponse();
@@ -27,8 +29,10 @@ public class TaskResponse {
         dto.title = task.getTitle();
         dto.description = task.getDescription();
         dto.createdAt = task.getCreatedAt();
-       // dto.userId = task.getUser().getId();
         dto.userName = task.getUser().getUsername();
+        dto.status = task.getStatus();
+        dto.completedAt = task.getCompletedAt();
+        dto.dueDate = task.getDueDate();
         return dto;
     }
 }

@@ -63,8 +63,11 @@ public class TaskController {
 	private List<TaskResponse> mapToTaskResponses(List<Task> tasks) {
 		List<TaskResponse> tsk = new java.util.ArrayList<>();
 		for (Task task : tasks) {
-			tsk.add(new TaskResponse(task.getId(), task.getUser().getUsername(), task.getTitle(), task.getDescription(),
-					task.getCreatedAt()));
+			tsk.add(new TaskResponse(task.getId(), 
+					task.getUser().getUsername(), 
+					task.getTitle(), task.getDescription(),
+					task.getCreatedAt(), task.getStatus(),
+					task.getCompletedAt(), task.getDueDate()));
 		}
 
 		return tsk;
@@ -180,6 +183,7 @@ public class TaskController {
 
 				LocalDateTime completedTime = LocalDateTime.now();
 				last.setEndedAt(completedTime);
+				last.setStatus(Status.COMPLETED);
 				taskDetailRepo.save(last);
 
 				// worked time
@@ -209,6 +213,8 @@ public class TaskController {
 			else if (newStatus == Status.TO_DO) {
 				task.setStatus(Status.TO_DO);
 			}
+		}if(task.getStatus() == Status.COMPLETED && request.getStatus() == Status.IN_PROGRESS) {
+			return ResponseEntity.ok("This Task Already Completed");
 		}
 
 		taskRepository.save(task);
@@ -232,32 +238,29 @@ public class TaskController {
 //
 //		return ResponseEntity.ok("Task added successfully");
 //	}
-	
+
 	@PostMapping("/addtask")
-	public ResponseEntity<?> addTask(
-	        @RequestHeader("Authorization") String authHeader,
-	        @RequestBody TaskRequest request) {
+	public ResponseEntity<?> addTask(@RequestHeader("Authorization") String authHeader,
+			@RequestBody TaskRequest request) {
 
-	    String token = authHeader.substring(7);
-	    Long userId = jwtUtil.extractUserId(token);
+		String token = authHeader.substring(7);
+		Long userId = jwtUtil.extractUserId(token);
 
-	    User user = userRepository.findById(userId)
-	            .orElseThrow(() -> new RuntimeException("User not found"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
-	    Task task = new Task();
-	    task.setTitle(request.getTitle());
-	    task.setDescription(request.getDescription());
-	    task.setCreatedAt(LocalDateTime.now());
-	    task.setUser(user);
+		Task task = new Task();
+		task.setTitle(request.getTitle());
+		task.setDescription(request.getDescription());
+		task.setCreatedAt(LocalDateTime.now());
+		task.setUser(user);
 
-	    // 🔥 IMPORTANT DEFAULTS
-	    task.setStatus(Status.TO_DO);          // ← THIS FIXES NULL
-	    task.setDueDate(request.getDueDate()); // if coming from UI
+		// 🔥 IMPORTANT DEFAULTS
+		task.setStatus(Status.TO_DO); // ← THIS FIXES NULL
+		task.setDueDate(request.getDueDate()); // if coming from UI
 
-	    taskRepository.save(task);
+		taskRepository.save(task);
 
-	    return ResponseEntity.ok("Task added successfully");
+		return ResponseEntity.ok("Task added successfully");
 	}
-
 
 }

@@ -32,7 +32,7 @@ public class Task {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
     
-    private String created_by;
+   // private String created_by;
     
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")

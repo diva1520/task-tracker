@@ -638,3 +638,6 @@ Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The connection wa
 2025-12-27 17:16:28.779085+05:30 jdbc[13]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TASK_DETAILS" not found; SQL statement:
 select * from task_details [42102-240]
+2025-12-29 12:33:49.983640+05:30 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TASK_DETAILS" not found; SQL statement:
+update task_details set status = 'COMPLETED' [42102-240]
