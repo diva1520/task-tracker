@@ -1,5 +1,6 @@
 package com.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -30,7 +31,9 @@ public class Task {
  
     
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
+    
+    
     
    // private String created_by;
     
@@ -39,13 +42,13 @@ public class Task {
     private User user;
    
     @Column(name = "due_date", updatable = false)
-    private LocalDateTime dueDate;
+    private LocalDate dueDate;
     
     
     private Long totalWorkedMinutes;   
     private Boolean completedOnTime;
     private Long delayMinutes;         
-    private LocalDateTime completedAt;
+    private LocalDate completedAt;
 
    
 }

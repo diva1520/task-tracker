@@ -1,5 +1,6 @@
 package com.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
@@ -30,7 +31,7 @@ public class TaskDetail {
 	@Enumerated(EnumType.STRING)
 	private Status status;
 
-	private LocalDateTime startedAt;
-	private LocalDateTime endedAt;
+	private LocalDate startedAt;
+	private LocalDate endedAt;
 
 }

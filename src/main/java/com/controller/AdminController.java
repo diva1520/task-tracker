@@ -1,3 +1,4 @@
+
 package com.controller;
 
 import java.time.LocalDate;
@@ -43,6 +44,13 @@ public class AdminController {
 		return ResponseEntity.ok(service.getTasks(fromDate, toDate, userIds));
 	}
 
+	@PostMapping("/tasks")
+	public ResponseEntity<?> getTask() {
+
+
+		return ResponseEntity.ok(service.getTasks());
+	}
+	
 	@PostMapping("/assign-task")
 	public ResponseEntity<?> addTask(@RequestBody AssignTaskDto request) {
 		return service.assignTask(request);

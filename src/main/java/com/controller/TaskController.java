@@ -1,6 +1,7 @@
 package com.controller;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -64,7 +65,7 @@ public class TaskController {
 		List<TaskResponse> tsk = new java.util.ArrayList<>();
 		for (Task task : tasks) {
 			tsk.add(new TaskResponse(task.getId(), 
-					task.getUser().getUsername(), 
+					task.getUser().getUsername(), task.getUser().getId(),
 					task.getTitle(), task.getDescription(),
 					task.getCreatedAt(), task.getStatus(),
 					task.getCompletedAt(), task.getDueDate()));
@@ -166,7 +167,7 @@ public class TaskController {
 				TaskDetail detail = new TaskDetail();
 				detail.setTask(task);
 				detail.setStatus(Status.IN_PROGRESS);
-				detail.setStartedAt(LocalDateTime.now());
+				detail.setStartedAt(LocalDate.now());
 				taskDetailRepo.save(detail);
 
 				task.setStatus(Status.IN_PROGRESS);
@@ -181,7 +182,7 @@ public class TaskController {
 					return ResponseEntity.badRequest().body("Task not in IN_PROGRESS state");
 				}
 
-				LocalDateTime completedTime = LocalDateTime.now();
+				LocalDate completedTime = LocalDate.now();
 				last.setEndedAt(completedTime);
 				last.setStatus(Status.COMPLETED);
 				taskDetailRepo.save(last);
@@ -251,7 +252,7 @@ public class TaskController {
 		Task task = new Task();
 		task.setTitle(request.getTitle());
 		task.setDescription(request.getDescription());
-		task.setCreatedAt(LocalDateTime.now());
+		task.setCreatedAt(LocalDate.now());
 		task.setUser(user);
 
 		// 🔥 IMPORTANT DEFAULTS

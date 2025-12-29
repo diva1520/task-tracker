@@ -1,6 +1,7 @@
 package com.dto;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.entity.Status;
@@ -16,7 +17,7 @@ public class TaskRequest {
 
     private String title;
     private String description;
-    private LocalDateTime dueDate;
+    private LocalDate dueDate;
     private Status status;
    
 

@@ -1,5 +1,6 @@
 package com.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -14,6 +15,6 @@ public class AssignTaskDto {
     private Long userId;
     private String title;
     private String description;
-    private LocalDateTime dueDate;
+    private LocalDate dueDate;
     
 }

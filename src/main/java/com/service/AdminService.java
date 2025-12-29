@@ -31,11 +31,19 @@ public class AdminService {
 	@Autowired
 	TaskService taskService;
 
-	public List<TaskResponse> getTasks(@NotNull LocalDate fromDate, @NotNull LocalDate toDate, List<Long> userIds) {
+	public List<TaskResponse> getTasks(@NotNull @NotNull LocalDate fromDate, @NotNull @NotNull LocalDate toDate, List<Long> userIds) {
 
 		return taskService.getTasks(fromDate, toDate, userIds);
 
 	}
+	
+	public List<TaskResponse> getTasks() {
+
+		return taskService.getTasks();
+
+	}
+	
+	
 
 	public ResponseEntity<?> assignTask(AssignTaskDto request) {
 		User user = userRepo.findById(request.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
@@ -43,7 +51,7 @@ public class AdminService {
 		Task task = new Task();
 		task.setTitle(request.getTitle());
 		task.setDescription(request.getDescription());
-		task.setCreatedAt(LocalDateTime.now());
+		task.setCreatedAt(LocalDate.now());
 		task.setUser(user);
 		task.setDueDate(request.getDueDate());
 		task.setStatus(Status.TO_DO);

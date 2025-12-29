@@ -1,6 +1,7 @@
 package com.repo;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.entity.Task;
+
+import jakarta.validation.constraints.NotNull;
  
 public interface TaskRepository extends JpaRepository<Task, Long> {
     //List<Task> findByUser_Id(Long userId);
@@ -47,7 +50,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 		    WHERE t.createdAt BETWEEN :fromDate AND :toDate
 		""")
 		List<Task> findByCreatedAtBetween(
-		    @Param("fromDate") LocalDate fromDate,
-		    @Param("toDate") LocalDate toDate
+		    @Param("fromDate") @NotNull @NotNull LocalDate fromDate,
+		    @Param("toDate") @NotNull @NotNull LocalDate toDate
 		);
 }
