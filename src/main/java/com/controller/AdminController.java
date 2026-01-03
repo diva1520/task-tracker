@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dto.AssignTaskDto;
+import com.dto.GetTaskRequest;
 import com.entity.User;
 import com.service.AdminService;
  
@@ -40,14 +41,23 @@ public class AdminController {
 		if (fromDate.isAfter(toDate)) {
 			return ResponseEntity.badRequest().body("fromDate must be before toDate");
 		}
-
 		return ResponseEntity.ok(service.getTasks(fromDate, toDate, userIds));
+	}
+	
+	@PostMapping("/task")
+	public ResponseEntity<?> getAllTasks(@RequestBody GetTaskRequest request) {
+		
+		if(request == null) {
+		return ResponseEntity.ok(service.getTasks());
+		}else {
+			
+			return ResponseEntity.ok(
+					service.getTasks(request.getFromDate(), request.getToDate(), request.getUserIds()));
+		}
 	}
 
 	@PostMapping("/tasks")
 	public ResponseEntity<?> getTask() {
-
-
 		return ResponseEntity.ok(service.getTasks());
 	}
 	
