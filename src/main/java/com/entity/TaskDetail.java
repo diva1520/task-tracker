@@ -38,4 +38,6 @@ public class TaskDetail {
 
 	private LocalDateTime endedAt;
 
+	private String comment;
+
 }

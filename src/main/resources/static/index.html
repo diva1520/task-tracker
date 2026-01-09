@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker | Futuristic Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-orange: #e65100;
+            --accent-orange: #ff9800;
+            --light-bg: #f5f7fa;
+            --white: #ffffff;
+            --text-dark: #2d3748;
+            --text-muted: #718096;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --danger-color: #e53e3e;
+            --success-color: #38a169;
+        }
+
+        [data-theme='dark'] {
+            --light-bg: #0d0f12;
+            --white: #1a1d21;
+            --text-dark: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-light: rgba(255, 255, 255, 0.1);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            --primary-orange: #ff6d00;
+            --accent-orange: #ffab40;
+            --glow-orange: rgba(255, 109, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            line-height: 1.6;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(28, 100%, 74%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(33, 100%, 77%, 0.1) 0px, transparent 50%);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        [data-theme='dark'] body {
+            background-image:
+                radial-gradient(at 0% 0%, hsla(28, 100%, 20%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(33, 100%, 20%, 0.2) 0px, transparent 50%);
+            background-color: var(--light-bg);
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        /* Classy Card Container */
+        .glass,
+        .modal-content,
+        #loginBox {
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme='dark'] .glass,
+        [data-theme='dark'] .modal-content,
+        [data-theme='dark'] #loginBox {
+            background: rgba(26, 29, 33, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass::before,
+        .modal-content::before,
+        #loginBox::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.05),
+                    transparent);
+            transition: 0.5s;
+        }
+
+        .glass:hover::before,
+        .modal-content:hover::before,
+        #loginBox:hover::before {
+            left: 100%;
+        }
+
+        [data-theme='dark'] .glass:hover {
+            box-shadow: 0 0 20px var(--glow-orange);
+            border-color: var(--primary-orange);
+        }
+
+        .glass:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Login Specifics */
+        #loginBox {
+            width: 100%;
+            max-width: 450px;
+            padding: 3rem;
+            text-align: center;
+            z-index: 10;
+        }
+
+        #loginBox h2 {
+            font-size: 2.25rem;
+            color: var(--primary-orange);
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        #loginBox p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        /* Inputs */
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background: var(--white);
+            color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.2);
+            outline: none;
+        }
+
+        [data-theme='dark'] input,
+        [data-theme='dark'] select,
+        [data-theme='dark'] textarea {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-dark);
+        }
+
+        input::placeholder {
+            color: #a0aec0;
+        }
+
+        /* Buttons */
+        button,
+        .add-task-btn,
+        .menu-trigger-btn {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+            letter-spacing: 0.5px;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        button:hover,
+        .add-task-btn:hover,
+        .menu-trigger-btn:hover {
+            background-color: var(--accent-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--glow-orange);
+        }
+
+        [data-theme='dark'] .logout-btn,
+        [data-theme='dark'] .menu-trigger-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-dark);
+        }
+
+        [data-theme='dark'] .logout-btn:hover,
+        [data-theme='dark'] .menu-trigger-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        #loginBox button {
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 1rem;
+        }
+
+        /* Dashboard */
+        #dashboard {
+            display: none;
+            width: 95%;
+            max-width: 1200px;
+            margin: 2rem auto;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logout-btn {
+            background: white;
+            color: var(--danger-color);
+            border: 1px solid var(--border-light);
+            width: auto;
+            margin-top: 0;
+            box-shadow: var(--shadow-sm);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .logout-btn:hover {
+            background: #fff5f5;
+            color: #c53030;
+        }
+
+        /* Menu Button */
+        #adminMenuContainer {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .menu-trigger-btn {
+            background: white;
+            color: var(--text-dark);
+            border: 1px solid var(--border-light);
+            width: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0;
+            clip-path: none;
+        }
+
+        .menu-trigger-btn:hover {
+            background: #f7fafc;
+            color: var(--primary-orange);
+        }
+
+        .admin-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 220px;
+            flex-direction: column;
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .show-admin-menu {
+            display: flex !important;
+        }
+
+        .admin-dropdown a {
+            padding: 0.75rem 1rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .admin-dropdown a:hover {
+            background: #fffaf0;
+            /* Light orange tint */
+            color: var(--primary-orange);
+        }
+
+        /* Profile & Stats */
+        .profile-box-small {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            padding: 1.5rem;
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-item-small {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: #f8fafc;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .profile-item-small b {
+            color: var(--primary-orange);
+            font-weight: 600;
+        }
+
+        /* Tabs */
+        .tab-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+            padding: 0.5rem 1.5rem;
+            margin: 0 0.5rem;
+            box-shadow: none;
+            width: auto;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-orange);
+            background: transparent;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-orange);
+            border-bottom-color: var(--primary-orange);
+        }
+
+        /* Tables */
+        .tasks-box {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            overflow: auto;
+            max-height: 500px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #edf2f7;
+            color: var(--text-dark);
+            vertical-align: middle;
+            background: transparent;
+            /* Reset */
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover td {
+            background: var(--light-bg);
+            transition: background 0.2s;
+        }
+
+        [data-theme='dark'] th {
+            border-bottom-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+        }
+
+        [data-theme='dark'] td {
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme='dark'] tbody tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Status Badges */
+        .task-status {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: inline-block;
+        }
+
+        .task-status[data-status='TO_DO'] {
+            background: rgba(160, 174, 192, 0.15);
+            color: #718096;
+            border: 1px solid rgba(160, 174, 192, 0.2);
+        }
+
+        .task-status[data-status='IN_PROGRESS'] {
+            background: rgba(66, 153, 225, 0.15);
+            color: #3182ce;
+            border: 1px solid rgba(66, 153, 225, 0.2);
+        }
+
+        .task-status[data-status='REVIEW'] {
+            background: rgba(236, 151, 33, 0.15);
+            color: #dd6b20;
+            border: 1px solid rgba(236, 151, 33, 0.2);
+        }
+
+        .task-status[data-status='COMPLETED'] {
+            background: rgba(72, 187, 120, 0.15);
+            color: #38a169;
+            border: 1px solid rgba(72, 187, 120, 0.2);
+        }
+
+        .task-status[data-status='REASSIGN'] {
+            background: rgba(245, 101, 101, 0.15);
+            color: #e53e3e;
+            border: 1px solid rgba(245, 101, 101, 0.2);
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            /* Soft darken */
+            backdrop-filter: blur(2px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 450px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            border: none;
+        }
+
+        .modal-content h3 {
+            text-align: center;
+            font-size: 1.75rem;
+            margin-top: 0;
+            color: var(--text-dark);
+        }
+
+        .close-x {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            margin: 0;
+            clip-path: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+            z-index: 50;
+        }
+
+        .close-x:hover {
+            color: var(--danger-color);
+            background: #fff5f5;
+            box-shadow: none;
+            transform: none;
+        }
+
+        #error {
+            color: var(--danger-color);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            min-height: 1.5rem;
+            text-align: center;
+        }
+
+        /* Custom Status Config */
+        .status-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            background: #f7fafc;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+
+        .status-item {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .status-item:hover {
+            background: white;
+            color: var(--text-dark);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .status-item input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .status-item:has(input:checked) {
+            background: white;
+            color: var(--primary-orange);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #fed7aa;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Admin Menu -->
+    <div id="adminMenuContainer">
+        <button class="menu-trigger-btn" onclick="toggleAdminMenu()">
+            <span>☰</span> Menu
+        </button>
+        <div id="adminDropdown" class="glass admin-dropdown">
+            <a href="#" onclick="openCreateUserModal()">Create User</a>
+            <a href="#" onclick="openAssignModal()">Assign Task</a>
+        </div>
+    </div>
+
+    <!-- Login -->
+    <div id="loginBox" class="glass">
+        <h2>TASK TRACKER</h2>
+        <p style="color:rgba(255,255,255,0.6); margin-bottom: 20px;">Secure Access Portal</p>
+        <input id="username" placeholder="Username">
+        <input id="password" type="password" placeholder="Password">
+        <button onclick="login()">Enter Dashboard</button>
+        <div id="error"></div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard">
+        <div style="position: fixed; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000;">
+            <button id="themeToggle" class="logout-btn" onclick="toggleTheme()"
+                style="color: var(--primary-orange); margin-top: 0;">
+                🌙 Dark Mode
+            </button>
+            <button id="logoutBtn" class="logout-btn" onclick="logout()" style="margin-top: 0;">Logout</button>
+        </div>
+
+        <!-- Admin View -->
+        <div id="adminPage" style="display:none;">
+            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 10px;">Admin Command Center</h2>
+            <div class="glass profile-box-small">
+                <div class="profile-item-small"><b>ID:</b> <span id="adminUid"></span></div>
+                <div class="profile-item-small"><b>User:</b> <span id="adminUname"></span></div>
+                <div class="profile-item-small"><b>Email:</b> <span id="adminEmail"></span></div>
+                <div class="profile-item-small"><b>Role:</b> <span id="adminRole"></span></div>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 30px;">
+                <button id="tabUserList" class="tab-btn active" onclick="switchTab('userList')">Users</button>
+                <button id="tabTaskList" class="tab-btn" onclick="switchTab('taskList')">Tasks</button>
+            </div>
+
+            <div id="contentUserList">
+                <h3 style="text-align:center;">User Directory (<span id="totalUsers">0</span>)</h3>
+                <div class="glass tasks-box" id="userListBox">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUserBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="contentTaskList" style="display: none;">
+                <div class="glass"
+                    style="padding: 20px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom: 20px;">
+                    <label>From: <input type="date" id="fromDate" style="width:auto; margin:0; padding:10px;"></label>
+                    <label>To: <input type="date" id="toDate" style="width:auto; margin:0; padding:10px;"></label>
+                    <input type="text" id="userIds" placeholder="User IDs (e.g. 1,2)"
+                        style="width:150px; margin:0; padding:10px;">
+                    <button class="add-task-btn" style="width:auto; margin:0; padding: 10px 25px;"
+                        onclick="fetchAdminTasks()">Search</button>
+                    <button id="reviewAllBtn" class="add-task-btn"
+                        style="width:auto; margin:0; padding: 10px 25px; background: linear-gradient(45deg, #11998e, #38ef7d);"
+                        onclick="reviewAllTasks()">Refresh</button>
+                </div>
+
+                <div class="glass tasks-box" id="adminTaskBox" style="display: block;">
+                    <h3 style="text-align:center; margin-bottom: 20px;">Task Overview</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Due Date</th>
+                                <th>Comment</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTaskBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- User View -->
+        <div id="userProfile" style="display:none;">
+            <h2 style="text-align: center; font-size: 2.5rem;">My Workspace</h2>
+            <div class="glass profile-box-small">
+                <div class="profile-item-small"><b>ID:</b> <span id="userUid"></span></div>
+                <div class="profile-item-small"><b>User:</b> <span id="userUname"></span></div>
+                <div class="profile-item-small"><b>Email:</b> <span id="userEmail"></span></div>
+                <div class="profile-item-small"><b>Role:</b> <span id="userRole"></span></div>
+            </div>
+        </div>
+
+        <button id="addTaskBtn" class="add-task-btn" style="display:block; margin: 0 auto 30px; width: 200px;"
+            onclick="openModal()">+ Create New Task</button>
+
+        <div class="glass tasks-box" id="userTaskBox">
+            <h3 style="text-align:center; margin-bottom:20px;">Current Tasks</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Created</th>
+                        <th>Status</th>
+                        <th>Comment</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="taskBody"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- Modals -->
+    <div id="createUserModal" class="modal" style="display:none;"> <!-- Flex via JS -->
+        <div class="modal-content">
+            <button class="close-x" onclick="closeCreateUserModal()">×</button>
+            <h3>Create User</h3>
+            <input id="newUsername" placeholder="Username">
+            <input id="newEmail" placeholder="Email">
+            <input id="newPassword" type="password" placeholder="Password">
+            <select id="newRole" style="background: rgba(0,0,0,0.3);">
+                <option value="ROLE_USER">User</option>
+                <option value="ROLE_ADMIN">Admin</option>
+            </select>
+            <button class="add-task-btn" onclick="submitCreateUser()">Create Account</button>
+        </div>
+    </div>
+
+    <div id="assignTaskModal" class="modal">
+        <div class="modal-content">
+            <button class="close-x" onclick="closeAssignModal()">×</button>
+            <h3>Assign Task</h3>
+            <select id="assignUserId" style="background: rgba(0,0,0,0.3);">
+                <option value="">Select User</option>
+            </select>
+            <input id="assignTitle" placeholder="Title" maxlength="30">
+            <textarea id="assignDesc" placeholder="Description" maxlength="80"
+                style="resize:none; height:80px;"></textarea>
+            <label style="font-size: 13px; text-align: left; display: block; margin-top: 15px; color:#aaa;">Due
+                Date</label>
+            <input type="date" id="assignDueDate" style="margin-top:5px;">
+            <button class="add-task-btn" onclick="submitAssignTask()">Assign</button>
+        </div>
+    </div>
+
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <button class="close-x" onclick="closeModal()">×</button>
+            <h3>New Task</h3>
+            <input id="taskTitle" placeholder="Title (max 30)" maxlength="30">
+            <textarea id="taskDesc" placeholder="Description (max 80)" maxlength="80"
+                style="resize:none; height:80px;"></textarea>
+            <label style="font-size: 13px; text-align: left; display: block; margin-top: 15px; color:#aaa;">Due
+                Date</label>
+            <input type="date" id="taskDueDate" style="margin-top:5px;">
+            <button class="add-task-btn" onclick="addTask()">Add Task</button>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <button class="close-x" onclick="closeEditModal()">×</button>
+            <h3>Update Task</h3>
+            <input id="editTaskTitle" placeholder="Title" maxlength="30">
+            <textarea id="editTaskDesc" placeholder="Description" maxlength="80"
+                style="resize:none; height:80px;"></textarea>
+
+            <div class="status-group">
+                <label class="status-item">
+                    <input type="radio" name="editStatus" value="TO_DO">
+                    <span>To Do</span>
+                </label>
+                <label class="status-item">
+                    <input type="radio" name="editStatus" value="IN_PROGRESS">
+                    <span>In Progress</span>
+                </label>
+                <label class="status-item">
+                    <input type="radio" name="editStatus" value="REVIEW">
+                    <span>Review</span>
+                </label>
+                <label class="status-item">
+                    <input type="radio" name="editStatus" value="COMPLETED">
+                    <span>Completed</span>
+                </label>
+                <label class="status-item" id="reassignStatusItem" style="display:none;">
+                    <input type="radio" name="editStatus" value="REASSIGN">
+                    <span>Reassign</span>
+                </label>
+            </div>
+
+            <div id="reassignSection" style="display:none; margin-top: 1rem;">
+                <label
+                    style="font-size: 13px; text-align: left; display: block; color: var(--primary-orange); font-weight: 500;">
+                    Assign to User <span style="color: var(--danger-color);">*</span>
+                </label>
+                <select id="reassignUserId" style="background: var(--white); border: 1px solid var(--border-light);">
+                    <option value="">Select User</option>
+                </select>
+            </div>
+
+            <div id="commentSection" style="display:none; margin-top: 1rem; transition: all 0.3s ease;">
+                <label
+                    style="font-size: 13px; text-align: left; display: block; color: var(--primary-orange); font-weight: 500;">
+                    Comment <span style="color: var(--danger-color);">*</span>
+                </label>
+                <textarea id="editTaskComment" placeholder="Reason for status change..." maxlength="200"
+                    style="resize:none; height:80px; margin-top: 5px;"></textarea>
+            </div>
+
+            <button class="add-task-btn" onclick="updateTask()">Save Changes</button>
+        </div>
+    </div>
+
+    <script>
+        /**********************************************
+         * THEME LOGIC
+         **********************************************/
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const btn = document.getElementById("themeToggle");
+            if (!btn) return;
+            if (theme === 'dark') {
+                btn.innerHTML = "☀️ Light Mode";
+            } else {
+                btn.innerHTML = "🌙 Dark Mode";
+            }
+        }
+
+        initTheme();
+
+        /**********************************************
+         * LOGIC PRESERVED FROM ORIGINAL
+         **********************************************/
+
+        let token = "";
+        let editTaskId = "";
+        let originalStatus = "";
+        let adminUsersList = []; // Store users for reassign dropdown
+
+        // Prettier status labels
+        const statusLabels = {
+            'TO_DO': 'To Do',
+            'IN_PROGRESS': 'In Progress',
+            'REVIEW': 'Under Review',
+            'COMPLETED': 'Completed',
+            'REASSIGN': 'Reassigned'
+        };
+
+        // Status Logic
+        function applyStatusRules(role, currentStatus, isReassigned) {
+            originalStatus = currentStatus;
+            const radios = document.getElementsByName("editStatus");
+            // reset display
+            radios.forEach(r => {
+                const label = r.closest('label'); // Get the label wrapping the input
+                r.checked = false;
+                if (label) label.style.display = "none";
+            });
+
+            if (role === "ROLE_USER") {
+                if (currentStatus === "TO_DO" || currentStatus === "REASSIGN") {
+                    showStatus("IN_PROGRESS");
+                } else if (currentStatus === "IN_PROGRESS") {
+                    showStatus("REVIEW");
+                }
+            } else if (role === "ROLE_ADMIN") {
+                if (currentStatus === "REVIEW") {
+                    showStatus("COMPLETED");
+                    if (!isReassigned) {
+                        showStatus("REASSIGN");
+                    }
+                }
+            }
+
+            // Always show current status as an option (except REASSIGN for non-admins)
+            if (role === "ROLE_ADMIN" || currentStatus !== "REASSIGN") {
+                showStatus(currentStatus);
+            }
+        }
+
+        function showStatus(value) {
+            document.querySelectorAll('input[name="editStatus"]').forEach(r => {
+                if (r.value === value) {
+                    const label = r.closest('label');
+                    if (label) label.style.display = "block"; // or flex
+                }
+            });
+        }
+
+        function checkCommentRequirement() {
+            const statusInput = document.querySelector('input[name="editStatus"]:checked');
+            if (!statusInput) return;
+            const newStatus = statusInput.value;
+            const commentSection = document.getElementById("commentSection");
+            const reassignSection = document.getElementById("reassignSection");
+
+            // Hide comment section for:
+            // 1. No change in status
+            // 2. REVIEW -> COMPLETED
+            // 3. Any status -> COMPLETED (as per new request: "task completed nu select pannuna comment manditory kedyadhu")
+            let skipComment = (newStatus === originalStatus) ||
+                (originalStatus === "REVIEW" && newStatus === "COMPLETED") ||
+                (newStatus === "COMPLETED");
+
+            if (newStatus === "REASSIGN") {
+                skipComment = false; // "reassifgn pana comment kudukra maari panni kudu"
+                reassignSection.style.display = "block";
+            } else {
+                reassignSection.style.display = "none";
+            }
+
+            if (skipComment) {
+                commentSection.style.display = "none";
+                // Don't clear comment if it was user-entered, but we'll clear it for consistency
+                if (newStatus === "COMPLETED") document.getElementById("editTaskComment").value = "";
+            } else {
+                commentSection.style.display = "block";
+            }
+        }
+
+        // Attach event listeners to radios
+        document.addEventListener("change", function (e) {
+            if (e.target && e.target.name === "editStatus") {
+                checkCommentRequirement();
+            }
+        });
+
+        // TABS
+        function switchTab(tabName) {
+            const userContent = document.getElementById("contentUserList");
+            const taskContent = document.getElementById("contentTaskList");
+            const userBtn = document.getElementById("tabUserList");
+            const taskBtn = document.getElementById("tabTaskList");
+
+            if (tabName === 'userList') {
+                userContent.style.display = "block";
+                taskContent.style.display = "none";
+                userBtn.classList.add("active");
+                taskBtn.classList.remove("active");
+                loadAdminUsers();
+            } else {
+                userContent.style.display = "none";
+                taskContent.style.display = "block";
+                userBtn.classList.remove("active");
+                taskBtn.classList.add("active");
+                reviewAllTasks();
+            }
+        }
+
+        // DATES
+        function setCurrentMonthDates() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const fromInput = document.getElementById("fromDate");
+            const toInput = document.getElementById("toDate");
+            if (fromInput) fromInput.value = formatDateForInput(firstDay);
+            if (toInput) toInput.value = formatDateForInput(lastDay);
+        }
+
+        function reviewAllTasks() {
+            setCurrentMonthDates();
+            document.getElementById("userIds").value = "";
+            fetchAdminTasks();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            setCurrentMonthDates();
+            initTheme(); // Ensure button text is correct
+        });
+
+        function formatDateForInput(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        // API
+        const BASE_URL = "http://192.168.1.5:8080";
+
+        async function fetchAdminTasks() {
+            const from = document.getElementById("fromDate").value;
+            const to = document.getElementById("toDate").value;
+            const userIdsInput = document.getElementById("userIds").value.trim();
+
+            if (!from || !to) { alert("Select From and To dates"); return; }
+
+            const userIdArray = userIdsInput !== ""
+                ? userIdsInput.split(',').map(id => Number(id.trim()))
+                : [];
+
+            const searchData = { fromDate: from, toDate: to, userIds: userIdArray };
+            const url = `${BASE_URL}/admin/task`;
+
+            try {
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+                    body: JSON.stringify(searchData)
+                });
+                if (!res.ok) throw new Error("Failed to fetch tasks");
+
+                const tasks = await res.json();
+                const tbody = document.getElementById("adminTaskBody");
+                tbody.innerHTML = "";
+
+                if (!Array.isArray(tasks) || tasks.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:30px;'>No tasks found.</td></tr>";
+                } else {
+                    tasks.forEach(t => {
+                        const formatDate = (d) => d ? d.split('T')[0] : "-";
+                        const displayStatus = statusLabels[t.status] || t.status;
+                        tbody.innerHTML += `
+                        <tr data-id="${t.id}" data-reassigned="${t.reassigned || false}">
+                            <td>
+                                <b>${t.userName || "Unknown"}</b><br>
+                                <span style="font-size:11px; color:#aaa;">ID: ${t.userId || ""}</span>
+                            </td>
+                            <td class="task-title" style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">${t.title || ""}
+                                <div class="task-desc" style="display:none;">${t.description || ""}</div>
+                            </td>
+                            <td><span class="task-status" data-status="${t.status}">${displayStatus}</span></td>
+                            <td>${formatDate(t.dueDate)}</td>
+                            <td style="max-width:150px; font-size:12px; color:#718096; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.comment || ''}">${t.comment || "-"}</td>
+                            <td>
+                                <button onclick="openEditModal('${t.id}')" 
+                                    style="padding:8px 15px; border:none; border-radius:8px; background:linear-gradient(45deg, #ff9966, #ff5e62); cursor:pointer; font-size:12px; margin:0; width:auto; box-shadow:none;">
+                                    Manage
+                                </button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+            } catch (e) { console.error("Display error:", e); }
+        }
+
+        async function login() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const error = document.getElementById("error");
+            error.innerText = "";
+
+            try {
+                const res = await fetch(`${BASE_URL}/auth/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+                if (!res.ok) throw new Error("Invalid Credentials");
+                const data = await res.json();
+                token = data.token;
+                await loadProfile();
+                document.getElementById("loginBox").style.display = "none";
+                document.getElementById("dashboard").style.display = "block";
+            } catch (e) {
+                error.innerText = e.message;
+                // Add shake animation
+                const box = document.getElementById("loginBox");
+                box.style.transform = "translateX(10px)";
+                setTimeout(() => box.style.transform = "translateX(-10px)", 100);
+                setTimeout(() => box.style.transform = "none", 200);
+            }
+        }
+
+        async function loadProfile() {
+            const res = await fetch(`${BASE_URL}/user/profile`, {
+                headers: { Authorization: "Bearer " + token }
+            });
+            const user = await res.json();
+
+            // Fill Data
+            const fill = (p, obj) => {
+                document.getElementById(`${p}Uid`).innerText = obj.userId || "";
+                document.getElementById(`${p}Uname`).innerText = obj.username || "";
+                document.getElementById(`${p}Email`).innerText = obj.email || "";
+                document.getElementById(`${p}Role`).innerText = obj.role || "";
+            };
+
+            if (user.role === "ROLE_ADMIN") {
+                document.getElementById("adminMenuContainer").style.display = "block";
+                document.getElementById("adminPage").style.display = "block";
+                document.getElementById("addTaskBtn").style.display = "none";
+                document.getElementById("userProfile").style.display = "none";
+                document.getElementById("userTaskBox").style.display = "none";
+                fill("admin", user);
+                loadAdminUsers();
+            } else {
+                document.getElementById("adminMenuContainer").style.display = "none";
+                document.getElementById("adminPage").style.display = "none";
+                document.getElementById("userProfile").style.display = "block";
+                document.getElementById("addTaskBtn").style.display = "block";
+                document.getElementById("userTaskBox").style.display = "block";
+                fill("user", user);
+                loadTasks();
+            }
+        }
+
+        async function loadTasks() {
+            try {
+                const res = await fetch(`${BASE_URL}/user/tasks`, {
+                    headers: { Authorization: "Bearer " + token }
+                });
+                const tasks = await res.json();
+                const tbody = document.getElementById("taskBody");
+                tbody.innerHTML = "";
+                if (!tasks || tasks.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>No tasks found. Enjoy your day!</td></tr>";
+                    return;
+                }
+                tasks.forEach(t => {
+                    const displayStatus = statusLabels[t.status] || t.status;
+                    tbody.innerHTML += `
+                    <tr data-id="${t.id}">
+                        <td class="task-title" style="font-weight:600;">${t.title || ""}</td>
+                        <td class="task-desc" style="color:#ccc;">${t.description || ""}</td>
+                        <td>${t.createdAt ? t.createdAt.split('T')[0] : ""}</td>
+                        <td><span class="task-status" data-status="${t.status}">${displayStatus}</span></td>
+                        <td style="max-width:150px; font-size:12px; color:#718096; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.comment || ''}">${t.comment || "-"}</td>
+                        <td>
+                            <button onclick="openEditModal('${t.id}')" 
+                                style="padding:6px 12px; border:none; border-radius:6px; background:rgba(255,193,7,0.8); cursor:pointer; font-size:12px; margin:0; width:auto; color:black;">
+                                Edit
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function updateTask() {
+            const title = document.getElementById("editTaskTitle").value.trim();
+            const description = document.getElementById("editTaskDesc").value.trim();
+            const statusInput = document.querySelector('input[name="editStatus"]:checked');
+
+            if (!statusInput) { alert("Please select task status"); return; }
+            if (!title || !description || !editTaskId) { alert("All fields are required"); return; }
+
+            const status = statusInput.value;
+            const body = { title, description, status };
+            const commentSection = document.getElementById("commentSection");
+            const reassignSection = document.getElementById("reassignSection");
+            const comment = document.getElementById("editTaskComment").value.trim();
+
+            if (status === "REASSIGN") {
+                const newUserId = document.getElementById("reassignUserId").value;
+                if (!newUserId) { alert("Please select a user to reassign to"); return; }
+                body.userId = Number(newUserId);
+            }
+
+            if (commentSection.style.display !== "none") {
+                if (!comment) {
+                    alert("A comment is required for this action!");
+                    document.getElementById("editTaskComment").focus();
+                    return;
+                }
+                body.comment = comment;
+            }
+
+            try {
+                const res = await fetch(`${BASE_URL}/user/tasks/${editTaskId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify(body)
+                });
+
+                if (res.ok) {
+                    await loadTasks();
+                    // If Admin called this from task list, refresh that too
+                    if (document.getElementById("adminPage").style.display === "block") {
+                        fetchAdminTasks();
+                    }
+                    closeEditModal();
+                } else if (res.status === 401) {
+                    alert("Session expired. Please login again.");
+                } else {
+                    const error = await res.text();
+                    alert("Update failed: " + error);
+                }
+            } catch (err) { alert("Server error: " + err.message); }
+        }
+
+        function openEditModal(id) {
+            editTaskId = id;
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            const title = row.querySelector(".task-title").innerText;
+            const desc = row.querySelector(".task-desc").innerText;
+            const currentStatus = row.querySelector(".task-status").getAttribute("data-status") || row.querySelector(".task-status").innerText.trim();
+
+            document.getElementById("editTaskTitle").value = title;
+            document.getElementById("editTaskDesc").value = desc;
+            document.getElementById("editTaskComment").value = ""; // Clear for new edit
+
+            // Reliable role detection
+            const isAdmin = document.getElementById("adminPage").style.display !== "none";
+            const isReassigned = row.getAttribute("data-reassigned") === "true";
+            const role = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";
+
+            applyStatusRules(role, currentStatus, isReassigned);
+
+            // Determine which status to check by default
+            let statusToSelect = currentStatus;
+            if (role === "ROLE_USER" && currentStatus === "REASSIGN") {
+                statusToSelect = "IN_PROGRESS";
+            }
+
+            const radios = document.getElementsByName("editStatus");
+            radios.forEach(r => {
+                if (r.value === statusToSelect) {
+                    r.checked = true;
+                }
+            });
+
+            checkCommentRequirement();
+
+            const reassignSelect = document.getElementById("reassignUserId");
+            if (reassignSelect && isAdmin) {
+                reassignSelect.innerHTML = '<option value="">Select User</option>';
+                adminUsersList.forEach(u => {
+                    if (u.role === "ROLE_USER") {
+                        const option = document.createElement("option");
+                        option.value = u.id;
+                        option.textContent = `${u.username} (${u.email})`;
+                        reassignSelect.appendChild(option);
+                    }
+                });
+            } else if (reassignSelect) {
+                reassignSelect.innerHTML = "";
+            }
+
+            document.getElementById("editModal").style.display = "flex";
+        }
+
+        async function addTask() {
+            const title = document.getElementById("taskTitle").value.trim();
+            const desc = document.getElementById("taskDesc").value.trim();
+            const date = document.getElementById("taskDueDate").value;
+            if (!title || !desc || !date) { alert("Fill all fields"); return; }
+            try {
+                const res = await fetch(`${BASE_URL}/user/tasks/addtask`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                    body: JSON.stringify({ title, description: desc, dueDate: date })
+                });
+                if (res.ok) { closeModal(); await loadTasks(); }
+            } catch (e) { alert(e.message); }
+        }
+
+        // Modals
+        function openModal() { document.getElementById("taskModal").style.display = "flex"; }
+        function closeModal() {
+            document.getElementById("taskModal").style.display = "none";
+            document.getElementById("taskTitle").value = "";
+            document.getElementById("taskDesc").value = "";
+            document.getElementById("taskDueDate").value = "";
+        }
+        function closeEditModal() {
+            document.getElementById("editModal").style.display = "none";
+            document.getElementById("editTaskComment").value = "";
+            editTaskId = "";
+        }
+        function logout() { location.reload(); }
+
+        // Admin Stuff
+        async function loadAdminUsers() {
+            try {
+                const res = await fetch(`${BASE_URL}/admin/users`, { headers: { Authorization: "Bearer " + token } });
+                const users = await res.json();
+                adminUsersList = users; // Store for edit modal
+                document.getElementById("totalUsers").innerText = users.length;
+                const tbody = document.getElementById("adminUserBody");
+                tbody.innerHTML = "";
+                const assignSelect = document.getElementById("assignUserId");
+                assignSelect.innerHTML = '<option value="">Select User</option>';
+
+                users.forEach(u => {
+                    tbody.innerHTML += `<tr><td>${u.id}</td><td>${u.username}</td><td>${u.email}</td><td>${u.role}</td></tr>`;
+                    if (u.role === "ROLE_USER") {
+                        const option = document.createElement("option");
+                        option.value = u.id;
+                        option.textContent = `${u.username} (${u.email})`;
+                        assignSelect.appendChild(option);
+                    }
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function toggleAdminMenu() {
+            document.getElementById("adminDropdown").classList.toggle("show-admin-menu");
+        }
+
+        function openCreateUserModal() { document.getElementById("createUserModal").style.display = "flex"; }
+        function closeCreateUserModal() { document.getElementById("createUserModal").style.display = "none"; }
+        function openAssignModal() { document.getElementById("assignTaskModal").style.display = "flex"; }
+
+        function closeAssignModal() {
+            document.getElementById("assignTaskModal").style.display = "none";
+            document.getElementById("assignUserId").value = "";
+            document.getElementById("assignTitle").value = "";
+            document.getElementById("assignDesc").value = "";
+            document.getElementById("assignDueDate").value = "";
+        }
+
+        async function submitCreateUser() {
+            const username = document.getElementById("newUsername").value.trim();
+            const email = document.getElementById("newEmail").value.trim();
+            const password = document.getElementById("newPassword").value.trim();
+            const role = document.getElementById("newRole").value;
+            if (!username || !email || !password) { alert("Please fill all fields"); return; }
+            try {
+                const res = await fetch(`${BASE_URL}/admin/create-user`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                    body: JSON.stringify({ username, email, password, role })
+                });
+                if (!res.ok) throw new Error(await res.text());
+                alert("User created!");
+                closeCreateUserModal();
+                loadAdminUsers();
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function submitAssignTask() {
+            const userId = document.getElementById("assignUserId").value;
+            const title = document.getElementById("assignTitle").value.trim();
+            const description = document.getElementById("assignDesc").value.trim();
+            const dueDate = document.getElementById("assignDueDate").value;
+            if (!userId || !title || !description || !dueDate) { alert("Fill all fields"); return; }
+            try {
+                const res = await fetch(`${BASE_URL}/admin/assign-task`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                    body: JSON.stringify({ userId: Number(userId), title, description, dueDate })
+                });
+                if (res.ok) {
+                    alert("Task assigned!");
+                    closeAssignModal();
+                    fetchAdminTasks();
+                } else {
+                    alert("Error: " + await res.text());
+                }
+            } catch (e) { alert("Error: " + e.message); }
+        }
+    </script>
+</body>
+
+</html>

@@ -3,8 +3,8 @@ package com.service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,47 +24,46 @@ import com.util.JwtUtil;
 
 import jakarta.validation.constraints.NotNull;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@Transactional
 public class TaskService {
 
 	private final TaskRepository taskRepository;
-
 	private final JwtUtil jwtUtil;
-
 	private final UserRepository userRepository;
-
 	private final TaskDetailRepository taskDetailRepo;
+	private final EmailService mailService;
 
-	public TaskService(TaskRepository taskRepository, JwtUtil jwtUtil, UserRepository userRepository,
-			TaskDetailRepository taskDetailRepo) {
+	public TaskService(EmailService mailService, TaskRepository taskRepository, JwtUtil jwtUtil,
+			UserRepository userRepository, TaskDetailRepository taskDetailRepo) {
 		this.taskRepository = taskRepository;
 		this.jwtUtil = jwtUtil;
 		this.userRepository = userRepository;
 		this.taskDetailRepo = taskDetailRepo;
+		this.mailService = mailService;
 	}
 
-	public List<TaskResponse> getTasks(@NotNull @NotNull LocalDate fromDate, @NotNull @NotNull LocalDate toDate,
-			List<Long> userIds) {
-
+	public List<TaskResponse> getTasks(@NotNull LocalDate fromDate, @NotNull LocalDate toDate, List<Long> userIds) {
 		List<Task> tasks;
-
 		if (userIds == null || userIds.isEmpty()) {
 			tasks = taskRepository.findByCreatedAtBetween(fromDate, toDate);
 		} else {
 			tasks = taskRepository.findByUserIdInAndCreatedAtBetween(userIds, fromDate, toDate);
 		}
-
 		return tasks.stream().map(TaskResponse::fromEntity).toList();
 	}
 
 	public List<TaskResponse> getTasks() {
-
 		List<Task> tasks = taskRepository.findAll();
-
 		return tasks.stream().map(TaskResponse::fromEntity).toList();
 	}
 
 	public ResponseEntity<?> addTask(String authHeader, TaskRequest request) {
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			return ResponseEntity.status(401).body("Missing or invalid Authorization header");
+		}
 		String token = authHeader.substring(7);
 		Long userId = jwtUtil.extractUserId(token);
 
@@ -75,10 +74,8 @@ public class TaskService {
 		task.setDescription(request.getDescription());
 		task.setCreatedAt(LocalDate.now());
 		task.setUser(user);
-
-		// 🔥 IMPORTANT DEFAULTS
-		task.setStatus(Status.TO_DO); // ← THIS FIXES NULL
-		task.setDueDate(request.getDueDate()); // if coming from UI
+		task.setStatus(Status.TO_DO);
+		task.setDueDate(request.getDueDate());
 
 		if (taskRepository.save(task) != null) {
 			return ResponseEntity.ok("Task added successfully");
@@ -88,215 +85,200 @@ public class TaskService {
 	}
 
 	public ResponseEntity<?> editTaskDetails(Long taskId, String authHeader, TaskRequest request) {
-
-		System.out.println(taskId);
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			return ResponseEntity.status(401).body("Missing or invalid Authorization header");
+		}
 		String token = authHeader.substring(7);
 		Long loggedInUserId = jwtUtil.extractUserId(token);
-		String role = jwtUtil.extractRole(token); // ROLE_USER / ROLE_ADMIN
+		String role = jwtUtil.extractRole(token);
 
 		Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
-		System.out.println(task.getStatus());
 
-		// USER can edit only own task
+		// Security Check: USER can edit only their own tasks
 		if ("ROLE_USER".equals(role) && !task.getUser().getId().equals(loggedInUserId)) {
 			return ResponseEntity.status(403).body("You are not allowed to edit this task");
 		}
 
-		if (request.getTitle() != null) {
+		// Update fields if provided
+		if (request.getTitle() != null)
 			task.setTitle(request.getTitle());
-		}
-
-		if (request.getDescription() != null) {
+		if (request.getDescription() != null)
 			task.setDescription(request.getDescription());
-		}
+		if (request.getComment() != null)
+			task.setComment(request.getComment());
 
-		if (request.getStatus() != null) {
-
-			Status oldStatus = task.getStatus();
-			Status newStatus = request.getStatus();
-
-			/* ================= USER FLOW ================= */
-			if ("ROLE_USER".equals(role)) {
-
-				// TO_DO → IN_PROGRESS
-				if (oldStatus == Status.TO_DO && newStatus == Status.IN_PROGRESS) {
-
-					TaskDetail detail = new TaskDetail();
-					detail.setTask(task);
-					detail.setStatus(Status.IN_PROGRESS);
-					detail.setStartedAt(LocalDateTime.now());
-					taskDetailRepo.save(detail);
-
-					task.setStatus(Status.IN_PROGRESS);
-				}
-
-				// IN_PROGRESS → REVIEW
-				else if (oldStatus == Status.IN_PROGRESS && newStatus == Status.REVIEW) {
-					task.setStatus(Status.REVIEW);
-				}
-
-				// ❌ USER cannot complete
-				else {
-					return ResponseEntity.status(403).body("User not allowed to change to this status");
-				}
-			}
-
-			/* ================= ADMIN FLOW ================= */
-			else if ("ROLE_ADMIN".equals(role)) {
-
-				// REVIEW → COMPLETED
-				// REVIEW → COMPLETED
-				if (oldStatus == Status.REVIEW && newStatus == Status.COMPLETED) {
-
-					Optional<TaskDetail> in = taskDetailRepo.findByTask_Id(task.getId());
-
-					TaskDetail inProgress;
-
-					if (in.isPresent()) {
-						inProgress = in.get();
-					} else {
-						inProgress = null;
-					}
-
-					if (inProgress == null || inProgress.getEndedAt() != null) {
-						return ResponseEntity.badRequest().body("Task not in IN_PROGRESS state");
-					}
-
-					inProgress.setEndedAt(LocalDateTime.now());
-					taskDetailRepo.save(inProgress);
-
-					Duration worked = Duration.between(inProgress.getStartedAt(), inProgress.getEndedAt());
-
-					long minutes = Math.max(1, worked.toMinutes());
-
-					task.setTotalWorkedMinutes(minutes);
-					task.setCompletedAt(LocalDate.now());
-					task.setStatus(Status.COMPLETED);
-				}
-
-				else {
-					return ResponseEntity.status(403).body("Admin not allowed to change to this status");
-				}
-			}
+		// Handle status change logic
+		if (request.getStatus() != null && request.getStatus() != task.getStatus()) {
+			return handleStatusChange(task, request, role, loggedInUserId);
 		}
 
 		taskRepository.save(task);
 		return ResponseEntity.ok("Task updated successfully");
 	}
 
-//	public ResponseEntity<?> editTaskDetails(Long taskId, String authHeader, TaskRequest request) {
-//	    String token = authHeader.substring(7);
-//	    Long loggedInUserId = jwtUtil.extractUserId(token);
-//
-//	    Task task = taskRepository.findById(taskId)
-//	            .orElseThrow(() -> new RuntimeException("Task not found"));
-//
-//	    if (!task.getUser().getId().equals(loggedInUserId)) {
-//	        return ResponseEntity.status(403).body("You are not allowed to edit this task");
-//	    }
-//
-//	    if (request.getTitle() != null) {
-//	        task.setTitle(request.getTitle());
-//	    }
-//
-//	    if (request.getDescription() != null) {
-//	        task.setDescription(request.getDescription());
-//	    }
-//
-//	    if (request.getStatus() != null) {
-//
-//	        Status oldStatus = task.getStatus();
-//	        Status newStatus = request.getStatus();
-//
-//	        // TO_DO → IN_PROGRESS
-//	        if (oldStatus == Status.TO_DO && newStatus == Status.IN_PROGRESS) {
-//	            TaskDetail detail = new TaskDetail();
-//	            detail.setTask(task);
-//	            detail.setStatus(Status.IN_PROGRESS);
-//	            detail.setStartedAt(LocalDateTime.now());
-//	            taskDetailRepo.save(detail);
-//
-//	            task.setStatus(Status.IN_PROGRESS);
-//	        }
-//
-//	        // IN_PROGRESS → COMPLETED
-//	        else if (oldStatus == Status.IN_PROGRESS && newStatus == Status.COMPLETED) {
-//	            TaskDetail last = taskDetailRepo.findLatestInProgress(task.getId());
-//	            if (last == null) {
-//	                return ResponseEntity.badRequest().body("Task not in IN_PROGRESS state");
-//	            }
-//
-//	            LocalDate completedDate = LocalDate.now();
-//	            last.setEndedAt(LocalDateTime.now());
-//	            last.setStatus(Status.COMPLETED);
-//	            
-//
-//	            // ✅ Worked time in minutes
-//	            Duration worked = Duration.between(
-//	                    last.getStartedAt(),
-//	                    last.getEndedAt()
-//	            );
-//                taskDetailRepo.save(last);
-//	            task.setTotalWorkedMinutes(worked.toMinutes());
-//	            task.setCompletedAt(completedDate);
-//
-//	            // 🔥 DUE DATE CHECK
-//	            if (task.getDueDate() != null) {
-//	                LocalDateTime dueDateTime = task.getDueDate().atStartOfDay();
-//	                LocalDateTime completedDateTime = completedDate.atStartOfDay();
-//
-//	                if (!completedDateTime.isAfter(dueDateTime)) {
-//	                    task.setCompletedOnTime(true);
-//	                    task.setDelayMinutes(0L);
-//	                } else {
-//	                    task.setCompletedOnTime(false);
-//	                    Duration delay = Duration.between(dueDateTime, completedDateTime);
-//	                    task.setDelayMinutes(delay.toMinutes());
-//	                }
-//	            }
-//
-//	            task.setStatus(Status.COMPLETED);
-//	            
-//	            taskRepository.save(task);
-//	        }
-//
-//	        // direct TO_DO
-//	        else if (newStatus == Status.TO_DO) {
-//	            task.setStatus(Status.TO_DO);
-//	        }
-//	    }
-//
-//	    if (task.getStatus() == Status.COMPLETED && request.getStatus() == Status.IN_PROGRESS) {
-//	        return ResponseEntity.ok("This Task Already Completed");
-//	    }
-//
-//	    if (taskRepository.save(task) != null) {
-//	        return ResponseEntity.ok("Task updated successfully");
-//	    } else {
-//	        return ResponseEntity.status(500).body("Failed to update task");
-//	    }
-//	}
+	private ResponseEntity<?> handleStatusChange(Task task, TaskRequest request, String role, Long loggedInUserId) {
+		Status oldStatus = task.getStatus();
+		Status newStatus = request.getStatus();
+
+		if ("ROLE_USER".equals(role)) {
+			// Rules for USER
+			if ((oldStatus == Status.TO_DO || oldStatus == Status.REASSIGN) && newStatus == Status.IN_PROGRESS) {
+				if (request.getComment() == null || request.getComment().isBlank()) {
+					return ResponseEntity.badRequest().body("Comment is mandatory when moving to IN_PROGRESS");
+				}
+				startTaskDetail(task, Status.IN_PROGRESS, request.getComment());
+			} else if (oldStatus == Status.IN_PROGRESS && newStatus == Status.REVIEW) {
+				if (request.getComment() == null || request.getComment().isBlank()) {
+					return ResponseEntity.badRequest().body("Comment is mandatory when moving to REVIEW");
+				}
+				stopTaskDetail(task, request.getComment());
+				task.setStatus(Status.REVIEW);
+			} else {
+				return ResponseEntity.status(403).body("User not allowed to perform this status transition");
+			}
+		} else if ("ROLE_ADMIN".equals(role)) {
+			// Rules for ADMIN
+			if (newStatus == Status.REASSIGN) {
+				if (oldStatus != Status.REVIEW) {
+					return ResponseEntity.status(403).body("Only tasks in REVIEW status can be reassigned");
+				}
+
+				if (taskDetailRepo.existsByTask_IdAndStatus(task.getId(), Status.REASSIGN)) {
+					return ResponseEntity.badRequest()
+							.body("Task has already been reassigned once. Cannot reassign again.");
+				}
+
+				if (request.getComment() == null || request.getComment().isBlank()) {
+					return ResponseEntity.badRequest().body("Comment is mandatory for reassigning");
+				}
+				if (request.getUserId() == null) {
+					return ResponseEntity.badRequest().body("New User ID is required for reassignment");
+				}
+				User newUser = userRepository.findById(request.getUserId())
+						.orElseThrow(() -> new RuntimeException("Target user not found"));
+				if ("ROLE_ADMIN".equals(newUser.getRole())) {
+					return ResponseEntity.badRequest().body("Tasks cannot be reassigned to Admins");
+				}
+				task.setUser(newUser);
+				task.setAssignedBy(loggedInUserId); // Update assignedBy to the admin who reassigned it
+				startTaskDetail(task, Status.REASSIGN, request.getComment()); // Save history
+				task.setStatus(Status.REASSIGN); // Set to REASSIGN instead of TO_DO
+			} else if (oldStatus == Status.REVIEW && newStatus == Status.COMPLETED) {
+				stopTaskDetail(task, request.getComment());
+				task.setCompletedAt(LocalDate.now());
+				task.setStatus(Status.COMPLETED);
+				calculateDelay(task);
+			} else {
+				return ResponseEntity.status(403).body("Admin not allowed to perform this status transition");
+			}
+		}
+
+		taskRepository.save(task);
+		notifyParties(task, oldStatus, newStatus, loggedInUserId); // Notify BOTH User and Admin
+		return ResponseEntity.ok("Task status updated to " + task.getStatus());
+	}
+
+	private void startTaskDetail(Task task, Status status, String comment) {
+		TaskDetail detail = new TaskDetail();
+		detail.setTask(task);
+		detail.setStatus(status);
+		detail.setStartedAt(LocalDateTime.now());
+		detail.setComment(comment);
+		taskDetailRepo.save(detail);
+		task.setStatus(status);
+	}
+
+	private void stopTaskDetail(Task task, String comment) {
+		List<TaskDetail> details = taskDetailRepo.findLatestInProgress(task.getId());
+		if (!details.isEmpty()) {
+			TaskDetail inProgress = details.get(0);
+			if (inProgress.getEndedAt() == null) {
+				inProgress.setEndedAt(LocalDateTime.now());
+				if (comment != null) {
+					inProgress.setComment(comment);
+				}
+				taskDetailRepo.save(inProgress);
+
+				long minutes = Math.max(1,
+						Duration.between(inProgress.getStartedAt(), inProgress.getEndedAt()).toMinutes());
+				task.setTotalWorkedMinutes(
+						(task.getTotalWorkedMinutes() != null ? task.getTotalWorkedMinutes() : 0) + minutes);
+			}
+		}
+	}
+
+	private void calculateDelay(Task task) {
+		if (task.getDueDate() != null && task.getCompletedAt() != null) {
+			if (!task.getCompletedAt().isAfter(task.getDueDate())) {
+				task.setCompletedOnTime(true);
+				task.setDelayMinutes(0L);
+			} else {
+				task.setCompletedOnTime(false);
+				long delay = Duration.between(task.getDueDate().atStartOfDay(), task.getCompletedAt().atStartOfDay())
+						.toMinutes();
+				task.setDelayMinutes(delay);
+			}
+		}
+	}
+
+	private void notifyParties(Task task, Status oldStatus, Status newStatus, Long loggedInUserId) {
+		if (task.getAssignedBy() == null)
+			return;
+
+		User actor = userRepository.findById(loggedInUserId).orElse(null);
+		String actorName = actor != null ? actor.getUsername() : "System";
+
+		userRepository.findById(task.getAssignedBy()).ifPresent(admin -> {
+			String subject = "🔄 Task Alert: " + task.getTitle() + " [" + newStatus + "]";
+			String statusUpdateMsg = "The task status has been updated.";
+
+			if (newStatus == Status.REASSIGN) {
+				statusUpdateMsg = "The task has been reassigned to <strong>" + task.getUser().getUsername()
+						+ "</strong>.";
+			} else if (newStatus == Status.COMPLETED) {
+				statusUpdateMsg = "The task has been successfully completed.";
+			} else if (newStatus == Status.REVIEW) {
+				statusUpdateMsg = "The task has been submitted for review.";
+			} else if (newStatus == Status.IN_PROGRESS) {
+				statusUpdateMsg = "Work has started on the task.";
+			}
+
+			String emailBody = "<html><body style='font-family: Arial; line-height:1.6;'>"
+					+ "<h2 style='color:#E67E22;'>Task Update: " + task.getTitle() + "</h2>"
+					+ "<p>Hi,</p>"
+					+ "<p>" + statusUpdateMsg + "</p>"
+					+ "<table style='border-collapse: collapse; width:100%;'>"
+					+ row("Task Title", task.getTitle())
+					+ row("Description", task.getDescription() != null ? task.getDescription() : "-")
+					+ row("Due Date", task.getDueDate() != null ? task.getDueDate().toString() : "-")
+					+ row("Status Change", oldStatus + " ➡️ " + newStatus)
+					+ row("Updated By", actorName)
+					+ row("Comment", task.getComment() != null ? task.getComment() : "-")
+					+ row("Updated On", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a")))
+					+ "</table>"
+					+ "<p style='margin-top:20px;'>Please log in to the portal for more details.</p>"
+					+ "<p>Thanks,<br/>Task Management Team</p>"
+					+ "</body></html>";
+
+			// Send to Admin
+			mailService.sendMail(admin.getEmail(), subject, emailBody);
+			// Send to User
+			mailService.sendMail(task.getUser().getEmail(), subject, emailBody);
+		});
+	}
 
 	public List<TaskResponse> viewTasks(Authentication authentication) {
 		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-
 		List<Task> tasks = taskRepository.fetchTasks(user.getUserId());
-
-		List<TaskResponse> taskResponses = mapToTaskResponses(tasks);
-
-		System.out.println("Tasks for user " + user.getUsername() + ": " + taskResponses);
-
-		return taskResponses;
+		return mapToTaskResponses(tasks);
 	}
 
 	private List<TaskResponse> mapToTaskResponses(List<Task> tasks) {
-		List<TaskResponse> tsk = new java.util.ArrayList<>();
-		for (Task task : tasks) {
-			tsk.add(new TaskResponse(task.getId(), task.getUser().getUsername(), task.getUser().getId(),
-					task.getTitle(), task.getDescription(), task.getCreatedAt(), task.getStatus(),
-					task.getCompletedAt(), task.getDueDate()));
-		}
+		return tasks.stream().map(TaskResponse::fromEntity).toList();
+	}
 
-		return tsk;
+	private String row(String key, String value) {
+		return "<tr><td style='border:1px solid #ddd;padding:8px;'><b>" + key + "</b></td>"
+				+ "<td style='border:1px solid #ddd;padding:8px;'>" + value + "</td></tr>";
 	}
 }

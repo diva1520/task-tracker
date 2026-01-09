@@ -28,28 +28,26 @@ public class Task {
     private String title;
     private String description;
     private Status status;
- 
-    
+
     @Column(name = "created_at", updatable = false)
     private LocalDate createdAt;
-    
-    
-    
-   // private String created_by;
-    
+
+    private Long assignedBy;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
-   
+
     @Column(name = "due_date", updatable = false)
     private LocalDate dueDate;
-    
-    
-    private Long totalWorkedMinutes;   
+
+    private Long totalWorkedMinutes;
     private Boolean completedOnTime;
-    private Long delayMinutes;         
+    private Long delayMinutes;
     private LocalDate completedAt;
+    private String comment;
 
-   
+    @jakarta.persistence.OneToMany(mappedBy = "task", fetch = FetchType.EAGER)
+    private java.util.List<TaskDetail> history;
+
 }
-

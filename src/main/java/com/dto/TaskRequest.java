@@ -1,6 +1,5 @@
 package com.dto;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -19,6 +18,7 @@ public class TaskRequest {
     private String description;
     private LocalDate dueDate;
     private Status status;
-   
+    private Long userId;
+    private String comment;
 
 }

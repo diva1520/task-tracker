@@ -1,4 +1,3 @@
-
 package com.controller;
 
 import java.time.LocalDate;
@@ -6,6 +5,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,6 @@ import com.dto.AssignTaskDto;
 import com.dto.GetTaskRequest;
 import com.entity.User;
 import com.service.AdminService;
- 
 
 import jakarta.validation.constraints.NotNull;
 
@@ -26,8 +26,9 @@ import jakarta.validation.constraints.NotNull;
 @RequestMapping("/admin")
 @CrossOrigin(origins = "*")
 public class AdminController {
+
 	@Autowired
-	AdminService service;
+	private AdminService service;
 
 	@GetMapping("/users")
 	public List<User> getAllUsers() {
@@ -43,33 +44,25 @@ public class AdminController {
 		}
 		return ResponseEntity.ok(service.getTasks(fromDate, toDate, userIds));
 	}
-	
+
 	@PostMapping("/task")
-	public ResponseEntity<?> getAllTasks(@RequestBody GetTaskRequest request) {
-		
-		if(request == null) {
-		return ResponseEntity.ok(service.getTasks());
-		}else {
-			
-			return ResponseEntity.ok(
-					service.getTasks(request.getFromDate(), request.getToDate(), request.getUserIds()));
+	public ResponseEntity<?> getAllTasks(@RequestBody(required = false) GetTaskRequest request) {
+		if (request == null || (request.getFromDate() == null && request.getToDate() == null)) {
+			return ResponseEntity.ok(service.getTasks());
 		}
+		return ResponseEntity.ok(service.getTasks(request.getFromDate(), request.getToDate(), request.getUserIds()));
 	}
 
-	@PostMapping("/tasks")
-	public ResponseEntity<?> getTask() {
-		return ResponseEntity.ok(service.getTasks());
-	}
-	
 	@PostMapping("/assign-task")
-	public ResponseEntity<?> addTask(@RequestBody AssignTaskDto request) {
-		return service.assignTask(request);
+	public ResponseEntity<?> assignTask(@RequestBody AssignTaskDto request) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String username = auth.getName();
+		Long adminId = service.getUserIdByUsername(username).getId();
+		return service.assignTask(request, adminId);
 	}
 
 	@PostMapping("/create-user")
-	public ResponseEntity<?> postMethodName(@RequestBody User user) {
-
+	public ResponseEntity<?> createUser(@RequestBody User user) {
 		return service.createUser(user);
 	}
-
 }
