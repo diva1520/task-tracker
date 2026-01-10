@@ -67,9 +67,17 @@ public class JwtFilter extends OncePerRequestFilter {
 //    }
     
     
+//    @Override
+//    protected boolean shouldNotFilter(HttpServletRequest request) {
+//        return request.getServletPath().equals("/auth/login");
+//    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getServletPath().equals("/auth/login");
+        String path = request.getServletPath();
+        return path.equals("/auth/login")
+            || path.equals("/auth/logout")
+            || path.startsWith("/h2-console");
     }
 
     @Override
@@ -96,7 +104,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 
         // 🔥 LOGIN API & H2 SKIP
-        if (path.equals("/auth/login") || path.startsWith("/h2-console")) {
+        if (path.equals("/auth/login") || path.equals("/auth/logout")|| path.startsWith("/h2-console")) {
             chain.doFilter(request, response);
             return;
         }

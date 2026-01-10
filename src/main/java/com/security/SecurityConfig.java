@@ -63,7 +63,8 @@ public class SecurityConfig {
 				                "/js/**",
 				                "/images/**",
 				                "/index.html",
-				                "/auth/login", 
+				                "/auth/login",
+				                "/auth/logout", 
 				                "/h2-console/**")
                         .permitAll()
                         .requestMatchers("/admin/**")

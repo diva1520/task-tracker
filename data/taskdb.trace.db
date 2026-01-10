@@ -2391,3 +2391,6 @@ select td1_0.id from task_detail td1_0 where td1_0.task_id=? and td1_0.status=? 
 2026-01-09 10:10:32.365213+05:30 jdbc[4]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TASK" not found; SQL statement:
 select t1_0.id,t1_0.assigned_by,t1_0.comment,t1_0.completed_at,t1_0.completed_on_time,t1_0.created_at,t1_0.delay_minutes,t1_0.description,t1_0.due_date,t1_0.status,t1_0.title,t1_0.total_worked_minutes,t1_0.user_id from task t1_0 where t1_0.user_id=? [42102-240]
+2026-01-10 17:16:40.117301+05:30 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USER_AUDIT_LOG" not found; SQL statement:
+select * from user_audit_log [42102-240]

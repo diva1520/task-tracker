@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Tracker | Futuristic Dashboard</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✔️</text></svg>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap');
 
@@ -394,14 +396,17 @@
 
         /* Tables */
         .tasks-box {
-            background: white;
+            background: var(--white);
             border: 1px solid var(--border-light);
             border-radius: 12px;
             box-shadow: var(--shadow-md);
             padding: 1.5rem;
             margin-bottom: 2rem;
-            overflow: auto;
+            overflow-y: auto;
+            overflow-x: hidden;
             max-height: 500px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-orange) transparent;
         }
 
         table {
@@ -624,9 +629,11 @@
     <div id="loginBox" class="glass">
         <h2>TASK TRACKER</h2>
         <p style="color:rgba(255,255,255,0.6); margin-bottom: 20px;">Secure Access Portal</p>
-        <input id="username" placeholder="Username">
-        <input id="password" type="password" placeholder="Password">
-        <button onclick="login()">Enter Dashboard</button>
+        <form onsubmit="event.preventDefault(); login();">
+            <input id="username" placeholder="Username" required autocomplete="username">
+            <input id="password" type="password" placeholder="Password" required autocomplete="current-password">
+            <button type="submit">Enter Dashboard</button>
+        </form>
         <div id="error"></div>
     </div>
 
@@ -653,10 +660,17 @@
             <div style="text-align: center; margin-bottom: 30px;">
                 <button id="tabUserList" class="tab-btn active" onclick="switchTab('userList')">Users</button>
                 <button id="tabTaskList" class="tab-btn" onclick="switchTab('taskList')">Tasks</button>
+                <button id="tabAuditList" class="tab-btn" onclick="switchTab('auditList')">Activity</button>
             </div>
 
             <div id="contentUserList">
-                <h3 style="text-align:center;">User Directory (<span id="totalUsers">0</span>)</h3>
+                <div
+                    style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px;">
+                    <h3 style="margin:0;">User Directory (<span id="totalUsers">0</span>)</h3>
+                    <button class="add-task-btn"
+                        style="width:auto; margin:0; padding: 8px 20px; background: linear-gradient(45deg, #11998e, #38ef7d);"
+                        onclick="loadAdminUsers()">Refresh List</button>
+                </div>
                 <div class="glass tasks-box" id="userListBox">
                     <table>
                         <thead>
@@ -665,6 +679,8 @@
                                 <th>Username</th>
                                 <th>Email</th>
                                 <th>Role</th>
+                                <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="adminUserBody"></tbody>
@@ -703,6 +719,33 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Audit Tab Content -->
+            <div id="contentAuditList" style="display: none;">
+                <div
+                    style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px;">
+                    <h3 style="margin:0;">System Activity Log</h3>
+                    <button class="add-task-btn"
+                        style="width:auto; margin:0; padding: 8px 20px; background: linear-gradient(45deg, #11998e, #38ef7d);"
+                        onclick="loadAuditLogs()">Refresh Activity</button>
+                </div>
+                <div class="glass tasks-box">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Today's Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminAuditBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
         </div>
 
         <!-- User View -->
@@ -720,7 +763,12 @@
             onclick="openModal()">+ Create New Task</button>
 
         <div class="glass tasks-box" id="userTaskBox">
-            <h3 style="text-align:center; margin-bottom:20px;">Current Tasks</h3>
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin:0;">Current Tasks</h3>
+                <button class="add-task-btn"
+                    style="width:auto; margin:0; padding: 8px 20px; background: linear-gradient(45deg, #11998e, #38ef7d);"
+                    onclick="loadTasks()">Refresh Tasks</button>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -839,6 +887,37 @@
         </div>
     </div>
 
+    <!-- User Audit Modal -->
+    <div id="userAuditModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="close-x" onclick="closeAuditModal()">×</button>
+            <h3 id="auditModalTitle">User Activity</h3>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <div
+                    style="flex: 1; background: var(--glow-orange); padding: 15px; border-radius: 8px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Today's Time</span><br>
+                    <b id="todayDuration" style="font-size: 1.2rem; color: var(--primary-orange);">0 min</b>
+                </div>
+                <div
+                    style="flex: 1; background: var(--glow-orange); padding: 15px; border-radius: 8px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Total Online Time</span><br>
+                    <b id="allTimeDuration" style="font-size: 1.2rem; color: var(--primary-orange);">0 min</b>
+                </div>
+            </div>
+            <div class="tasks-box" style="max-height: 300px; padding: 0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Login Time</th>
+                            <th>Logout Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userAuditBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
         /**********************************************
          * THEME LOGIC
@@ -886,6 +965,19 @@
             'COMPLETED': 'Completed',
             'REASSIGN': 'Reassigned'
         };
+
+        function formatDuration(totalMinutes) {
+            if (totalMinutes === 0) return "0 min";
+            if (totalMinutes > 0 && totalMinutes < 1) return "< 1 min";
+
+            const totalMinRounded = Math.round(totalMinutes);
+            const hours = Math.floor(totalMinRounded / 60);
+            const mins = totalMinRounded % 60;
+
+            if (hours === 0) return `${mins} min`;
+            if (mins === 0) return `${hours}h`;
+            return `${hours}h ${mins}m`;
+        }
 
         // Status Logic
         function applyStatusRules(role, currentStatus, isReassigned) {
@@ -970,21 +1062,27 @@
         function switchTab(tabName) {
             const userContent = document.getElementById("contentUserList");
             const taskContent = document.getElementById("contentTaskList");
+            const auditContent = document.getElementById("contentAuditList");
             const userBtn = document.getElementById("tabUserList");
             const taskBtn = document.getElementById("tabTaskList");
+            const auditBtn = document.getElementById("tabAuditList");
+
+            // Reset all
+            [userContent, taskContent, auditContent].forEach(c => { if (c) c.style.display = "none"; });
+            [userBtn, taskBtn, auditBtn].forEach(b => { if (b) b.classList.remove("active"); });
 
             if (tabName === 'userList') {
                 userContent.style.display = "block";
-                taskContent.style.display = "none";
                 userBtn.classList.add("active");
-                taskBtn.classList.remove("active");
                 loadAdminUsers();
-            } else {
-                userContent.style.display = "none";
+            } else if (tabName === 'taskList') {
                 taskContent.style.display = "block";
-                userBtn.classList.remove("active");
                 taskBtn.classList.add("active");
                 reviewAllTasks();
+            } else if (tabName === 'auditList') {
+                auditContent.style.display = "block";
+                auditBtn.classList.add("active");
+                loadAuditLogs();
             }
         }
 
@@ -1007,9 +1105,24 @@
             fetchAdminTasks();
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", async function () {
             setCurrentMonthDates();
             initTheme(); // Ensure button text is correct
+
+            // Session Check: If token exists in sessionStorage, auto-login
+            const savedToken = sessionStorage.getItem("token");
+            if (savedToken) {
+                token = savedToken;
+                try {
+                    await loadProfile();
+                    document.getElementById("loginBox").style.display = "none";
+                    document.getElementById("dashboard").style.display = "block";
+                } catch (e) {
+                    console.error("Auto-login failed:", e);
+                    sessionStorage.removeItem("token");
+                    token = "";
+                }
+            }
         });
 
         function formatDateForInput(date) {
@@ -1020,7 +1133,7 @@
         }
 
         // API
-        const BASE_URL = "http://192.168.1.5:8080";
+        const BASE_URL = window.location.origin;
 
         async function fetchAdminTasks() {
             const from = document.getElementById("fromDate").value;
@@ -1049,7 +1162,7 @@
                 tbody.innerHTML = "";
 
                 if (!Array.isArray(tasks) || tasks.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:30px;'>No tasks found.</td></tr>";
+                    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px;'>No tasks found.</td></tr>";
                 } else {
                     tasks.forEach(t => {
                         const formatDate = (d) => d ? d.split('T')[0] : "-";
@@ -1093,6 +1206,7 @@
                 if (!res.ok) throw new Error("Invalid Credentials");
                 const data = await res.json();
                 token = data.token;
+                sessionStorage.setItem("token", token);
                 await loadProfile();
                 document.getElementById("loginBox").style.display = "none";
                 document.getElementById("dashboard").style.display = "block";
@@ -1148,13 +1262,13 @@
                 const tbody = document.getElementById("taskBody");
                 tbody.innerHTML = "";
                 if (!tasks || tasks.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>No tasks found. Enjoy your day!</td></tr>";
+                    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center'>No tasks found. Enjoy your day!</td></tr>";
                     return;
                 }
                 tasks.forEach(t => {
                     const displayStatus = statusLabels[t.status] || t.status;
                     tbody.innerHTML += `
-                    <tr data-id="${t.id}">
+                    <tr data-id="${t.id}" data-reassigned="${t.reassigned || false}">
                         <td class="task-title" style="font-weight:600;">${t.title || ""}</td>
                         <td class="task-desc" style="color:#ccc;">${t.description || ""}</td>
                         <td>${t.createdAt ? t.createdAt.split('T')[0] : ""}</td>
@@ -1239,6 +1353,15 @@
             const isReassigned = row.getAttribute("data-reassigned") === "true";
             const role = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";
 
+            // Permission Fix: Regular users cannot edit title/desc
+            if (role === "ROLE_USER") {
+                document.getElementById("editTaskTitle").disabled = true;
+                document.getElementById("editTaskDesc").disabled = true;
+            } else {
+                document.getElementById("editTaskTitle").disabled = false;
+                document.getElementById("editTaskDesc").disabled = false;
+            }
+
             applyStatusRules(role, currentStatus, isReassigned);
 
             // Determine which status to check by default
@@ -1302,22 +1425,84 @@
             document.getElementById("editTaskComment").value = "";
             editTaskId = "";
         }
-        function logout() { location.reload(); }
+        async function logout() {
+            try {
+                await fetch(`${BASE_URL}/auth/logout`, {
+                    method: "POST",
+                    headers: { "Authorization": "Bearer " + token }
+                });
+            } catch (e) { console.error("Logout error:", e); }
+            sessionStorage.removeItem("token");
+            location.reload();
+        }
 
         // Admin Stuff
         async function loadAdminUsers() {
             try {
-                const res = await fetch(`${BASE_URL}/admin/users`, { headers: { Authorization: "Bearer " + token } });
-                const users = await res.json();
-                adminUsersList = users; // Store for edit modal
+                // Fetch Users
+                const uRes = await fetch(`${BASE_URL}/admin/users`, { headers: { Authorization: "Bearer " + token } });
+                const users = await uRes.json();
+
+                // Fetch Audit Logs to calculate stats
+                const aRes = await fetch(`${BASE_URL}/admin/audit`, { headers: { Authorization: "Bearer " + token } });
+                const allLogs = await aRes.json();
+
+                // Group logs by user
+                const logMap = {};
+                allLogs.forEach(l => {
+                    if (!logMap[l.userId]) logMap[l.userId] = [];
+                    logMap[l.userId].push(l);
+                });
+
+                adminUsersList = users;
                 document.getElementById("totalUsers").innerText = users.length;
                 const tbody = document.getElementById("adminUserBody");
                 tbody.innerHTML = "";
                 const assignSelect = document.getElementById("assignUserId");
                 assignSelect.innerHTML = '<option value="">Select User</option>';
 
+                const startOfToday = new Date();
+                startOfToday.setHours(0, 0, 0, 0);
+                const now = new Date();
+
                 users.forEach(u => {
-                    tbody.innerHTML += `<tr><td>${u.id}</td><td>${u.username}</td><td>${u.email}</td><td>${u.role}</td></tr>`;
+                    let totalToday = 0;
+                    let currentStatus = 'LOGOUT';
+
+                    const uLogs = logMap[u.id] || [];
+                    uLogs.forEach(l => {
+                        const lDate = l.loginTime ? l.loginTime.split('T')[0] : "";
+
+                        const start = new Date(l.loginTime);
+                        const end = l.logoutTime ? new Date(l.logoutTime) : (l.status === 'ACTIVE' ? now : start);
+                        const durationMinutes = (end - start) / (1000 * 60);
+
+                        if (start >= startOfToday) {
+                            totalToday += durationMinutes;
+                        }
+                        if (l.status === 'ACTIVE') currentStatus = 'ACTIVE';
+                    });
+
+                    // Round for display
+                    const totalTodayDisplay = totalToday > 0 && totalToday < 1 ? "< 1" : Math.round(totalToday);
+
+                    const statusStyle = currentStatus === 'ACTIVE' ? 'color:#38a169; font-weight:700;' : 'color:#718096;';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${u.id}</td>
+                            <td><b>${u.username}</b></td>
+                            <td>${u.email}</td>
+                            <td>${u.role}</td>
+                            <td><span style="${statusStyle}">${currentStatus}</span></td>
+                            <td>
+                                <button onclick="openUserAudit('${u.id}', '${u.username}')" 
+                                    style="padding:4px 10px; font-size:11px; width:auto; margin:0; background:var(--primary-orange);">
+                                    View Details
+                                </button>
+                            </td>
+                        </tr>`;
+
                     if (u.role === "ROLE_USER") {
                         const option = document.createElement("option");
                         option.value = u.id;
@@ -1383,6 +1568,134 @@
                     alert("Error: " + await res.text());
                 }
             } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function loadAuditLogs() {
+            const tbody = document.getElementById("adminAuditBody");
+            tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Analyzing activity...</td></tr>";
+
+            try {
+                const res = await fetch(`${BASE_URL}/admin/audit`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                const allLogs = await res.json();
+
+                // Group by userId
+                const groups = {};
+                allLogs.forEach(log => {
+                    if (!groups[log.userId]) groups[log.userId] = {
+                        username: log.username,
+                        logs: [],
+                        todayMinutes: 0,
+                        status: 'LOGOUT'
+                    };
+                    groups[log.userId].logs.push(log);
+                });
+
+                const startOfToday = new Date();
+                startOfToday.setHours(0, 0, 0, 0);
+                const now = new Date();
+
+                tbody.innerHTML = "";
+
+                Object.keys(groups).forEach(userId => {
+                    const user = groups[userId];
+                    let currentStatus = 'LOGOUT';
+                    let totalToday = 0;
+
+                    user.logs.forEach(l => {
+                        const start = new Date(l.loginTime);
+                        const end = l.logoutTime ? new Date(l.logoutTime) : (l.status === 'ACTIVE' ? now : start);
+                        const durationMinutes = (end - start) / (1000 * 60);
+
+                        if (start >= startOfToday) {
+                            totalToday += durationMinutes;
+                        }
+
+                        if (l.status === 'ACTIVE') currentStatus = 'ACTIVE';
+                    });
+
+                    const totalTodayDisplay = formatDuration(totalToday);
+                    const statusStyle = currentStatus === 'ACTIVE' ? 'color:#38a169; font-weight:700;' : 'color:#718096;';
+                    const row = document.createElement("tr");
+                    row.style.cursor = "pointer";
+                    row.innerHTML = `
+                        <td><b>${user.username}</b><br><span style="font-size:10px; color:#aaa;">ID: ${userId}</span></td>
+                        <td><span style="color:var(--primary-orange); font-weight:600;">${totalTodayDisplay}</span></td>
+                        <td><span style="${statusStyle}">${currentStatus}</span></td>
+                    `;
+                    row.onclick = () => openUserAudit(userId, user.username);
+                    tbody.appendChild(row);
+                });
+
+                if (Object.keys(groups).length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>No activity recorded</td></tr>";
+                }
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red;'>Error loading data</td></tr>";
+            }
+        }
+
+        async function openUserAudit(userId, username) {
+            document.getElementById("auditModalTitle").innerText = `Activity: ${username}`;
+            document.getElementById("userAuditModal").style.display = "flex";
+            const tbody = document.getElementById("userAuditBody");
+            const todayDurationEl = document.getElementById("todayDuration");
+            const allTimeDurationEl = document.getElementById("allTimeDuration");
+
+            tbody.innerHTML = "<tr><td colspan='2' style='text-align:center'>Loading...</td></tr>";
+            todayDurationEl.innerText = "0 min";
+            allTimeDurationEl.innerText = "0 min";
+
+            try {
+                const res = await fetch(`${BASE_URL}/admin/audit/${userId}`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                const logs = await res.json();
+                tbody.innerHTML = "";
+
+                if (!logs || logs.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:20px;'>No logs found</td></tr>";
+                    return;
+                }
+
+                logs.sort((a, b) => new Date(b.loginTime) - new Date(a.loginTime));
+
+                const startOfToday = new Date();
+                startOfToday.setHours(0, 0, 0, 0);
+                const now = new Date();
+                let todayTotalMinutes = 0;
+                let allTimeTotalMinutes = 0;
+
+                logs.forEach(log => {
+                    const start = new Date(log.loginTime);
+                    const end = log.logoutTime ? new Date(log.logoutTime) : (log.status === 'ACTIVE' ? now : start);
+                    const durationMinutes = (end - start) / (1000 * 60);
+
+                    allTimeTotalMinutes += durationMinutes;
+                    if (start >= startOfToday) {
+                        todayTotalMinutes += durationMinutes;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="font-size:12px;">${log.loginTime ? log.loginTime.replace('T', ' ').split('.')[0] : '-'}</td>
+                            <td style="font-size:12px;">${log.logoutTime ? log.logoutTime.replace('T', ' ').split('.')[0] : '-'}</td>
+                        </tr>
+                    `;
+                });
+
+                todayDurationEl.innerText = formatDuration(todayTotalMinutes);
+                allTimeDurationEl.innerText = formatDuration(allTimeTotalMinutes);
+            } catch (e) {
+                console.error("Audit load error:", e);
+                tbody.innerHTML = "<tr><td colspan='2' style='text-align:center; color:red;'>Error loading logs</td></tr>";
+            }
+        }
+
+        function closeAuditModal() {
+            document.getElementById("userAuditModal").style.display = "none";
         }
     </script>
 </body>

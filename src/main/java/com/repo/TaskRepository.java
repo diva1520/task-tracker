@@ -47,6 +47,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 			    WHERE t.createdAt BETWEEN :fromDate AND :toDate
 			""")
 	List<Task> findByCreatedAtBetween(
-			@Param("fromDate") @NotNull @NotNull LocalDate fromDate,
-			@Param("toDate") @NotNull @NotNull LocalDate toDate);
+			@Param("fromDate") @NotNull LocalDate fromDate,
+			@Param("toDate") @NotNull LocalDate toDate);
 }

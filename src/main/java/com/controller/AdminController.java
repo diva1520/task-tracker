@@ -65,4 +65,14 @@ public class AdminController {
 	public ResponseEntity<?> createUser(@RequestBody User user) {
 		return service.createUser(user);
 	}
+
+	@GetMapping("/audit")
+	public ResponseEntity<?> getAuditLogs() {
+		return ResponseEntity.ok(service.getAuditLogs());
+	}
+
+	@GetMapping("/audit/{userId}")
+	public ResponseEntity<?> getUserAuditLogs(@org.springframework.web.bind.annotation.PathVariable Long userId) {
+		return ResponseEntity.ok(service.getUserAuditLogs(userId));
+	}
 }

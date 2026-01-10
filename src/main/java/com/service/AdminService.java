@@ -29,12 +29,15 @@ public class AdminService {
 	private UserRepository userRepo;
 
 	@Autowired
+	private com.repo.UserLoginAuditRepository auditRepo;
+
+	@Autowired
 	private TaskService taskService;
 
 	@Autowired
 	private EmailService mailService;
 
-	public List<TaskResponse> getTasks(@NotNull @NotNull LocalDate fromDate, @NotNull @NotNull LocalDate toDate,
+	public List<TaskResponse> getTasks(@NotNull LocalDate fromDate, @NotNull LocalDate toDate,
 			List<Long> userIds) {
 
 		return taskService.getTasks(fromDate, toDate, userIds);
@@ -92,6 +95,8 @@ public class AdminService {
 
 		if (!validateUser(user)) {
 			return ResponseEntity.badRequest().body("Invalid User Data");
+		} else if (userRepo.findByUsername(user.getUsername()).isPresent()) {
+			return ResponseEntity.badRequest().body("Username already exists");
 		} else {
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 			user.setPassword(encoder.encode(user.getPassword()));
@@ -126,6 +131,14 @@ public class AdminService {
 	public User getUserIdByUsername(String username) {
 		return userRepo.findByUsername(username)
 				.orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+	}
+
+	public List<com.entity.UserLoginAudit> getAuditLogs() {
+		return auditRepo.findAll();
+	}
+
+	public List<com.entity.UserLoginAudit> getUserAuditLogs(Long userId) {
+		return auditRepo.findByUserId(userId);
 	}
 
 }
