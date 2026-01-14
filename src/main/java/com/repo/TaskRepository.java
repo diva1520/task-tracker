@@ -49,4 +49,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 	List<Task> findByCreatedAtBetween(
 			@Param("fromDate") @NotNull LocalDate fromDate,
 			@Param("toDate") @NotNull LocalDate toDate);
+
+	List<Task> findByUserId(Long userId);
+
+	boolean existsByUserId(Long userId);
 }

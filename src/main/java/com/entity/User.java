@@ -1,4 +1,4 @@
- package com.entity;
+package com.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -31,6 +31,8 @@ public class User {
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
+
+	private Boolean active = true;
 
 	public String getRole() {
 		return role.name();

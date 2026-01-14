@@ -71,8 +71,35 @@ public class AdminController {
 		return ResponseEntity.ok(service.getAuditLogs());
 	}
 
+	@GetMapping("/work-logs")
+	public ResponseEntity<?> getWorkLogs() {
+		return ResponseEntity.ok(service.getWorkLogs());
+	}
+
 	@GetMapping("/audit/{userId}")
 	public ResponseEntity<?> getUserAuditLogs(@org.springframework.web.bind.annotation.PathVariable Long userId) {
 		return ResponseEntity.ok(service.getUserAuditLogs(userId));
+	}
+
+	@GetMapping("/work-logs/{userId}")
+	public ResponseEntity<?> getUserWorkLogs(@org.springframework.web.bind.annotation.PathVariable Long userId) {
+		return ResponseEntity.ok(service.getUserWorkLogs(userId));
+	}
+
+	@PostMapping("/users/{id}/status")
+	public ResponseEntity<?> updateUserStatus(@org.springframework.web.bind.annotation.PathVariable Long id,
+			@RequestParam boolean active) {
+		// Need to implement this in service
+		return service.updateUserStatus(id, active);
+	}
+
+	@GetMapping("/users/{id}/stats")
+	public ResponseEntity<?> getUserStats(@org.springframework.web.bind.annotation.PathVariable Long id) {
+		return ResponseEntity.ok(service.getUserTaskStats(id));
+	}
+
+	@GetMapping("/summary")
+	public ResponseEntity<?> getAdminSummary() {
+		return ResponseEntity.ok(service.getAdminSummary());
 	}
 }

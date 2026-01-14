@@ -35,14 +35,17 @@ public class TaskService {
 	private final UserRepository userRepository;
 	private final TaskDetailRepository taskDetailRepo;
 	private final EmailService mailService;
+	private final com.repo.WorkLogRepository workLogRepo;
 
 	public TaskService(EmailService mailService, TaskRepository taskRepository, JwtUtil jwtUtil,
-			UserRepository userRepository, TaskDetailRepository taskDetailRepo) {
+			UserRepository userRepository, TaskDetailRepository taskDetailRepo,
+			com.repo.WorkLogRepository workLogRepo) {
 		this.taskRepository = taskRepository;
 		this.jwtUtil = jwtUtil;
 		this.userRepository = userRepository;
 		this.taskDetailRepo = taskDetailRepo;
 		this.mailService = mailService;
+		this.workLogRepo = workLogRepo;
 	}
 
 	public List<TaskResponse> getTasks(@NotNull LocalDate fromDate, @NotNull LocalDate toDate, List<Long> userIds) {
@@ -275,6 +278,51 @@ public class TaskService {
 
 	private List<TaskResponse> mapToTaskResponses(List<Task> tasks) {
 		return tasks.stream().map(TaskResponse::fromEntity).toList();
+	}
+
+	public ResponseEntity<?> logWork(String authHeader, com.dto.WorkLogRequest request) {
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			return ResponseEntity.status(401).body("Missing or invalid Authorization header");
+		}
+		String token = authHeader.substring(7);
+		Long userId = jwtUtil.extractUserId(token);
+		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+		Task task = taskRepository.findById(request.getTaskId())
+				.orElseThrow(() -> new RuntimeException("Task not found"));
+
+		if (!task.getUser().getId().equals(userId)) {
+			return ResponseEntity.status(403).body("You can only log work for your own tasks");
+		}
+
+		com.entity.WorkLog log = new com.entity.WorkLog();
+		log.setTask(task);
+		log.setUser(user);
+		log.setStartTime(request.getStartTime());
+		log.setEndTime(request.getEndTime());
+
+		if (request.getStartTime() != null && request.getEndTime() != null) {
+			long minutes = Duration.between(request.getStartTime(), request.getEndTime()).toMinutes();
+			log.setDurationMinutes(Math.max(0, minutes));
+
+			// Update total worked minutes on task
+			task.setTotalWorkedMinutes(
+					(task.getTotalWorkedMinutes() == null ? 0 : task.getTotalWorkedMinutes()) + minutes);
+			taskRepository.save(task);
+		}
+
+		log.setComment(request.getComment());
+
+		workLogRepo.save(log);
+
+		if (request.getStatus() != null && request.getStatus() != task.getStatus()) {
+			TaskRequest tr = new TaskRequest();
+			tr.setStatus(request.getStatus());
+			tr.setComment(request.getComment());
+			return handleStatusChange(task, tr, user.getRole(), userId);
+		}
+
+		return ResponseEntity.ok("Work logged successfully");
 	}
 
 	private String row(String key, String value) {

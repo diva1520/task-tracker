@@ -29,6 +29,7 @@ public class TaskDetail {
 
 	@ManyToOne
 	@JoinColumn(name = "task_id")
+	@com.fasterxml.jackson.annotation.JsonIgnore
 	private Task task;
 
 	@Enumerated(EnumType.STRING)

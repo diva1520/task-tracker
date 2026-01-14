@@ -8,249 +8,170 @@
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✔️</text></svg>">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap');
 
         * {
             box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         :root {
-            --primary-orange: #e65100;
-            --accent-orange: #ff9800;
-            --light-bg: #f5f7fa;
-            --white: #ffffff;
-            --text-dark: #2d3748;
-            --text-muted: #718096;
-            --border-light: #e2e8f0;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --primary: #f97316;
+            --primary-light: #fb923c;
+            --primary-dark: #ea580c;
+            --accent: #fbbf24;
+            --bg-main: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-sidebar: rgba(255, 255, 255, 0.95);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: rgba(226, 232, 240, 0.8);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --danger-color: #e53e3e;
-            --success-color: #38a169;
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --danger: #ef4444;
+            --success: #10b981;
+            --radius-md: 12px;
+            --radius-lg: 20px;
         }
 
         [data-theme='dark'] {
-            --light-bg: #0d0f12;
-            --white: #1a1d21;
-            --text-dark: #f1f5f9;
+            --primary: #fb923c;
+            --primary-light: #fdba74;
+            --primary-dark: #f97316;
+            --bg-main: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-sidebar: rgba(15, 23, 42, 0.9);
+            --text-main: #f1f5f9;
             --text-muted: #94a3b8;
-            --border-light: rgba(255, 255, 255, 0.1);
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            --primary-orange: #ff6d00;
-            --accent-orange: #ffab40;
-            --glow-orange: rgba(255, 109, 0, 0.3);
+            --border: rgba(51, 65, 85, 0.6);
+            --glass-bg: rgba(30, 41, 59, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--light-bg);
-            color: var(--text-dark);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             min-height: 100vh;
             margin: 0;
+            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s;
+            overflow-x: hidden;
+        }
+
+        body.logged-in {
+            overflow: hidden !important;
+            height: 100vh;
+        }
+
+        body:not(.logged-in) {
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-x: hidden;
-            line-height: 1.6;
-            background-image:
-                radial-gradient(at 0% 0%, hsla(28, 100%, 74%, 0.1) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, hsla(33, 100%, 77%, 0.1) 0px, transparent 50%);
-            transition: background 0.3s, color 0.3s;
+            background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.1), transparent),
+                radial-gradient(circle at bottom left, rgba(234, 88, 12, 0.05), transparent);
         }
 
-        [data-theme='dark'] body {
-            background-image:
-                radial-gradient(at 0% 0%, hsla(28, 100%, 20%, 0.2) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, hsla(33, 100%, 20%, 0.2) 0px, transparent 50%);
-            background-color: var(--light-bg);
+        [data-theme='dark'] body:not(.logged-in) {
+            background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.15), transparent),
+                radial-gradient(circle at bottom left, rgba(15, 23, 42, 1), transparent);
         }
 
         h1,
         h2,
-        h3 {
-            font-family: 'Playfair Display', serif;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
+        h3,
+        h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
-        /* Classy Card Container */
+        .playfair {
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+        }
+
+        /* Glassmorphism Components */
         .glass,
         .modal-content,
         #loginBox {
-            background: var(--white);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
             padding: 2rem;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: none;
             position: relative;
             overflow: hidden;
         }
 
-        [data-theme='dark'] .glass,
-        [data-theme='dark'] .modal-content,
-        [data-theme='dark'] #loginBox {
-            background: rgba(26, 29, 33, 0.75);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* Premium Logo Styling */
+        .logo-container {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(249, 115, 22, 0.3);
+            animation: logoPulse 3s infinite ease-in-out;
         }
 
-        .glass::before,
-        .modal-content::before,
-        #loginBox::before {
+        .logo-container::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(120deg,
-                    transparent,
-                    rgba(255, 255, 255, 0.05),
-                    transparent);
-            transition: 0.5s;
+            inset: -4px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 25px;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(10px);
         }
 
-        .glass:hover::before,
-        .modal-content:hover::before,
-        #loginBox:hover::before {
-            left: 100%;
-        }
+        @keyframes logoPulse {
 
-        [data-theme='dark'] .glass:hover {
-            box-shadow: 0 0 20px var(--glow-orange);
-            border-color: var(--primary-orange);
+            0%,
+            100% {
+                transform: scale(1);
+                filter: brightness(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+                filter: brightness(1.2);
+            }
         }
 
         .glass:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-4px);
+            border-color: rgba(249, 115, 22, 0.3);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
         }
 
-        /* Login Specifics */
+        /* Login Box refinement */
         #loginBox {
             width: 100%;
-            max-width: 450px;
-            padding: 3rem;
+            max-width: 420px;
+            padding: 3.5rem 3rem;
             text-align: center;
-            z-index: 10;
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        #loginBox h2 {
-            font-size: 2.25rem;
-            color: var(--primary-orange);
-            margin-bottom: 1.5rem;
-            letter-spacing: -0.5px;
-        }
-
-        #loginBox p {
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-            font-size: 0.95rem;
-        }
-
-        /* Inputs */
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            margin-top: 1rem;
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            background: var(--white);
-            color: var(--text-dark);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            outline: none;
-            transition: all 0.2s;
-            box-sizing: border-box;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: var(--accent-orange);
-            box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.2);
-            outline: none;
-        }
-
-        [data-theme='dark'] input,
-        [data-theme='dark'] select,
-        [data-theme='dark'] textarea {
-            background: rgba(0, 0, 0, 0.2);
-            border-color: rgba(255, 255, 255, 0.1);
-            color: var(--text-dark);
-        }
-
-        input::placeholder {
-            color: #a0aec0;
-        }
-
-        /* Buttons */
-        button,
-        .add-task-btn,
-        .menu-trigger-btn {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--primary-orange);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: var(--shadow-sm);
-            letter-spacing: 0.5px;
-            margin-top: 1rem;
-            width: 100%;
-        }
-
-        button:hover,
-        .add-task-btn:hover,
-        .menu-trigger-btn:hover {
-            background-color: var(--accent-orange);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px var(--glow-orange);
-        }
-
-        [data-theme='dark'] .logout-btn,
-        [data-theme='dark'] .menu-trigger-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
-            color: var(--text-dark);
-        }
-
-        [data-theme='dark'] .logout-btn:hover,
-        [data-theme='dark'] .menu-trigger-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        #loginBox button {
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 1px;
-            padding: 1rem;
-        }
-
-        /* Dashboard */
-        #dashboard {
-            display: none;
-            width: 95%;
-            max-width: 1200px;
-            margin: 2rem auto;
-            animation: fadeIn 0.8s ease;
-        }
-
-        @keyframes fadeIn {
+        @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(40px);
             }
 
             to {
@@ -259,342 +180,677 @@
             }
         }
 
-        .logout-btn {
-            background: white;
-            color: var(--danger-color);
-            border: 1px solid var(--border-light);
-            width: auto;
-            margin-top: 0;
-            box-shadow: var(--shadow-sm);
-            padding: 0.75rem 1.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
+        #loginBox h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
         }
 
-        .logout-btn:hover {
-            background: #fff5f5;
-            color: #c53030;
+        /* Input Styles & Floating Labels */
+        .field-group {
+            position: relative;
+            margin-top: 1.25rem;
+            width: 100%;
         }
 
-        /* Menu Button */
-        #adminMenuContainer {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            display: none;
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.85rem 1.25rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--bg-main);
+            color: var(--text-main);
+            font-family: inherit;
+            font-weight: 500;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.25s;
         }
 
-        .menu-trigger-btn {
-            background: white;
-            color: var(--text-dark);
-            border: 1px solid var(--border-light);
-            width: auto;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 0;
-            clip-path: none;
+        .field-group input,
+        .field-group select,
+        .field-group textarea {
+            padding: 1.6rem 1.25rem 0.6rem;
+            margin-top: 0 !important;
         }
 
-        .menu-trigger-btn:hover {
-            background: #f7fafc;
-            color: var(--primary-orange);
-        }
-
-        .admin-dropdown {
-            display: none;
+        .field-group label {
             position: absolute;
-            top: 50px;
-            left: 0;
-            width: 220px;
-            flex-direction: column;
-            background: white;
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-            animation: fadeIn 0.2s ease;
+            left: 1.25rem;
+            top: 1.1rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
         }
 
-        .show-admin-menu {
-            display: flex !important;
+        /* Floating effect */
+        .field-group input:focus~label,
+        .field-group input:not(:placeholder-shown)~label,
+        .field-group textarea:focus~label,
+        .field-group textarea:not(:placeholder-shown)~label,
+        .field-group select:focus~label,
+        .field-group select:not([value=""]):not([value=""])~label {
+            top: 0.4rem;
+            left: 1.25rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        .admin-dropdown a {
-            padding: 0.75rem 1rem;
-            color: var(--text-dark);
-            text-decoration: none;
-            transition: background 0.2s;
-            border-bottom: 1px solid #f1f5f9;
+        .field-group.has-icon i,
+        .field-group.has-icon svg {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+            transition: all 0.25s;
+            z-index: 10;
+            pointer-events: none;
         }
 
-        .admin-dropdown a:hover {
-            background: #fffaf0;
-            /* Light orange tint */
-            color: var(--primary-orange);
+        .field-group.has-icon input {
+            padding-left: 3.25rem;
         }
 
-        /* Profile & Stats */
-        .profile-box-small {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            padding: 1.5rem;
-            background: white;
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
+        .field-group.has-icon label {
+            left: 3.25rem;
         }
 
-        .profile-item-small {
+        /* Icon shift on focus or content */
+        .field-group.has-icon input:focus~i,
+        .field-group.has-icon input:not(:placeholder-shown)~i,
+        .field-group.has-icon input:focus~svg,
+        .field-group.has-icon input:not(:placeholder-shown)~svg {
+            top: 68%;
+            color: var(--primary);
+        }
+
+        .field-group.has-icon input:focus~label,
+        .field-group.has-icon input:not(:placeholder-shown)~label {
+            left: 3.25rem;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+            background: var(--bg-card);
+        }
+
+        [data-theme='dark'] input,
+        [data-theme='dark'] select,
+        [data-theme='dark'] textarea {
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        /* Button Styles */
+        button,
+        .add-task-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            background: #f8fafc;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
+            justify-content: center;
+            gap: 0.6rem;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            width: 100%;
+            margin-top: 1.5rem;
         }
 
-        .profile-item-small b {
-            color: var(--primary-orange);
+        button:hover,
+        .add-task-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
+            filter: brightness(1.1);
+        }
+
+        button:active,
+        .add-task-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-btn-mini {
+            background: var(--bg-card);
+            color: var(--text-main);
+            box-shadow: var(--shadow-sm);
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            margin-top: 0;
+            border: 1px solid var(--border);
+        }
+
+        .action-btn-mini:hover {
+            background: var(--bg-main);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .action-btn-mini.danger {
+            color: var(--danger);
+        }
+
+        .action-btn-mini.danger:hover {
+            background: #fef2f2;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Layout - Sidebar */
+        #dashboard {
+            display: none;
+            flex-direction: row;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            background: var(--bg-main);
+        }
+
+        .sidebar {
+            width: 300px;
+            flex-shrink: 0;
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border);
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: 100vh;
+            z-index: 100;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.02);
+            transition: all 0.4s ease;
+        }
+
+        .sidebar-profile {
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            margin: 0 auto 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+            box-shadow: 0 8px 16px rgba(249, 115, 22, 0.2);
+            border: 4px solid var(--bg-card);
+        }
+
+        .profile-info h3 {
+            font-size: 1.1rem;
+            margin: 0;
+            font-weight: 800;
+        }
+
+        .profile-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 4px 0;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin: 1.5rem 0 0.75rem 0.75rem;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 600;
+            transition: all 0.25s ease;
+            margin-bottom: 0.25rem;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-card);
+            color: var(--primary);
+            transform: translateX(4px);
+            border-color: var(--border);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+        }
+
+        /* Sidebar Stats Items */
+        .sidebar-stat-item {
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-stat-item:hover {
+            background: var(--bg-card);
+            color: var(--primary);
+        }
+
+        .sidebar-stat-item b {
+            background: var(--border);
+            color: var(--text-main);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .sidebar-stat-item.active-filter {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--primary);
+        }
+
+        .sidebar-stat-item.active-filter b {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2.5rem 3.5rem;
+            overflow-y: auto;
+            scroll-behavior: smooth;
         }
 
         /* Tabs */
         .tab-btn {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.03);
             color: var(--text-muted);
-            border: none;
-            border-bottom: 2px solid transparent;
-            border-radius: 0;
-            padding: 0.5rem 1.5rem;
-            margin: 0 0.5rem;
-            box-shadow: none;
-            width: auto;
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
+            border: 1px solid var(--border);
+            padding: 0.8rem 2.5rem;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .tab-btn:hover {
-            color: var(--primary-orange);
-            background: transparent;
-            transform: none;
-            box-shadow: none;
+            color: var(--primary);
+            background: rgba(249, 115, 22, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.1);
         }
 
         .tab-btn.active {
-            color: var(--primary-orange);
-            border-bottom-color: var(--primary-orange);
+            color: white;
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 8px 16px rgba(249, 115, 22, 0.2);
         }
 
-        /* Tables */
-        .tasks-box {
-            background: var(--white);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
-            padding: 1.5rem;
+        .tab-btn .tab-indicator {
+            display: none;
+            /* Removed for new style */
+        }
+
+        /* Summary Cards */
+        .task-vertical-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
             margin-bottom: 2rem;
-            overflow-y: auto;
-            overflow-x: hidden;
-            max-height: 500px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary-orange) transparent;
+        }
+
+        .admin-content-split {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .admin-left-panel,
+        .admin-right-panel {
+            width: 100%;
+        }
+
+        .task-card-mini {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .task-card-mini::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--border);
+            transition: all 0.3s;
+        }
+
+        .task-card-mini:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary);
+        }
+
+        .task-card-mini.active-filter {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.1);
+        }
+
+        .task-card-mini h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .task-card-mini .count {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: -1px;
+            margin-top: 0.25rem;
+        }
+
+        /* Specific card colors */
+        #cardTodo::before {
+            background: #f97316;
+        }
+
+        #cardProgress::before {
+            background: #3b82f6;
+        }
+
+        #cardReview::before {
+            background: #ef4444;
+        }
+
+        #cardCompleted::before {
+            background: #10b981;
+        }
+
+        /* Tables Improvement */
+        .tasks-box {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            box-shadow: var(--shadow-md);
+            max-height: 650px;
+            overflow: auto;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
+            border-collapse: separate;
+            border-spacing: 0;
         }
 
         th {
+            background: var(--bg-main);
+            padding: 1.25rem 1rem;
             text-align: left;
-            padding: 1rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
             font-size: 0.75rem;
-            letter-spacing: 1px;
-            border-bottom: 2px solid var(--border-light);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid var(--border);
         }
 
         td {
-            padding: 1rem;
-            border-bottom: 1px solid #edf2f7;
-            color: var(--text-dark);
-            vertical-align: middle;
-            background: transparent;
-            /* Reset */
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 0.9rem;
         }
 
-        tr:last-child td {
-            border-bottom: none;
+        tbody tr {
+            transition: all 0.2s;
         }
 
         tbody tr:hover td {
-            background: var(--light-bg);
-            transition: background 0.2s;
-        }
-
-        [data-theme='dark'] th {
-            border-bottom-color: rgba(255, 255, 255, 0.1);
-            color: var(--text-muted);
-        }
-
-        [data-theme='dark'] td {
-            border-bottom-color: rgba(255, 255, 255, 0.05);
-        }
-
-        [data-theme='dark'] tbody tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(249, 115, 22, 0.03);
         }
 
         /* Status Badges */
         .task-status {
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
+            padding: 0.4rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .task-status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
             display: inline-block;
         }
 
         .task-status[data-status='TO_DO'] {
-            background: rgba(160, 174, 192, 0.15);
-            color: #718096;
-            border: 1px solid rgba(160, 174, 192, 0.2);
+            background: #fff7ed;
+            color: #ea580c;
+            border: 1px solid #fed7aa;
+        }
+
+        .task-status[data-status='TO_DO']::before {
+            background: #ea580c;
         }
 
         .task-status[data-status='IN_PROGRESS'] {
-            background: rgba(66, 153, 225, 0.15);
-            color: #3182ce;
-            border: 1px solid rgba(66, 153, 225, 0.2);
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+
+        .task-status[data-status='IN_PROGRESS']::before {
+            background: #2563eb;
         }
 
         .task-status[data-status='REVIEW'] {
-            background: rgba(236, 151, 33, 0.15);
-            color: #dd6b20;
-            border: 1px solid rgba(236, 151, 33, 0.2);
+            background: #fff1f2;
+            color: #e11d48;
+            border: 1px solid #fecdd3;
+        }
+
+        .task-status[data-status='REVIEW']::before {
+            background: #e11d48;
         }
 
         .task-status[data-status='COMPLETED'] {
-            background: rgba(72, 187, 120, 0.15);
-            color: #38a169;
-            border: 1px solid rgba(72, 187, 120, 0.2);
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .task-status[data-status='COMPLETED']::before {
+            background: #16a34a;
         }
 
         .task-status[data-status='REASSIGN'] {
-            background: rgba(245, 101, 101, 0.15);
-            color: #e53e3e;
-            border: 1px solid rgba(245, 101, 101, 0.2);
+            background: #faf5ff;
+            color: #7c3aed;
+            border: 1px solid #e9d5ff;
         }
 
-        /* Modals */
+        .task-status[data-status='REASSIGN']::before {
+            background: #7c3aed;
+        }
+
+        /* Modals refined */
         .modal {
+            backdrop-filter: blur(8px) saturate(180%);
+            -webkit-backdrop-filter: blur(8px) saturate(180%);
+            background: rgba(15, 23, 42, 0.4);
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            /* Soft darken */
-            backdrop-filter: blur(2px);
             z-index: 2000;
             justify-content: center;
             align-items: center;
-            animation: fadeIn 0.3s;
         }
 
         .modal-content {
-            background: white;
+            background: var(--bg-sidebar);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 500px;
             width: 90%;
-            max-width: 450px;
-            padding: 2.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border-radius: 16px;
-            border: none;
+            border: 1px solid var(--glass-border);
+            animation: modalSlide 0.4s cubic-bezier(0.3, 0.8, 0.3, 1);
         }
 
-        .modal-content h3 {
-            text-align: center;
-            font-size: 1.75rem;
-            margin-top: 0;
-            color: var(--text-dark);
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
         .close-x {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: transparent;
-            color: var(--text-muted);
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            padding: 0;
-            margin: 0;
-            clip-path: none;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 36px;
+            height: 36px;
+            font-size: 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-muted);
             transition: all 0.2s;
-            z-index: 50;
         }
 
         .close-x:hover {
-            color: var(--danger-color);
-            background: #fff5f5;
-            box-shadow: none;
-            transform: none;
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
         }
 
-        #error {
-            color: var(--danger-color);
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            min-height: 1.5rem;
-            text-align: center;
-        }
-
-        /* Custom Status Config */
+        /* Status Selection in Edit Modal */
         .status-group {
-            display: flex;
+            background: var(--bg-main);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 0.5rem;
+            border: 1.5px solid var(--border);
             margin-top: 1rem;
-            background: #f7fafc;
-            padding: 0.5rem;
-            border-radius: 8px;
         }
 
         .status-item {
-            flex: 1;
+            padding: 0.75rem;
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
             text-align: center;
-            padding: 0.5rem;
-            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.85rem;
-            color: var(--text-muted);
             transition: all 0.2s;
             position: relative;
-        }
-
-        .status-item:hover {
-            background: white;
-            color: var(--text-dark);
-            box-shadow: var(--shadow-sm);
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
 
         .status-item input {
@@ -603,905 +859,1410 @@
         }
 
         .status-item:has(input:checked) {
-            background: white;
-            color: var(--primary-orange);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+        }
+
+        #reassignStatusItem:has(input:checked) {
+            background: var(--danger);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        [data-theme='dark'] ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        #error {
+            color: var(--danger);
+            margin-top: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid #fed7aa;
+            text-align: center;
+            min-height: 1.5rem;
+        }
+
+        /* Fixed background-clip for compatibility */
+        #loginBox h2,
+        .admin-title {
+            background-clip: text;
+            -webkit-background-clip: text;
+        }
+
+        /* Decorative Background Blobs */
+        .blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(251, 191, 36, 0.1));
+            filter: blur(80px);
+            border-radius: 50%;
+            z-index: -1;
+            animation: move 20s infinite alternate;
+        }
+
+        .blob-1 {
+            top: -100px;
+            left: -100px;
+        }
+
+        .blob-2 {
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes move {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(100px, 100px) scale(1.1);
+            }
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(249, 115, 22, 0.1), transparent);
+            color: var(--primary);
+            font-weight: 700;
+            border-right: 3px solid var(--primary);
+        }
+
+        .nav-item.active i {
+            color: var(--primary);
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
-
-    <!-- Admin Menu -->
-    <div id="adminMenuContainer">
-        <button class="menu-trigger-btn" onclick="toggleAdminMenu()">
-            <span>☰</span> Menu
-        </button>
-        <div id="adminDropdown" class="glass admin-dropdown">
-            <a href="#" onclick="openCreateUserModal()">Create User</a>
-            <a href="#" onclick="openAssignModal()">Assign Task</a>
-        </div>
-    </div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
 
     <!-- Login -->
     <div id="loginBox" class="glass">
-        <h2>TASK TRACKER</h2>
-        <p style="color:rgba(255,255,255,0.6); margin-bottom: 20px;">Secure Access Portal</p>
+        <div class="logo-container">
+            <i data-lucide="shield-check" style="width: 44px; height: 44px; color: white;"></i>
+        </div>
+        <h2 class="playfair" style="letter-spacing: 0.15em;">TASK TRACKER</h2>
+        <p
+            style="color:var(--text-muted); margin-bottom: 2.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem;">
+            Secure Access Portal</p>
         <form onsubmit="event.preventDefault(); login();">
-            <input id="username" placeholder="Username" required autocomplete="username">
-            <input id="password" type="password" placeholder="Password" required autocomplete="current-password">
-            <button type="submit">Enter Dashboard</button>
+            <div class="field-group has-icon">
+                <input id="username" placeholder=" " required autocomplete="username">
+                <label for="username">Username</label>
+                <i data-lucide="user"></i>
+            </div>
+            <div class="field-group has-icon" style="margin-bottom: 2rem;">
+                <input id="password" type="password" placeholder=" " required autocomplete="current-password">
+                <label for="password">Password</label>
+                <i data-lucide="lock"></i>
+            </div>
+            <button type="submit" style="font-size: 1.1rem; padding: 1rem;">
+                Enter Dashboard <i data-lucide="arrow-right" style="width:20px;"></i>
+            </button>
         </form>
         <div id="error"></div>
     </div>
 
     <!-- Main Dashboard -->
     <div id="dashboard">
-        <div style="position: fixed; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000;">
-            <button id="themeToggle" class="logout-btn" onclick="toggleTheme()"
-                style="color: var(--primary-orange); margin-top: 0;">
-                🌙 Dark Mode
-            </button>
-            <button id="logoutBtn" class="logout-btn" onclick="logout()" style="margin-top: 0;">Logout</button>
+        <div class="sidebar">
+            <div class="sidebar-profile">
+                <div class="avatar" id="avatarName">T</div>
+                <div class="profile-info">
+                    <h3 id="sidebarUname">User Name</h3>
+                    <p id="sidebarEmail">email@example.com</p>
+                    <p id="sidebarRole"
+                        style="text-transform: uppercase; font-weight: 800; color: var(--primary-orange); letter-spacing: 1.5px; font-size: 0.6rem; margin-top: 5px;">
+                        ROLE</p>
+                    <p style="font-size: 0.65rem; opacity: 0.7;">ID: <span id="sidebarUid"></span></p>
+                </div>
+            </div>
+
+            <div class="sidebar-actions">
+                <button id="themeToggle" class="action-btn-mini" onclick="toggleTheme()">
+                    <i data-lucide="moon" style="width:16px; height:16px;"></i> Theme
+                </button>
+                <button class="action-btn-mini danger" onclick="logout()">
+                    <i data-lucide="log-out" style="width:16px; height:16px;"></i> Logout
+                </button>
+            </div>
+
+            <div class="sidebar-nav" id="sidebarNav">
+                <!-- Links will be added here via JS -->
+                <div class="sidebar-section-title">Home</div>
+                <a href="#" class="nav-item active" onclick="location.reload()">
+                    <i data-lucide="layout-dashboard"></i> Dashboard
+                </a>
+
+                <div id="adminLinks" style="display: none;">
+                    <div class="sidebar-section-title">Management</div>
+                    <a href="#" class="nav-item" onclick="openCreateUserModal()">
+                        <i data-lucide="user-plus"></i> Create User
+                    </a>
+                    <a href="#" class="nav-item" onclick="openAssignModal()">
+                        <i data-lucide="send"></i> Assign Task
+                    </a>
+
+                    <div class="sidebar-section-title">User Breakout</div>
+                    <div class="sidebar-stat-item" onclick="filterUsers('total')" id="cardTotal">
+                        <span style="display:flex; align-items:center; gap:8px;"><i data-lucide="users"
+                                style="width:16px; height:16px;"></i> All Members</span>
+                        <b id="sidebarTotalUsers">-</b>
+                    </div>
+                    <div class="sidebar-stat-item" onclick="filterUsers('active')" id="cardActive">
+                        <span style="display:flex; align-items:center; gap:8px;"><i data-lucide="zap"
+                                style="width:16px; height:16px;"></i> Active Now</span>
+                        <b id="sidebarActiveUsers">-</b>
+                    </div>
+                    <div class="sidebar-stat-item" onclick="filterUsers('noTask')" id="cardNoTask">
+                        <span style="display:flex; align-items:center; gap:8px;"><i data-lucide="user-x"
+                                style="width:16px; height:16px;"></i>Users With Zero Task</span>
+                        <b id="sidebarNoTasksUsers">-</b>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Admin View -->
-        <div id="adminPage" style="display:none;">
-            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 10px;">Admin Command Center</h2>
-            <div class="glass profile-box-small">
-                <div class="profile-item-small"><b>ID:</b> <span id="adminUid"></span></div>
-                <div class="profile-item-small"><b>User:</b> <span id="adminUname"></span></div>
-                <div class="profile-item-small"><b>Email:</b> <span id="adminEmail"></span></div>
-                <div class="profile-item-small"><b>Role:</b> <span id="adminRole"></span></div>
+        <div class="main-content">
+            <!-- Content based on View -->
+
+            <!-- Admin View -->
+            <div id="adminPage" style="display:none; animation: fadeIn 0.5s ease;">
+                <h2 class="admin-title"
+                    style="text-align:center; font-family:'Playfair Display', serif; font-size:2.5rem; margin-bottom:2.5rem; color:var(--text-main); background: linear-gradient(to right, var(--text-main), var(--primary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                    Admin Command Center
+                </h2>
+
+                <div class="admin-content-split">
+                    <div class="admin-right-panel">
+                        <div class="task-vertical-cards" id="taskSummary">
+                            <div class="task-card-mini" id="cardTaskTotal" onclick="filterUsers('taskTotal')">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <div>
+                                        <h4 style="color:var(--text-muted); margin:0;">Total tasks</h4>
+                                        <div class="count" id="summaryTotalTasks">-</div>
+                                    </div>
+                                    <div style="background:var(--border); padding:8px; border-radius:10px;">
+                                        <i data-lucide="clipboard-list" style="width:20px; color:var(--text-main);"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="task-card-mini" id="cardTodo" onclick="filterUsers('todo')"
+                                style="border-left: 4px solid #f97316;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <div>
+                                        <h4 style="color:#f97316; margin:0;">To Do</h4>
+                                        <div class="count" id="summaryTodoTasks">-</div>
+                                    </div>
+                                    <div style="background:rgba(249, 115, 22, 0.1); padding:8px; border-radius:10px;">
+                                        <i data-lucide="list-todo" style="width:20px; color:#f97316;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="task-card-mini" id="cardProgress" onclick="filterUsers('progress')"
+                                style="border-left: 4px solid #3b82f6;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <div>
+                                        <h4 style="color:#3b82f6; margin:0;">In Progress</h4>
+                                        <div class="count" id="summaryInProgressTasks">-</div>
+                                    </div>
+                                    <div style="background:rgba(59, 130, 246, 0.1); padding:8px; border-radius:10px;">
+                                        <i data-lucide="loader" style="width:20px; color:#3b82f6;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="task-card-mini" id="cardReview" onclick="filterUsers('review')"
+                                style="border-left: 4px solid #ef4444;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <div>
+                                        <h4 style="color:#ef4444; margin:0;">Review</h4>
+                                        <div class="count" id="summaryReviewTasks">-</div>
+                                    </div>
+                                    <div style="background:rgba(239, 68, 68, 0.1); padding:8px; border-radius:10px;">
+                                        <i data-lucide="search-check" style="width:20px; color:#ef4444;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="task-card-mini" id="cardCompleted" onclick="filterUsers('completed')"
+                                style="border-left: 4px solid #10b981;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <div>
+                                        <h4 style="color:#10b981; margin:0;">Completed</h4>
+                                        <div class="count" id="summaryCompletedTasks">-</div>
+                                    </div>
+                                    <div style="background:rgba(16, 185, 129, 0.1); padding:8px; border-radius:10px;">
+                                        <i data-lucide="check-circle-2" style="width:20px; color:#10b981;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-left-panel">
+                        <div
+                            style="text-align: center; margin-bottom: 30px; display:flex; justify-content:center; gap:20px;">
+                            <button id="tabUserList" class="tab-btn active" onclick="switchTab('userList')"><i
+                                    data-lucide="users" style="width:18px;"></i> Users</button>
+                            <button id="tabTaskList" class="tab-btn" onclick="switchTab('taskList')"><i
+                                    data-lucide="clipboard-list" style="width:18px;"></i> Tasks</button>
+                            <button id="tabAuditList" class="tab-btn" onclick="switchTab('auditList')"><i
+                                    data-lucide="activity" style="width:18px;"></i> Activity</button>
+                        </div>
+
+                        <!-- User Tab Content -->
+                        <div id="contentUserList">
+                            <div
+                                style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px;">
+                                <h3 style="margin:0; font-size:1.5rem;">User Directory <span
+                                        style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">(<span
+                                            id="totalUsers">0</span>)</span></h3>
+                                <button class="add-task-btn"
+                                    style="width:auto; margin:0; padding: 10px 20px; background: linear-gradient(135deg, #10b981, #34d399);"
+                                    onclick="loadAdminUsers()"><i data-lucide="refresh-cw" style="width:16px;"></i>
+                                    Refresh</button>
+                            </div>
+                            <div class="glass tasks-box" id="userListBox">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adminUserBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Task Tab Content -->
+                        <div id="contentTaskList" style="display: none;">
+                            <div class="glass"
+                                style="padding: 20px; display:flex; gap:15px; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom: 20px;">
+                                <div class="field-group" style="width:160px; margin-top:0;">
+                                    <input type="date" id="fromDate" placeholder=" ">
+                                    <label for="fromDate">From Date</label>
+                                </div>
+                                <div class="field-group" style="width:160px; margin-top:0;">
+                                    <input type="date" id="toDate" placeholder=" ">
+                                    <label for="toDate">To Date</label>
+                                </div>
+                                <div class="field-group" style="width:200px; margin-top:0;">
+                                    <input type="text" id="userIds" placeholder=" ">
+                                    <label for="userIds">User IDs (e.g. 1,2)</label>
+                                </div>
+                                <button class="add-task-btn" style="width:auto; margin:0; padding: 10px 25px;"
+                                    onclick="fetchAdminTasks()">Search</button>
+                                <button id="reviewAllBtn" class="add-task-btn"
+                                    style="width:auto; margin:0; padding: 10px 25px; background: linear-gradient(45deg, #11998e, #38ef7d);"
+                                    onclick="reviewAllTasks()">Refresh</button>
+                            </div>
+
+                            <div class="glass tasks-box" id="adminTaskBox" style="display: block;">
+                                <h3 style="text-align:center; margin-bottom: 20px;">Task Overview</h3>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Title</th>
+                                            <th>Status</th>
+                                            <th>Due Date</th>
+                                            <th>Comment</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adminTaskBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Audit Tab Content -->
+                        <div id="contentAuditList" style="display: none;">
+                            <div
+                                style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px;">
+                                <h3 style="margin:0;">System Activity Log</h3>
+                                <button class="add-task-btn"
+                                    style="width:auto; margin:0; padding: 8px 20px; background: linear-gradient(45deg, #11998e, #38ef7d);"
+                                    onclick="loadAuditLogs()">Refresh Activity</button>
+                            </div>
+                            <div class="glass tasks-box">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Today's Time</th>
+                                            <th>Last Task</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adminAuditBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div> <!-- End admin-content-split -->
+            </div> <!-- End adminPage -->
+
+            <!-- User View -->
+            <div id="userProfile" style="display:none;">
+                <h2 style="text-align: center; font-size: 1.75rem; margin-bottom: 1rem;">My Workspace</h2>
             </div>
 
-            <div style="text-align: center; margin-bottom: 30px;">
-                <button id="tabUserList" class="tab-btn active" onclick="switchTab('userList')">Users</button>
-                <button id="tabTaskList" class="tab-btn" onclick="switchTab('taskList')">Tasks</button>
-                <button id="tabAuditList" class="tab-btn" onclick="switchTab('auditList')">Activity</button>
-            </div>
+            <button id="addTaskBtn" class="add-task-btn" style="display:block; margin: 0 auto 30px; width: 220px;"
+                onclick="openModal()"><i data-lucide="plus-circle" style="width:18px;"></i> Create New Task</button>
 
-            <div id="contentUserList">
-                <div
-                    style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px;">
-                    <h3 style="margin:0;">User Directory (<span id="totalUsers">0</span>)</h3>
+            <div class="glass tasks-box" id="userTaskBox">
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin:0;">Current Tasks</h3>
                     <button class="add-task-btn"
                         style="width:auto; margin:0; padding: 8px 20px; background: linear-gradient(45deg, #11998e, #38ef7d);"
-                        onclick="loadAdminUsers()">Refresh List</button>
+                        onclick="loadTasks()">Refresh Tasks</button>
                 </div>
-                <div class="glass tasks-box" id="userListBox">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminUserBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="contentTaskList" style="display: none;">
-                <div class="glass"
-                    style="padding: 20px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom: 20px;">
-                    <label>From: <input type="date" id="fromDate" style="width:auto; margin:0; padding:10px;"></label>
-                    <label>To: <input type="date" id="toDate" style="width:auto; margin:0; padding:10px;"></label>
-                    <input type="text" id="userIds" placeholder="User IDs (e.g. 1,2)"
-                        style="width:150px; margin:0; padding:10px;">
-                    <button class="add-task-btn" style="width:auto; margin:0; padding: 10px 25px;"
-                        onclick="fetchAdminTasks()">Search</button>
-                    <button id="reviewAllBtn" class="add-task-btn"
-                        style="width:auto; margin:0; padding: 10px 25px; background: linear-gradient(45deg, #11998e, #38ef7d);"
-                        onclick="reviewAllTasks()">Refresh</button>
-                </div>
-
-                <div class="glass tasks-box" id="adminTaskBox" style="display: block;">
-                    <h3 style="text-align:center; margin-bottom: 20px;">Task Overview</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Title</th>
-                                <th>Status</th>
-                                <th>Due Date</th>
-                                <th>Comment</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminTaskBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Audit Tab Content -->
-            <div id="contentAuditList" style="display: none;">
-                <div
-                    style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px;">
-                    <h3 style="margin:0;">System Activity Log</h3>
-                    <button class="add-task-btn"
-                        style="width:auto; margin:0; padding: 8px 20px; background: linear-gradient(45deg, #11998e, #38ef7d);"
-                        onclick="loadAuditLogs()">Refresh Activity</button>
-                </div>
-                <div class="glass tasks-box">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Today's Time</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminAuditBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-
-
-
-        </div>
-
-        <!-- User View -->
-        <div id="userProfile" style="display:none;">
-            <h2 style="text-align: center; font-size: 2.5rem;">My Workspace</h2>
-            <div class="glass profile-box-small">
-                <div class="profile-item-small"><b>ID:</b> <span id="userUid"></span></div>
-                <div class="profile-item-small"><b>User:</b> <span id="userUname"></span></div>
-                <div class="profile-item-small"><b>Email:</b> <span id="userEmail"></span></div>
-                <div class="profile-item-small"><b>Role:</b> <span id="userRole"></span></div>
-            </div>
-        </div>
-
-        <button id="addTaskBtn" class="add-task-btn" style="display:block; margin: 0 auto 30px; width: 200px;"
-            onclick="openModal()">+ Create New Task</button>
-
-        <div class="glass tasks-box" id="userTaskBox">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="margin:0;">Current Tasks</h3>
-                <button class="add-task-btn"
-                    style="width:auto; margin:0; padding: 8px 20px; background: linear-gradient(45deg, #11998e, #38ef7d);"
-                    onclick="loadTasks()">Refresh Tasks</button>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Created</th>
-                        <th>Status</th>
-                        <th>Comment</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="taskBody"></tbody>
-            </table>
-        </div>
-
-    </div>
-
-    <!-- Modals -->
-    <div id="createUserModal" class="modal" style="display:none;"> <!-- Flex via JS -->
-        <div class="modal-content">
-            <button class="close-x" onclick="closeCreateUserModal()">×</button>
-            <h3>Create User</h3>
-            <input id="newUsername" placeholder="Username">
-            <input id="newEmail" placeholder="Email">
-            <input id="newPassword" type="password" placeholder="Password">
-            <select id="newRole" style="background: rgba(0,0,0,0.3);">
-                <option value="ROLE_USER">User</option>
-                <option value="ROLE_ADMIN">Admin</option>
-            </select>
-            <button class="add-task-btn" onclick="submitCreateUser()">Create Account</button>
-        </div>
-    </div>
-
-    <div id="assignTaskModal" class="modal">
-        <div class="modal-content">
-            <button class="close-x" onclick="closeAssignModal()">×</button>
-            <h3>Assign Task</h3>
-            <select id="assignUserId" style="background: rgba(0,0,0,0.3);">
-                <option value="">Select User</option>
-            </select>
-            <input id="assignTitle" placeholder="Title" maxlength="30">
-            <textarea id="assignDesc" placeholder="Description" maxlength="80"
-                style="resize:none; height:80px;"></textarea>
-            <label style="font-size: 13px; text-align: left; display: block; margin-top: 15px; color:#aaa;">Due
-                Date</label>
-            <input type="date" id="assignDueDate" style="margin-top:5px;">
-            <button class="add-task-btn" onclick="submitAssignTask()">Assign</button>
-        </div>
-    </div>
-
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <button class="close-x" onclick="closeModal()">×</button>
-            <h3>New Task</h3>
-            <input id="taskTitle" placeholder="Title (max 30)" maxlength="30">
-            <textarea id="taskDesc" placeholder="Description (max 80)" maxlength="80"
-                style="resize:none; height:80px;"></textarea>
-            <label style="font-size: 13px; text-align: left; display: block; margin-top: 15px; color:#aaa;">Due
-                Date</label>
-            <input type="date" id="taskDueDate" style="margin-top:5px;">
-            <button class="add-task-btn" onclick="addTask()">Add Task</button>
-        </div>
-    </div>
-
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <button class="close-x" onclick="closeEditModal()">×</button>
-            <h3>Update Task</h3>
-            <input id="editTaskTitle" placeholder="Title" maxlength="30">
-            <textarea id="editTaskDesc" placeholder="Description" maxlength="80"
-                style="resize:none; height:80px;"></textarea>
-
-            <div class="status-group">
-                <label class="status-item">
-                    <input type="radio" name="editStatus" value="TO_DO">
-                    <span>To Do</span>
-                </label>
-                <label class="status-item">
-                    <input type="radio" name="editStatus" value="IN_PROGRESS">
-                    <span>In Progress</span>
-                </label>
-                <label class="status-item">
-                    <input type="radio" name="editStatus" value="REVIEW">
-                    <span>Review</span>
-                </label>
-                <label class="status-item">
-                    <input type="radio" name="editStatus" value="COMPLETED">
-                    <span>Completed</span>
-                </label>
-                <label class="status-item" id="reassignStatusItem" style="display:none;">
-                    <input type="radio" name="editStatus" value="REASSIGN">
-                    <span>Reassign</span>
-                </label>
-            </div>
-
-            <div id="reassignSection" style="display:none; margin-top: 1rem;">
-                <label
-                    style="font-size: 13px; text-align: left; display: block; color: var(--primary-orange); font-weight: 500;">
-                    Assign to User <span style="color: var(--danger-color);">*</span>
-                </label>
-                <select id="reassignUserId" style="background: var(--white); border: 1px solid var(--border-light);">
-                    <option value="">Select User</option>
-                </select>
-            </div>
-
-            <div id="commentSection" style="display:none; margin-top: 1rem; transition: all 0.3s ease;">
-                <label
-                    style="font-size: 13px; text-align: left; display: block; color: var(--primary-orange); font-weight: 500;">
-                    Comment <span style="color: var(--danger-color);">*</span>
-                </label>
-                <textarea id="editTaskComment" placeholder="Reason for status change..." maxlength="200"
-                    style="resize:none; height:80px; margin-top: 5px;"></textarea>
-            </div>
-
-            <button class="add-task-btn" onclick="updateTask()">Save Changes</button>
-        </div>
-    </div>
-
-    <!-- User Audit Modal -->
-    <div id="userAuditModal" class="modal" style="display:none;">
-        <div class="modal-content" style="max-width: 600px;">
-            <button class="close-x" onclick="closeAuditModal()">×</button>
-            <h3 id="auditModalTitle">User Activity</h3>
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <div
-                    style="flex: 1; background: var(--glow-orange); padding: 15px; border-radius: 8px; text-align: center;">
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">Today's Time</span><br>
-                    <b id="todayDuration" style="font-size: 1.2rem; color: var(--primary-orange);">0 min</b>
-                </div>
-                <div
-                    style="flex: 1; background: var(--glow-orange); padding: 15px; border-radius: 8px; text-align: center;">
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">Total Online Time</span><br>
-                    <b id="allTimeDuration" style="font-size: 1.2rem; color: var(--primary-orange);">0 min</b>
-                </div>
-            </div>
-            <div class="tasks-box" style="max-height: 300px; padding: 0;">
                 <table>
                     <thead>
                         <tr>
-                            <th>Login Time</th>
-                            <th>Logout Time</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Created</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Comment</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody id="userAuditBody"></tbody>
+                    <tbody id="taskBody"></tbody>
                 </table>
             </div>
+
         </div>
-    </div>
 
-    <script>
-        /**********************************************
-         * THEME LOGIC
-         **********************************************/
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeButton(savedTheme);
-        }
+        <!-- Modals -->
+        <div id="createUserModal" class="modal" style="display:none;"> <!-- Flex via JS -->
+            <div class="modal-content">
+                <button class="close-x" onclick="closeCreateUserModal()">×</button>
+                <h3 style="margin-bottom:1.5rem;">Create User</h3>
+                <div class="field-group">
+                    <input id="newUsername" placeholder=" ">
+                    <label for="newUsername">Username</label>
+                </div>
+                <div class="field-group">
+                    <input id="newEmail" placeholder=" ">
+                    <label for="newEmail">Email</label>
+                </div>
+                <div class="field-group">
+                    <input id="newPassword" type="password" placeholder=" ">
+                    <label for="newPassword">Password</label>
+                </div>
+                <div class="field-group">
+                    <select id="newRole" required>
+                        <option value="ROLE_USER">User</option>
+                        <option value="ROLE_ADMIN">Admin</option>
+                    </select>
+                    <label for="newRole">Role</label>
+                </div>
+                <button class="add-task-btn" onclick="submitCreateUser()" style="margin-top: 2rem;">Create
+                    Account</button>
+            </div>
+        </div>
 
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeButton(newTheme);
-        }
+        <div id="assignTaskModal" class="modal">
+            <div class="modal-content">
+                <button class="close-x" onclick="closeAssignModal()">×</button>
+                <h3 style="margin-bottom:1.5rem;">Assign Task</h3>
+                <div class="field-group">
+                    <select id="assignUserId" required>
+                        <option value="">Select User</option>
+                    </select>
+                    <label for="assignUserId">Assigned To</label>
+                </div>
+                <div class="field-group">
+                    <input id="assignTitle" placeholder=" " maxlength="30">
+                    <label for="assignTitle">Title (Max 30)</label>
+                </div>
+                <div class="field-group">
+                    <textarea id="assignDesc" placeholder=" " maxlength="80"
+                        style="resize:none; height:100px;"></textarea>
+                    <label for="assignDesc">Description (Max 80)</label>
+                </div>
+                <div class="field-group">
+                    <input type="date" id="assignDueDate" placeholder=" ">
+                    <label for="assignDueDate">Due Date</label>
+                </div>
+                <button class="add-task-btn" onclick="submitAssignTask()" style="margin-top: 2rem;">Assign Task</button>
+            </div>
+        </div>
 
-        function updateThemeButton(theme) {
-            const btn = document.getElementById("themeToggle");
-            if (!btn) return;
-            if (theme === 'dark') {
-                btn.innerHTML = "☀️ Light Mode";
-            } else {
-                btn.innerHTML = "🌙 Dark Mode";
+        <div id="taskModal" class="modal">
+            <div class="modal-content">
+                <button class="close-x" onclick="closeModal()">×</button>
+                <h3 style="margin-bottom:1.5rem;">New Task</h3>
+                <div class="field-group">
+                    <input id="taskTitle" placeholder=" " maxlength="30">
+                    <label for="taskTitle">Task Title (Max 30)</label>
+                </div>
+                <div class="field-group">
+                    <textarea id="taskDesc" placeholder=" " maxlength="80"
+                        style="resize:none; height:100px;"></textarea>
+                    <label for="taskDesc">Description (Max 80)</label>
+                </div>
+                <div class="field-group">
+                    <input type="date" id="taskDueDate" placeholder=" ">
+                    <label for="taskDueDate">Due Date</label>
+                </div>
+                <button class="add-task-btn" onclick="addTask()" style="margin-top: 2rem;">Add Task</button>
+            </div>
+        </div>
+
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <button class="close-x" onclick="closeEditModal()">×</button>
+                <h3 style="margin-bottom:1.5rem;">Update Task</h3>
+                <div class="field-group">
+                    <input id="editTaskTitle" placeholder=" " maxlength="30">
+                    <label for="editTaskTitle">Title</label>
+                </div>
+                <div class="field-group">
+                    <textarea id="editTaskDesc" placeholder=" " maxlength="80"
+                        style="resize:none; height:100px;"></textarea>
+                    <label for="editTaskDesc">Description</label>
+                </div>
+
+                <div class="status-group" style="margin-top: 2rem;">
+                    <!-- Status items preserved -->
+                    <label class="status-item">
+                        <input type="radio" name="editStatus" value="TO_DO">
+                        <span>To Do</span>
+                    </label>
+                    <label class="status-item">
+                        <input type="radio" name="editStatus" value="IN_PROGRESS">
+                        <span>In Progress</span>
+                    </label>
+                    <label class="status-item">
+                        <input type="radio" name="editStatus" value="REVIEW">
+                        <span>Review</span>
+                    </label>
+                    <label class="status-item">
+                        <input type="radio" name="editStatus" value="COMPLETED">
+                        <span>Completed</span>
+                    </label>
+                    <label class="status-item" id="reassignStatusItem" style="display:none;">
+                        <input type="radio" name="editStatus" value="REASSIGN">
+                        <span>Reassign</span>
+                    </label>
+                </div>
+
+                <div id="reassignSection" style="display:none; margin-top: 1.5rem;">
+                    <div class="field-group">
+                        <select id="reassignUserId" required>
+                            <option value="">Select User</option>
+                        </select>
+                        <label for="reassignUserId">Reassign to User</label>
+                    </div>
+                </div>
+
+                <div id="commentSection" style="display:none; margin-top: 1.5rem; transition: all 0.3s ease;">
+                    <div class="field-group">
+                        <textarea id="editTaskComment" placeholder=" " maxlength="200"
+                            style="resize:none; height:100px;"></textarea>
+                        <label for="editTaskComment">Comment (Mandatory)</label>
+                    </div>
+                </div>
+
+                <button class="add-task-btn" onclick="updateTask()" style="margin-top: 2rem;">Save Changes</button>
+            </div>
+        </div>
+
+        <!-- Log Work Modal -->
+        <div id="logWorkModal" class="modal">
+            <div class="modal-content">
+                <button class="close-x" onclick="closeLogWorkModal()">×</button>
+                <h3 style="margin-bottom:1.5rem;">Update Timesheet</h3>
+
+                <label
+                    style="font-size: 13px; margin-bottom: 0.5rem; display:block; color:var(--primary); font-weight:700;">Task
+                    Status <span style="color:red;">*</span></label>
+                <div class="status-group" style="margin-bottom: 2rem; margin-top: 0;">
+                    <label class="status-item">
+                        <input type="radio" name="logStatus" value="IN_PROGRESS">
+                        <span>In Progress</span>
+                    </label>
+                    <label class="status-item">
+                        <input type="radio" name="logStatus" value="REVIEW">
+                        <span>Review</span>
+                    </label>
+                </div>
+
+                <div class="field-group">
+                    <textarea id="logComment" placeholder=" " maxlength="200"
+                        style="resize:none; height:80px;"></textarea>
+                    <label for="logComment">Work Description</label>
+                </div>
+
+                <div class="field-group">
+                    <input type="datetime-local" id="logStartTime" placeholder=" ">
+                    <label for="logStartTime">Start Time</label>
+                </div>
+                <div class="field-group">
+                    <input type="datetime-local" id="logEndTime" placeholder=" ">
+                    <label for="logEndTime">End Time</label>
+                </div>
+
+                <button class="add-task-btn" onclick="submitLogWork()" style="margin-top: 2rem;">Submit
+                    Timesheet</button>
+            </div>
+        </div>
+
+        <!-- User Audit Modal -->
+        <div id="userAuditModal" class="modal" style="display:none;">
+            <div class="modal-content" style="max-width: 500px;">
+                <button class="close-x" onclick="closeAuditModal()">×</button>
+                <h3 id="auditModalTitle" style="margin-bottom: 20px;">User Statistics</h3>
+
+                <!-- Dynamic Stats Container -->
+                <div id="auditStatsContainer" style="display: flex; flex-direction: column; gap: 15px;">
+                    <!-- Content injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <script>
+            /**********************************************
+             * THEME LOGIC
+             **********************************************/
+            function initTheme() {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                updateThemeButton(savedTheme);
             }
-        }
 
-        initTheme();
+            function toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeButton(newTheme);
+            }
 
-        /**********************************************
-         * LOGIC PRESERVED FROM ORIGINAL
-         **********************************************/
+            function updateThemeButton(theme) {
+                const btn = document.getElementById("themeToggle");
+                if (!btn) return;
+                if (theme === 'dark') {
+                    btn.innerHTML = "☀️ Light";
+                } else {
+                    btn.innerHTML = "🌙 Dark";
+                }
+            }
 
-        let token = "";
-        let editTaskId = "";
-        let originalStatus = "";
-        let adminUsersList = []; // Store users for reassign dropdown
+            initTheme();
 
-        // Prettier status labels
-        const statusLabels = {
-            'TO_DO': 'To Do',
-            'IN_PROGRESS': 'In Progress',
-            'REVIEW': 'Under Review',
-            'COMPLETED': 'Completed',
-            'REASSIGN': 'Reassigned'
-        };
+            /**********************************************
+             * LOGIC PRESERVED FROM ORIGINAL
+             **********************************************/
 
-        function formatDuration(totalMinutes) {
-            if (totalMinutes === 0) return "0 min";
-            if (totalMinutes > 0 && totalMinutes < 1) return "< 1 min";
-
-            const totalMinRounded = Math.round(totalMinutes);
-            const hours = Math.floor(totalMinRounded / 60);
-            const mins = totalMinRounded % 60;
-
-            if (hours === 0) return `${mins} min`;
-            if (mins === 0) return `${hours}h`;
-            return `${hours}h ${mins}m`;
-        }
-
-        // Status Logic
-        function applyStatusRules(role, currentStatus, isReassigned) {
-            originalStatus = currentStatus;
-            const radios = document.getElementsByName("editStatus");
-            // reset display
-            radios.forEach(r => {
-                const label = r.closest('label'); // Get the label wrapping the input
-                r.checked = false;
-                if (label) label.style.display = "none";
+            // Helper for floating labels on selects
+            document.addEventListener('change', (e) => {
+                if (e.target.tagName === 'SELECT') {
+                    e.target.setAttribute('value', e.target.value);
+                }
             });
 
-            if (role === "ROLE_USER") {
-                if (currentStatus === "TO_DO" || currentStatus === "REASSIGN") {
-                    showStatus("IN_PROGRESS");
-                } else if (currentStatus === "IN_PROGRESS") {
-                    showStatus("REVIEW");
-                }
-            } else if (role === "ROLE_ADMIN") {
-                if (currentStatus === "REVIEW") {
-                    showStatus("COMPLETED");
-                    if (!isReassigned) {
-                        showStatus("REASSIGN");
+            let token = "";
+            let editTaskId = "";
+            let originalStatus = "";
+            let adminUsersList = []; // Store users for reassign dropdown
+            let currentUserRole = ""; // To store the role of the logged-in user
+            let adminSummaryData = null;
+            let adminTasksList = []; // Global tasks list
+            let currentAdminUserFilter = 'total';
+
+            // Prettier status labels
+            const statusLabels = {
+                'TO_DO': 'To Do',
+                'IN_PROGRESS': 'In Progress',
+                'REVIEW': 'Under Review',
+                'COMPLETED': 'Completed',
+                'REASSIGN': 'Reassigned'
+            };
+
+            function formatDuration(totalMinutes) {
+                if (totalMinutes === 0) return "0 min";
+                if (totalMinutes > 0 && totalMinutes < 1) return "< 1 min";
+
+                const totalMinRounded = Math.round(totalMinutes);
+                const hours = Math.floor(totalMinRounded / 60);
+                const mins = totalMinRounded % 60;
+
+                if (hours === 0) return `${mins} min`;
+                if (mins === 0) return `${hours}h`;
+                return `${hours}h ${mins}m`;
+            }
+
+            // Status Logic
+            function applyStatusRules(role, currentStatus, isReassigned) {
+                originalStatus = currentStatus;
+                const radios = document.getElementsByName("editStatus");
+                // reset display
+                radios.forEach(r => {
+                    const label = r.closest('label'); // Get the label wrapping the input
+                    r.checked = false;
+                    if (label) label.style.display = "none";
+                });
+
+                if (role === "ROLE_USER") {
+                    if (currentStatus === "TO_DO" || currentStatus === "REASSIGN") {
+                        showStatus("IN_PROGRESS");
+                    } else if (currentStatus === "IN_PROGRESS") {
+                        showStatus("REVIEW");
+                    }
+                } else if (role === "ROLE_ADMIN") {
+                    if (currentStatus === "REVIEW") {
+                        showStatus("COMPLETED");
+                        if (!isReassigned) {
+                            showStatus("REASSIGN");
+                        }
                     }
                 }
+
+                // Always show current status as an option (except REASSIGN for non-admins)
+                if (role === "ROLE_ADMIN" || currentStatus !== "REASSIGN") {
+                    showStatus(currentStatus);
+                }
             }
 
-            // Always show current status as an option (except REASSIGN for non-admins)
-            if (role === "ROLE_ADMIN" || currentStatus !== "REASSIGN") {
-                showStatus(currentStatus);
+            function showStatus(value) {
+                document.querySelectorAll('input[name="editStatus"]').forEach(r => {
+                    if (r.value === value) {
+                        const label = r.closest('label');
+                        if (label) label.style.display = "block"; // or flex
+                    }
+                });
             }
-        }
 
-        function showStatus(value) {
-            document.querySelectorAll('input[name="editStatus"]').forEach(r => {
-                if (r.value === value) {
-                    const label = r.closest('label');
-                    if (label) label.style.display = "block"; // or flex
+            function checkCommentRequirement() {
+                const statusInput = document.querySelector('input[name="editStatus"]:checked');
+                if (!statusInput) return;
+                const newStatus = statusInput.value;
+                const commentSection = document.getElementById("commentSection");
+                const reassignSection = document.getElementById("reassignSection");
+
+                // Hide comment section for:
+                // 1. No change in status
+                // 2. REVIEW -> COMPLETED
+                // 3. Any status -> COMPLETED (as per new request: "task completed nu select pannuna comment manditory kedyadhu")
+                let skipComment = (newStatus === originalStatus) ||
+                    (originalStatus === "REVIEW" && newStatus === "COMPLETED") ||
+                    (newStatus === "COMPLETED");
+
+                if (newStatus === "REASSIGN") {
+                    skipComment = false; // "reassifgn pana comment kudukra maari panni kudu"
+                    reassignSection.style.display = "block";
+                } else {
+                    reassignSection.style.display = "none";
+                }
+
+                if (skipComment) {
+                    commentSection.style.display = "none";
+                    // Don't clear comment if it was user-entered, but we'll clear it for consistency
+                    if (newStatus === "COMPLETED") document.getElementById("editTaskComment").value = "";
+                } else {
+                    commentSection.style.display = "block";
+                }
+            }
+
+            // Attach event listeners to radios
+            document.addEventListener("change", function (e) {
+                if (e.target && e.target.name === "editStatus") {
+                    checkCommentRequirement();
                 }
             });
-        }
 
-        function checkCommentRequirement() {
-            const statusInput = document.querySelector('input[name="editStatus"]:checked');
-            if (!statusInput) return;
-            const newStatus = statusInput.value;
-            const commentSection = document.getElementById("commentSection");
-            const reassignSection = document.getElementById("reassignSection");
+            // TABS
+            function switchTab(tabName) {
+                const userContent = document.getElementById("contentUserList");
+                const taskContent = document.getElementById("contentTaskList");
+                const auditContent = document.getElementById("contentAuditList");
+                const userBtn = document.getElementById("tabUserList");
+                const taskBtn = document.getElementById("tabTaskList");
+                const auditBtn = document.getElementById("tabAuditList");
 
-            // Hide comment section for:
-            // 1. No change in status
-            // 2. REVIEW -> COMPLETED
-            // 3. Any status -> COMPLETED (as per new request: "task completed nu select pannuna comment manditory kedyadhu")
-            let skipComment = (newStatus === originalStatus) ||
-                (originalStatus === "REVIEW" && newStatus === "COMPLETED") ||
-                (newStatus === "COMPLETED");
+                // Reset all
+                [userContent, taskContent, auditContent].forEach(c => { if (c) c.style.display = "none"; });
+                [userBtn, taskBtn, auditBtn].forEach(b => { if (b) b.classList.remove("active"); });
 
-            if (newStatus === "REASSIGN") {
-                skipComment = false; // "reassifgn pana comment kudukra maari panni kudu"
-                reassignSection.style.display = "block";
-            } else {
-                reassignSection.style.display = "none";
-            }
-
-            if (skipComment) {
-                commentSection.style.display = "none";
-                // Don't clear comment if it was user-entered, but we'll clear it for consistency
-                if (newStatus === "COMPLETED") document.getElementById("editTaskComment").value = "";
-            } else {
-                commentSection.style.display = "block";
-            }
-        }
-
-        // Attach event listeners to radios
-        document.addEventListener("change", function (e) {
-            if (e.target && e.target.name === "editStatus") {
-                checkCommentRequirement();
-            }
-        });
-
-        // TABS
-        function switchTab(tabName) {
-            const userContent = document.getElementById("contentUserList");
-            const taskContent = document.getElementById("contentTaskList");
-            const auditContent = document.getElementById("contentAuditList");
-            const userBtn = document.getElementById("tabUserList");
-            const taskBtn = document.getElementById("tabTaskList");
-            const auditBtn = document.getElementById("tabAuditList");
-
-            // Reset all
-            [userContent, taskContent, auditContent].forEach(c => { if (c) c.style.display = "none"; });
-            [userBtn, taskBtn, auditBtn].forEach(b => { if (b) b.classList.remove("active"); });
-
-            if (tabName === 'userList') {
-                userContent.style.display = "block";
-                userBtn.classList.add("active");
-                loadAdminUsers();
-            } else if (tabName === 'taskList') {
-                taskContent.style.display = "block";
-                taskBtn.classList.add("active");
-                reviewAllTasks();
-            } else if (tabName === 'auditList') {
-                auditContent.style.display = "block";
-                auditBtn.classList.add("active");
-                loadAuditLogs();
-            }
-        }
-
-        // DATES
-        function setCurrentMonthDates() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth();
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const fromInput = document.getElementById("fromDate");
-            const toInput = document.getElementById("toDate");
-            if (fromInput) fromInput.value = formatDateForInput(firstDay);
-            if (toInput) toInput.value = formatDateForInput(lastDay);
-        }
-
-        function reviewAllTasks() {
-            setCurrentMonthDates();
-            document.getElementById("userIds").value = "";
-            fetchAdminTasks();
-        }
-
-        document.addEventListener("DOMContentLoaded", async function () {
-            setCurrentMonthDates();
-            initTheme(); // Ensure button text is correct
-
-            // Session Check: If token exists in sessionStorage, auto-login
-            const savedToken = sessionStorage.getItem("token");
-            if (savedToken) {
-                token = savedToken;
-                try {
-                    await loadProfile();
-                    document.getElementById("loginBox").style.display = "none";
-                    document.getElementById("dashboard").style.display = "block";
-                } catch (e) {
-                    console.error("Auto-login failed:", e);
-                    sessionStorage.removeItem("token");
-                    token = "";
+                if (tabName === 'userList') {
+                    userContent.style.display = "block";
+                    userBtn.classList.add("active");
+                    loadAdminUsers();
+                } else if (tabName === 'taskList') {
+                    taskContent.style.display = "block";
+                    taskBtn.classList.add("active");
+                    reviewAllTasks();
+                } else if (tabName === 'auditList') {
+                    auditContent.style.display = "block";
+                    auditBtn.classList.add("active");
+                    loadAuditLogs();
                 }
             }
-        });
 
-        function formatDateForInput(date) {
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
+            // DATES
+            function setCurrentMonthDates() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth();
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const fromInput = document.getElementById("fromDate");
+                const toInput = document.getElementById("toDate");
+                if (fromInput) fromInput.value = formatDateForInput(firstDay);
+                if (toInput) toInput.value = formatDateForInput(lastDay);
+            }
 
-        // API
-        const BASE_URL = window.location.origin;
+            function reviewAllTasks() {
+                setCurrentMonthDates();
+                document.getElementById("userIds").value = "";
+                fetchAdminTasks();
+            }
 
-        async function fetchAdminTasks() {
-            const from = document.getElementById("fromDate").value;
-            const to = document.getElementById("toDate").value;
-            const userIdsInput = document.getElementById("userIds").value.trim();
+            document.addEventListener("DOMContentLoaded", async function () {
+                setCurrentMonthDates();
+                initTheme(); // Ensure button text is correct
+                lucide.createIcons();
 
-            if (!from || !to) { alert("Select From and To dates"); return; }
+                // Session Check: If token exists in localStorage, auto-login
+                const savedToken = localStorage.getItem("token");
+                if (savedToken) {
+                    token = savedToken;
+                    try {
+                        await fetchProfile(); // Use the new fetchProfile
+                        document.getElementById("loginBox").style.display = "none";
+                        document.getElementById("dashboard").style.display = "flex";
+                        document.body.classList.add('logged-in');
+                        if (currentUserRole === "ROLE_ADMIN") {
+                            showAdminDashboard();
+                        } else {
+                            showUserDashboard();
+                        }
+                    } catch (e) {
+                        console.error("Auto-login failed:", e);
+                        localStorage.removeItem("token");
+                        token = "";
+                        // Ensure login box is visible if auto-login fails
+                        document.getElementById("loginBox").style.display = "block";
+                        document.getElementById("dashboard").style.display = "none";
+                        lucide.createIcons();
+                    }
+                }
+            });
 
-            const userIdArray = userIdsInput !== ""
-                ? userIdsInput.split(',').map(id => Number(id.trim()))
-                : [];
+            function formatDateForInput(date) {
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
 
-            const searchData = { fromDate: from, toDate: to, userIds: userIdArray };
-            const url = `${BASE_URL}/admin/task`;
+            // API
+            const BASE_URL = window.location.origin;
 
-            try {
-                const res = await fetch(url, {
-                    method: "POST",
-                    headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
-                    body: JSON.stringify(searchData)
-                });
-                if (!res.ok) throw new Error("Failed to fetch tasks");
+            async function fetchAdminTasks() {
+                const from = document.getElementById("fromDate").value;
+                const to = document.getElementById("toDate").value;
+                const userIdsInput = document.getElementById("userIds").value.trim();
 
-                const tasks = await res.json();
+                if (!from || !to) { alert("Select From and To dates"); return; }
+
+                const userIdArray = userIdsInput !== ""
+                    ? userIdsInput.split(',').map(id => Number(id.trim()))
+                    : [];
+
+                const searchData = { fromDate: from, toDate: to, userIds: userIdArray };
+                const url = `${BASE_URL}/admin/task`;
+
+                try {
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+                        body: JSON.stringify(searchData)
+                    });
+                    if (!res.ok) throw new Error("Failed to fetch tasks");
+
+                    adminTasksList = await res.json();
+                    renderAdminTasks();
+                } catch (e) { console.error("Fetch error:", e); }
+            }
+
+            function renderAdminTasks() {
                 const tbody = document.getElementById("adminTaskBody");
                 tbody.innerHTML = "";
 
-                if (!Array.isArray(tasks) || tasks.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px;'>No tasks found.</td></tr>";
+                let filtered = adminTasksList;
+
+                // Handle status filtering based on Task Breakdown selection
+                const statusMap = {
+                    'todo': 'TO_DO',
+                    'progress': 'IN_PROGRESS',
+                    'review': 'REVIEW',
+                    'completed': 'COMPLETED'
+                };
+
+                const targetStatus = statusMap[currentAdminUserFilter];
+                if (targetStatus) {
+                    filtered = adminTasksList.filter(t => t.status === targetStatus);
+                }
+
+                if (!Array.isArray(filtered) || filtered.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--text-muted);'>No tasks matching filters.</td></tr>";
                 } else {
-                    tasks.forEach(t => {
+                    filtered.forEach(t => {
                         const formatDate = (d) => d ? d.split('T')[0] : "-";
                         const displayStatus = statusLabels[t.status] || t.status;
                         tbody.innerHTML += `
                         <tr data-id="${t.id}" data-reassigned="${t.reassigned || false}">
                             <td>
-                                <b>${t.userName || "Unknown"}</b><br>
-                                <span style="font-size:11px; color:#aaa;">ID: ${t.userId || ""}</span>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div class="avatar" style="width:32px; height:32px; font-size:0.8rem; margin:0;">${(t.userName || "U").charAt(0).toUpperCase()}</div>
+                                    <div>
+                                        <b style="color:var(--text-main);">${t.userName || "Unknown"}</b><br>
+                                        <span style="font-size:11px; color:var(--text-muted);">ID: ${t.userId || ""}</span>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="task-title" style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">${t.title || ""}
+                            <td class="task-title" style="max-width:200px; overflow:hidden; text-overflow:ellipsis; font-weight:600;">${t.title || ""}
                                 <div class="task-desc" style="display:none;">${t.description || ""}</div>
                             </td>
                             <td><span class="task-status" data-status="${t.status}">${displayStatus}</span></td>
-                            <td>${formatDate(t.dueDate)}</td>
-                            <td style="max-width:150px; font-size:12px; color:#718096; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.comment || ''}">${t.comment || "-"}</td>
+                            <td><span style="display:flex; align-items:center; gap:4px; font-size:0.85rem;"><i data-lucide="calendar" style="width:14px;"></i> ${formatDate(t.dueDate)}</span></td>
+                            <td style="max-width:150px; font-size:12px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.comment || ''}">${t.comment || "-"}</td>
                             <td>
                                 <button onclick="openEditModal('${t.id}')" 
-                                    style="padding:8px 15px; border:none; border-radius:8px; background:linear-gradient(45deg, #ff9966, #ff5e62); cursor:pointer; font-size:12px; margin:0; width:auto; box-shadow:none;">
-                                    Manage
+                                    class="action-btn-mini" style="width:auto; padding:6px 12px; margin:0;">
+                                    <i data-lucide="settings-2" style="width:14px;"></i> Manage
                                 </button>
                             </td>
                         </tr>`;
                     });
                 }
-            } catch (e) { console.error("Display error:", e); }
-        }
-
-        async function login() {
-            const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value.trim();
-            const error = document.getElementById("error");
-            error.innerText = "";
-
-            try {
-                const res = await fetch(`${BASE_URL}/auth/login`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password })
-                });
-                if (!res.ok) throw new Error("Invalid Credentials");
-                const data = await res.json();
-                token = data.token;
-                sessionStorage.setItem("token", token);
-                await loadProfile();
-                document.getElementById("loginBox").style.display = "none";
-                document.getElementById("dashboard").style.display = "block";
-            } catch (e) {
-                error.innerText = e.message;
-                // Add shake animation
-                const box = document.getElementById("loginBox");
-                box.style.transform = "translateX(10px)";
-                setTimeout(() => box.style.transform = "translateX(-10px)", 100);
-                setTimeout(() => box.style.transform = "none", 200);
+                lucide.createIcons();
             }
-        }
 
-        async function loadProfile() {
-            const res = await fetch(`${BASE_URL}/user/profile`, {
-                headers: { Authorization: "Bearer " + token }
-            });
-            const user = await res.json();
+            async function login() {
+                const username = document.getElementById("username").value.trim();
+                const password = document.getElementById("password").value.trim();
+                const error = document.getElementById("error");
+                error.innerText = "";
 
-            // Fill Data
-            const fill = (p, obj) => {
-                document.getElementById(`${p}Uid`).innerText = obj.userId || "";
-                document.getElementById(`${p}Uname`).innerText = obj.username || "";
-                document.getElementById(`${p}Email`).innerText = obj.email || "";
-                document.getElementById(`${p}Role`).innerText = obj.role || "";
-            };
+                try {
+                    const res = await fetch(`${BASE_URL}/auth/login`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        token = data.token;
+                        localStorage.setItem("token", token);
+                        document.getElementById("loginBox").style.display = "none";
+                        document.getElementById("dashboard").style.display = "flex";
+                        document.body.classList.add('logged-in');
+                        await fetchProfile();
+                        if (currentUserRole === "ROLE_ADMIN") {
+                            showAdminDashboard();
+                        } else {
+                            showUserDashboard();
+                        }
+                    } else {
+                        const errorText = await res.text();
+                        error.innerText = errorText || "Login failed";
+                        // Add shake animation
+                        const box = document.getElementById("loginBox");
+                        box.style.transform = "translateX(10px)";
+                        setTimeout(() => box.style.transform = "translateX(-10px)", 100);
+                        setTimeout(() => box.style.transform = "none", 200);
+                    }
+                } catch (err) {
+                    error.innerText = "Server Error: " + err.message;
+                    // Add shake animation
+                    const box = document.getElementById("loginBox");
+                    box.style.transform = "translateX(10px)";
+                    setTimeout(() => box.style.transform = "translateX(-10px)", 100);
+                    setTimeout(() => box.style.transform = "none", 200);
+                }
+            }
 
-            if (user.role === "ROLE_ADMIN") {
-                document.getElementById("adminMenuContainer").style.display = "block";
+            async function fetchProfile() {
+                const res = await fetch(`${BASE_URL}/user/profile`, {
+                    headers: { Authorization: "Bearer " + token }
+                });
+                if (!res.ok) {
+                    localStorage.removeItem("token");
+                    token = "";
+                    throw new Error("Failed to fetch profile");
+                }
+                const user = await res.json();
+                currentUserRole = user.role; // Store the role globally
+
+                // Update Sidebar
+                document.getElementById('sidebarUname').innerText = user.username;
+                document.getElementById('sidebarEmail').innerText = user.email;
+                document.getElementById('sidebarRole').innerText = user.role === 'ROLE_ADMIN' ? 'Administrator' : 'User';
+                document.getElementById('sidebarUid').innerText = user.userId;
+                document.getElementById('avatarName').innerText = user.username.charAt(0).toUpperCase();
+
+                // Show admin links if admin
+                document.getElementById('adminLinks').style.display = (user.role === 'ROLE_ADMIN' ? 'block' : 'none');
+            }
+
+            async function loadAdminSummary() {
+                try {
+                    const res = await fetch(`${BASE_URL}/admin/summary`, {
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+                    if (res.ok) {
+                        adminSummaryData = await res.json();
+                        // Sidebar stats
+                        document.getElementById("sidebarTotalUsers").innerText = adminSummaryData.totalUsers;
+                        document.getElementById("sidebarActiveUsers").innerText = adminSummaryData.activeUsers;
+                        document.getElementById("sidebarNoTasksUsers").innerText = adminSummaryData.usersWithoutTasks;
+
+                        // Task stats
+                        document.getElementById("summaryTotalTasks").innerText = adminSummaryData.totalTasks;
+                        document.getElementById("summaryTodoTasks").innerText = adminSummaryData.todoTasks;
+                        document.getElementById("summaryInProgressTasks").innerText = adminSummaryData.inProgressTasks;
+                        document.getElementById("summaryReviewTasks").innerText = adminSummaryData.reviewTasks;
+                        document.getElementById("summaryCompletedTasks").innerText = adminSummaryData.completedTasks;
+                    }
+                } catch (e) { console.error("Summary load error:", e); }
+            }
+
+            function filterUsers(type) {
+                currentAdminUserFilter = type;
+
+                // UI Visual Feedback
+                document.querySelectorAll('.task-card-mini, .sidebar-stat-item').forEach(c => {
+                    c.classList.remove('active-filter');
+                    c.style.boxShadow = '';
+                    if (c.classList.contains('sidebar-stat-item')) c.style.background = '';
+                });
+
+                const cardMap = {
+                    'total': 'cardTotal', 'active': 'cardActive', 'noTask': 'cardNoTask',
+                    'taskTotal': 'cardTaskTotal', 'todo': 'cardTodo', 'progress': 'cardProgress',
+                    'review': 'cardReview', 'completed': 'cardCompleted'
+                };
+
+                const activeCardId = cardMap[type];
+                if (activeCardId) {
+                    const el = document.getElementById(activeCardId);
+                    el.classList.add('active-filter');
+                    // Summary card or sidebar item specific styles are handled by CSS classes now
+                }
+
+                renderAdminUsers();
+                renderAdminTasks();
+            }
+
+            async function showAdminDashboard() {
                 document.getElementById("adminPage").style.display = "block";
                 document.getElementById("addTaskBtn").style.display = "none";
                 document.getElementById("userProfile").style.display = "none";
                 document.getElementById("userTaskBox").style.display = "none";
-                fill("admin", user);
-                loadAdminUsers();
-            } else {
-                document.getElementById("adminMenuContainer").style.display = "none";
+                await loadAdminSummary();
+                await loadAdminUsers();
+                filterUsers('total');
+                await fetchAdminTasks();
+            }
+
+            async function showUserDashboard() {
                 document.getElementById("adminPage").style.display = "none";
                 document.getElementById("userProfile").style.display = "block";
                 document.getElementById("addTaskBtn").style.display = "block";
                 document.getElementById("userTaskBox").style.display = "block";
-                fill("user", user);
-                loadTasks();
+                await loadTasks();
             }
-        }
 
-        async function loadTasks() {
-            try {
-                const res = await fetch(`${BASE_URL}/user/tasks`, {
-                    headers: { Authorization: "Bearer " + token }
+            async function loadTasks() {
+                try {
+                    const res = await fetch(`${BASE_URL}/user/tasks`, {
+                        headers: { Authorization: "Bearer " + token }
+                    });
+                    const tasks = await res.json();
+                    const tbody = document.getElementById("taskBody");
+                    tbody.innerHTML = "";
+                    if (!tasks || tasks.length === 0) {
+                        tbody.innerHTML = "<tr><td colspan='6' style='text-align:center'>No tasks found. Enjoy your day!</td></tr>";
+                        return;
+                    }
+                    tasks.forEach(t => {
+                        const displayStatus = statusLabels[t.status] || t.status;
+                        tbody.innerHTML += `
+                    <tr data-id="${t.id}" data-reassigned="${t.reassigned || false}">
+                        <td class="task-title" style="font-weight:700; color:var(--text-main);">${t.title || ""}</td>
+                        <td class="task-desc" style="color:var(--text-muted); font-size:0.85rem;">${t.description || ""}</td>
+                        <td><span style="display:flex; align-items:center; gap:4px; font-size:0.85rem;"><i data-lucide="clock" style="width:14px;"></i> ${t.createdAt ? t.createdAt.split('T')[0] : ""}</span></td>
+                        <td><span style="display:flex; align-items:center; gap:4px; font-size:0.85rem; color: #ef4444; font-weight:700;"><i data-lucide="calendar" style="width:14px;"></i> ${t.dueDate ? t.dueDate.split('T')[0] : "-"}</span></td>
+                        <td><span class="task-status" data-status="${t.status}">${displayStatus}</span></td>
+                        <td style="max-width:150px; font-size:12px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.comment || ''}">${t.comment || "-"}</td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <button onclick="openEditModal('${t.id}')" 
+                                    class="action-btn-mini" style="width:auto; padding:6px 12px; margin:0;">
+                                    <i data-lucide="edit-3" style="width:14px;"></i> Edit
+                                </button>
+                                <button onclick="openLogWorkModal('${t.id}', '${t.status}')" 
+                                    class="add-task-btn" style="width:auto; padding:6px 12px; margin:0; font-size:12px; background:linear-gradient(135deg, #3b82f6, #2563eb); box-shadow:none;">
+                                    <i data-lucide="timer" style="width:14px;"></i> Log Time
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+                    });
+                    lucide.createIcons();
+                } catch (e) { console.error(e); }
+            }
+
+            async function updateTask() {
+                const title = document.getElementById("editTaskTitle").value.trim();
+                const description = document.getElementById("editTaskDesc").value.trim();
+                const statusInput = document.querySelector('input[name="editStatus"]:checked');
+
+                if (!statusInput) { alert("Please select task status"); return; }
+                if (!title || !description || !editTaskId) { alert("All fields are required"); return; }
+
+                const status = statusInput.value;
+                const body = { title, description, status };
+                const commentSection = document.getElementById("commentSection");
+                const reassignSection = document.getElementById("reassignSection");
+                const comment = document.getElementById("editTaskComment").value.trim();
+
+                if (status === "REASSIGN") {
+                    const newUserId = document.getElementById("reassignUserId").value;
+                    if (!newUserId) { alert("Please select a user to reassign to"); return; }
+                    body.userId = Number(newUserId);
+                }
+
+                if (commentSection.style.display !== "none") {
+                    if (!comment) {
+                        alert("A comment is required for this action!");
+                        document.getElementById("editTaskComment").focus();
+                        return;
+                    }
+                    body.comment = comment;
+                }
+
+                try {
+                    const res = await fetch(`${BASE_URL}/user/tasks/${editTaskId}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                        body: JSON.stringify(body)
+                    });
+
+                    if (res.ok) {
+                        await loadTasks();
+                        // If Admin called this from task list, refresh that too
+                        if (document.getElementById("adminPage").style.display === "block") {
+                            fetchAdminTasks();
+                        }
+                        closeEditModal();
+                    } else if (res.status === 401) {
+                        alert("Session expired. Please login again.");
+                    } else {
+                        const error = await res.text();
+                        alert("Update failed: " + error);
+                    }
+                } catch (err) { alert("Server error: " + err.message); }
+            }
+
+            function openEditModal(id) {
+                editTaskId = id;
+                const row = document.querySelector(`tr[data-id="${id}"]`);
+                const title = row.querySelector(".task-title").innerText;
+                const desc = row.querySelector(".task-desc").innerText;
+                const currentStatus = row.querySelector(".task-status").getAttribute("data-status") || row.querySelector(".task-status").innerText.trim();
+
+                document.getElementById("editTaskTitle").value = title;
+                document.getElementById("editTaskDesc").value = desc;
+                document.getElementById("editTaskComment").value = ""; // Clear for new edit
+
+                // Reliable role detection
+                const isAdmin = document.getElementById("adminPage").style.display !== "none";
+                const isReassigned = row.getAttribute("data-reassigned") === "true";
+                const role = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";
+
+                // Permission Fix: Regular users cannot edit title/desc
+                if (role === "ROLE_USER") {
+                    document.getElementById("editTaskTitle").disabled = true;
+                    document.getElementById("editTaskDesc").disabled = true;
+                } else {
+                    document.getElementById("editTaskTitle").disabled = false;
+                    document.getElementById("editTaskDesc").disabled = false;
+                }
+
+                applyStatusRules(role, currentStatus, isReassigned);
+
+                // Determine which status to check by default
+                let statusToSelect = currentStatus;
+                if (role === "ROLE_USER" && currentStatus === "REASSIGN") {
+                    statusToSelect = "IN_PROGRESS";
+                }
+
+                const radios = document.getElementsByName("editStatus");
+                radios.forEach(r => {
+                    if (r.value === statusToSelect) {
+                        r.checked = true;
+                    }
                 });
-                const tasks = await res.json();
-                const tbody = document.getElementById("taskBody");
+
+                checkCommentRequirement();
+
+                const reassignSelect = document.getElementById("reassignUserId");
+                if (reassignSelect && isAdmin) {
+                    reassignSelect.innerHTML = '<option value="">Select User</option>';
+                    adminUsersList.forEach(u => {
+                        if (u.role === "ROLE_USER") {
+                            const option = document.createElement("option");
+                            option.value = u.id;
+                            option.textContent = `${u.username} (${u.email})`;
+                            reassignSelect.appendChild(option);
+                        }
+                    });
+                } else if (reassignSelect) {
+                    reassignSelect.innerHTML = "";
+                }
+
+                document.getElementById("editModal").style.display = "flex";
+            }
+
+            async function addTask() {
+                const title = document.getElementById("taskTitle").value.trim();
+                const desc = document.getElementById("taskDesc").value.trim();
+                const date = document.getElementById("taskDueDate").value;
+                if (!title || !desc || !date) { alert("Fill all fields"); return; }
+                try {
+                    const res = await fetch(`${BASE_URL}/user/tasks/addtask`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                        body: JSON.stringify({ title, description: desc, dueDate: date })
+                    });
+                    if (res.ok) { closeModal(); await loadTasks(); }
+                } catch (e) { alert(e.message); }
+            }
+
+            let logWorkTaskId = null;
+
+            function openLogWorkModal(taskId, currentStatus) {
+                logWorkTaskId = taskId;
+                document.getElementById("logWorkModal").style.display = "flex";
+                document.getElementById("logComment").value = "";
+
+                // Pre-select current status or default
+                const radios = document.getElementsByName("logStatus");
+                let found = false;
+                radios.forEach(r => {
+                    if (r.value === currentStatus) {
+                        r.checked = true;
+                        found = true;
+                    } else {
+                        r.checked = false;
+                    }
+                });
+                if (!found && currentStatus === 'REASSIGN') {
+                    // If reassign, maybe default to IN_PROGRESS?
+                    // But REASSIGN isn't an option.
+                }
+
+                // Default start to now, end to now
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                document.getElementById("logStartTime").value = now.toISOString().slice(0, 16);
+                document.getElementById("logEndTime").value = now.toISOString().slice(0, 16);
+            }
+
+            function closeLogWorkModal() {
+                document.getElementById("logWorkModal").style.display = "none";
+                logWorkTaskId = null;
+            }
+
+            async function submitLogWork() {
+                const start = document.getElementById("logStartTime").value;
+                const end = document.getElementById("logEndTime").value;
+                const comment = document.getElementById("logComment").value.trim();
+                const statusInput = document.querySelector('input[name="logStatus"]:checked');
+
+                if (!start || !end) { alert("Please select both start and end times"); return; }
+                if (new Date(start) > new Date(end)) { alert("Start time must be before end time"); return; }
+                if (!comment) { alert("Please provide a description of the work done"); return; }
+                if (!statusInput) { alert("Please select a task status"); return; }
+
+                const body = {
+                    taskId: logWorkTaskId,
+                    startTime: start,
+                    endTime: end,
+                    comment: comment,
+                    status: statusInput.value
+                };
+
+                try {
+                    const res = await fetch(`${BASE_URL}/user/tasks/log-work`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                        body: JSON.stringify(body)
+                    });
+                    if (res.ok) {
+                        alert("Timesheet updated successfully!"); // Feedback updated
+                        closeLogWorkModal();
+                        await loadTasks();
+                    } else {
+                        const txt = await res.text();
+                        alert("Failed: " + txt);
+                    }
+                } catch (e) { console.error(e); alert("Error logging work"); }
+            }
+
+            // Modals
+            function openModal() { document.getElementById("taskModal").style.display = "flex"; }
+            function closeModal() {
+                document.getElementById("taskModal").style.display = "none";
+                document.getElementById("taskTitle").value = "";
+                document.getElementById("taskDesc").value = "";
+                document.getElementById("taskDueDate").value = "";
+            }
+            function closeEditModal() {
+                document.getElementById("editModal").style.display = "none";
+                document.getElementById("editTaskComment").value = "";
+                editTaskId = "";
+            }
+            async function logout() {
+                try {
+                    await fetch(`${BASE_URL}/auth/logout`, {
+                        method: "POST",
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+                } catch (e) { console.error("Logout error:", e); }
+                localStorage.removeItem("token");
+                location.reload();
+            }
+
+            // Admin Stuff
+            async function loadAdminUsers() {
+                const tbody = document.getElementById("adminUserBody");
+                tbody.innerHTML = "<tr><td colspan='6' style='text-align:center'>Loading users...</td></tr>";
+
+                try {
+                    // Parallel fetch: Users AND Audit Logs (active sessions)
+                    const [resUsers, resAudit] = await Promise.all([
+                        fetch(`${BASE_URL}/admin/users`, { headers: { "Authorization": "Bearer " + token } }),
+                        fetch(`${BASE_URL}/admin/audit`, { headers: { "Authorization": "Bearer " + token } })
+                    ]);
+
+                    const users = await resUsers.json();
+                    const auditLogs = await resAudit.json();
+
+                    // Update global list
+                    adminUsersList = users;
+
+                    // Map active sessions for visual indicator
+                    window.activeUserIdsSet = new Set();
+                    if (auditLogs && Array.isArray(auditLogs)) {
+                        auditLogs.forEach(log => {
+                            if (log.status === 'ACTIVE') {
+                                window.activeUserIdsSet.add(log.userId);
+                            }
+                        });
+                    }
+
+                    // Initial render with current filter
+                    renderAdminUsers();
+
+                } catch (e) { console.error(e); }
+            }
+
+            function renderAdminUsers() {
+                const tbody = document.getElementById("adminUserBody");
+                const assignSelect = document.getElementById("assignUserId");
+
+                let filtered = adminUsersList;
+
+                if (adminSummaryData) {
+                    const filterMap = {
+                        'active': adminSummaryData.activeUserIds,
+                        'noTask': adminSummaryData.noTaskUserIds,
+                        'todo': adminSummaryData.todoUserIds,
+                        'progress': adminSummaryData.inProgressUserIds,
+                        'review': adminSummaryData.reviewUserIds,
+                        'completed': adminSummaryData.completedUserIds
+                    };
+
+                    const filterIds = filterMap[currentAdminUserFilter];
+                    if (filterIds) {
+                        const ids = new Set(filterIds);
+                        filtered = adminUsersList.filter(u => ids.has(u.id));
+                    }
+                }
+
+                document.getElementById("totalUsers").innerText = filtered.length;
+                assignSelect.innerHTML = '<option value="">Select User</option>';
                 tbody.innerHTML = "";
-                if (!tasks || tasks.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center'>No tasks found. Enjoy your day!</td></tr>";
+
+                if (filtered.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:20px; color:#aaa;'>No users found in this category</td></tr>";
                     return;
                 }
-                tasks.forEach(t => {
-                    const displayStatus = statusLabels[t.status] || t.status;
+
+                filtered.forEach(u => {
+                    const isOnline = window.activeUserIdsSet && window.activeUserIdsSet.has(u.id);
+                    const onlineText = isOnline ? "Active" : "Offline";
+                    const onlineColor = isOnline ? "var(--success)" : "var(--text-muted)";
+                    const onlineIcon = isOnline ? "zap" : "moon";
+
                     tbody.innerHTML += `
-                    <tr data-id="${t.id}" data-reassigned="${t.reassigned || false}">
-                        <td class="task-title" style="font-weight:600;">${t.title || ""}</td>
-                        <td class="task-desc" style="color:#ccc;">${t.description || ""}</td>
-                        <td>${t.createdAt ? t.createdAt.split('T')[0] : ""}</td>
-                        <td><span class="task-status" data-status="${t.status}">${displayStatus}</span></td>
-                        <td style="max-width:150px; font-size:12px; color:#718096; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.comment || ''}">${t.comment || "-"}</td>
+                    <tr>
+                        <td><span style="font-weight:700; color:var(--text-muted); font-size:0.8rem;">#${u.id}</span></td>
                         <td>
-                            <button onclick="openEditModal('${t.id}')" 
-                                style="padding:6px 12px; border:none; border-radius:6px; background:rgba(255,193,7,0.8); cursor:pointer; font-size:12px; margin:0; width:auto; color:black;">
-                                Edit
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="avatar" style="width:30px; height:30px; font-size:0.8rem; margin:0;">${u.username.charAt(0).toUpperCase()}</div>
+                                <b style="color:var(--text-main);">${u.username}</b>
+                            </div>
+                        </td>
+                        <td style="color:var(--text-muted); font-size:0.9rem;">${u.email}</td>
+                        <td><span style="padding:2px 8px; border-radius:4px; background:var(--border); font-size:0.75rem; font-weight:600;">${u.role.replace('ROLE_', '')}</span></td>
+                        <td>
+                            <span style="color:${onlineColor}; font-weight:700; display:flex; align-items:center; gap:4px; font-size:0.85rem;">
+                                <i data-lucide="${onlineIcon}" style="width:14px; height:14px;"></i> ${onlineText}
+                            </span>
+                        </td>
+                        <td>
+                            <button onclick="openUserAudit('${u.id}', '${u.username}')" 
+                                class="action-btn-mini" style="width:auto; padding:6px 12px; margin:0;">
+                                <i data-lucide="eye" style="width:14px;"></i> Activity
                             </button>
                         </td>
                     </tr>`;
-                });
-            } catch (e) { console.error(e); }
-        }
-
-        async function updateTask() {
-            const title = document.getElementById("editTaskTitle").value.trim();
-            const description = document.getElementById("editTaskDesc").value.trim();
-            const statusInput = document.querySelector('input[name="editStatus"]:checked');
-
-            if (!statusInput) { alert("Please select task status"); return; }
-            if (!title || !description || !editTaskId) { alert("All fields are required"); return; }
-
-            const status = statusInput.value;
-            const body = { title, description, status };
-            const commentSection = document.getElementById("commentSection");
-            const reassignSection = document.getElementById("reassignSection");
-            const comment = document.getElementById("editTaskComment").value.trim();
-
-            if (status === "REASSIGN") {
-                const newUserId = document.getElementById("reassignUserId").value;
-                if (!newUserId) { alert("Please select a user to reassign to"); return; }
-                body.userId = Number(newUserId);
-            }
-
-            if (commentSection.style.display !== "none") {
-                if (!comment) {
-                    alert("A comment is required for this action!");
-                    document.getElementById("editTaskComment").focus();
-                    return;
-                }
-                body.comment = comment;
-            }
-
-            try {
-                const res = await fetch(`${BASE_URL}/user/tasks/${editTaskId}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify(body)
-                });
-
-                if (res.ok) {
-                    await loadTasks();
-                    // If Admin called this from task list, refresh that too
-                    if (document.getElementById("adminPage").style.display === "block") {
-                        fetchAdminTasks();
-                    }
-                    closeEditModal();
-                } else if (res.status === 401) {
-                    alert("Session expired. Please login again.");
-                } else {
-                    const error = await res.text();
-                    alert("Update failed: " + error);
-                }
-            } catch (err) { alert("Server error: " + err.message); }
-        }
-
-        function openEditModal(id) {
-            editTaskId = id;
-            const row = document.querySelector(`tr[data-id="${id}"]`);
-            const title = row.querySelector(".task-title").innerText;
-            const desc = row.querySelector(".task-desc").innerText;
-            const currentStatus = row.querySelector(".task-status").getAttribute("data-status") || row.querySelector(".task-status").innerText.trim();
-
-            document.getElementById("editTaskTitle").value = title;
-            document.getElementById("editTaskDesc").value = desc;
-            document.getElementById("editTaskComment").value = ""; // Clear for new edit
-
-            // Reliable role detection
-            const isAdmin = document.getElementById("adminPage").style.display !== "none";
-            const isReassigned = row.getAttribute("data-reassigned") === "true";
-            const role = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";
-
-            // Permission Fix: Regular users cannot edit title/desc
-            if (role === "ROLE_USER") {
-                document.getElementById("editTaskTitle").disabled = true;
-                document.getElementById("editTaskDesc").disabled = true;
-            } else {
-                document.getElementById("editTaskTitle").disabled = false;
-                document.getElementById("editTaskDesc").disabled = false;
-            }
-
-            applyStatusRules(role, currentStatus, isReassigned);
-
-            // Determine which status to check by default
-            let statusToSelect = currentStatus;
-            if (role === "ROLE_USER" && currentStatus === "REASSIGN") {
-                statusToSelect = "IN_PROGRESS";
-            }
-
-            const radios = document.getElementsByName("editStatus");
-            radios.forEach(r => {
-                if (r.value === statusToSelect) {
-                    r.checked = true;
-                }
-            });
-
-            checkCommentRequirement();
-
-            const reassignSelect = document.getElementById("reassignUserId");
-            if (reassignSelect && isAdmin) {
-                reassignSelect.innerHTML = '<option value="">Select User</option>';
-                adminUsersList.forEach(u => {
-                    if (u.role === "ROLE_USER") {
-                        const option = document.createElement("option");
-                        option.value = u.id;
-                        option.textContent = `${u.username} (${u.email})`;
-                        reassignSelect.appendChild(option);
-                    }
-                });
-            } else if (reassignSelect) {
-                reassignSelect.innerHTML = "";
-            }
-
-            document.getElementById("editModal").style.display = "flex";
-        }
-
-        async function addTask() {
-            const title = document.getElementById("taskTitle").value.trim();
-            const desc = document.getElementById("taskDesc").value.trim();
-            const date = document.getElementById("taskDueDate").value;
-            if (!title || !desc || !date) { alert("Fill all fields"); return; }
-            try {
-                const res = await fetch(`${BASE_URL}/user/tasks/addtask`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-                    body: JSON.stringify({ title, description: desc, dueDate: date })
-                });
-                if (res.ok) { closeModal(); await loadTasks(); }
-            } catch (e) { alert(e.message); }
-        }
-
-        // Modals
-        function openModal() { document.getElementById("taskModal").style.display = "flex"; }
-        function closeModal() {
-            document.getElementById("taskModal").style.display = "none";
-            document.getElementById("taskTitle").value = "";
-            document.getElementById("taskDesc").value = "";
-            document.getElementById("taskDueDate").value = "";
-        }
-        function closeEditModal() {
-            document.getElementById("editModal").style.display = "none";
-            document.getElementById("editTaskComment").value = "";
-            editTaskId = "";
-        }
-        async function logout() {
-            try {
-                await fetch(`${BASE_URL}/auth/logout`, {
-                    method: "POST",
-                    headers: { "Authorization": "Bearer " + token }
-                });
-            } catch (e) { console.error("Logout error:", e); }
-            sessionStorage.removeItem("token");
-            location.reload();
-        }
-
-        // Admin Stuff
-        async function loadAdminUsers() {
-            try {
-                // Fetch Users
-                const uRes = await fetch(`${BASE_URL}/admin/users`, { headers: { Authorization: "Bearer " + token } });
-                const users = await uRes.json();
-
-                // Fetch Audit Logs to calculate stats
-                const aRes = await fetch(`${BASE_URL}/admin/audit`, { headers: { Authorization: "Bearer " + token } });
-                const allLogs = await aRes.json();
-
-                // Group logs by user
-                const logMap = {};
-                allLogs.forEach(l => {
-                    if (!logMap[l.userId]) logMap[l.userId] = [];
-                    logMap[l.userId].push(l);
-                });
-
-                adminUsersList = users;
-                document.getElementById("totalUsers").innerText = users.length;
-                const tbody = document.getElementById("adminUserBody");
-                tbody.innerHTML = "";
-                const assignSelect = document.getElementById("assignUserId");
-                assignSelect.innerHTML = '<option value="">Select User</option>';
-
-                const startOfToday = new Date();
-                startOfToday.setHours(0, 0, 0, 0);
-                const now = new Date();
-
-                users.forEach(u => {
-                    let totalToday = 0;
-                    let currentStatus = 'LOGOUT';
-
-                    const uLogs = logMap[u.id] || [];
-                    uLogs.forEach(l => {
-                        const lDate = l.loginTime ? l.loginTime.split('T')[0] : "";
-
-                        const start = new Date(l.loginTime);
-                        const end = l.logoutTime ? new Date(l.logoutTime) : (l.status === 'ACTIVE' ? now : start);
-                        const durationMinutes = (end - start) / (1000 * 60);
-
-                        if (start >= startOfToday) {
-                            totalToday += durationMinutes;
-                        }
-                        if (l.status === 'ACTIVE') currentStatus = 'ACTIVE';
-                    });
-
-                    // Round for display
-                    const totalTodayDisplay = totalToday > 0 && totalToday < 1 ? "< 1" : Math.round(totalToday);
-
-                    const statusStyle = currentStatus === 'ACTIVE' ? 'color:#38a169; font-weight:700;' : 'color:#718096;';
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${u.id}</td>
-                            <td><b>${u.username}</b></td>
-                            <td>${u.email}</td>
-                            <td>${u.role}</td>
-                            <td><span style="${statusStyle}">${currentStatus}</span></td>
-                            <td>
-                                <button onclick="openUserAudit('${u.id}', '${u.username}')" 
-                                    style="padding:4px 10px; font-size:11px; width:auto; margin:0; background:var(--primary-orange);">
-                                    View Details
-                                </button>
-                            </td>
-                        </tr>`;
 
                     if (u.role === "ROLE_USER") {
                         const option = document.createElement("option");
@@ -1510,194 +2271,272 @@
                         assignSelect.appendChild(option);
                     }
                 });
-            } catch (e) { console.error(e); }
-        }
+                lucide.createIcons();
+            }
 
-        function toggleAdminMenu() {
-            document.getElementById("adminDropdown").classList.toggle("show-admin-menu");
-        }
 
-        function openCreateUserModal() { document.getElementById("createUserModal").style.display = "flex"; }
-        function closeCreateUserModal() { document.getElementById("createUserModal").style.display = "none"; }
-        function openAssignModal() { document.getElementById("assignTaskModal").style.display = "flex"; }
 
-        function closeAssignModal() {
-            document.getElementById("assignTaskModal").style.display = "none";
-            document.getElementById("assignUserId").value = "";
-            document.getElementById("assignTitle").value = "";
-            document.getElementById("assignDesc").value = "";
-            document.getElementById("assignDueDate").value = "";
-        }
+            function toggleAdminMenu() {
+                document.getElementById("adminDropdown").classList.toggle("show-admin-menu");
+            }
 
-        async function submitCreateUser() {
-            const username = document.getElementById("newUsername").value.trim();
-            const email = document.getElementById("newEmail").value.trim();
-            const password = document.getElementById("newPassword").value.trim();
-            const role = document.getElementById("newRole").value;
-            if (!username || !email || !password) { alert("Please fill all fields"); return; }
-            try {
-                const res = await fetch(`${BASE_URL}/admin/create-user`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-                    body: JSON.stringify({ username, email, password, role })
-                });
-                if (!res.ok) throw new Error(await res.text());
-                alert("User created!");
-                closeCreateUserModal();
-                loadAdminUsers();
-            } catch (e) { alert("Error: " + e.message); }
-        }
+            function openCreateUserModal() { document.getElementById("createUserModal").style.display = "flex"; }
+            function closeCreateUserModal() { document.getElementById("createUserModal").style.display = "none"; }
+            function openAssignModal() { document.getElementById("assignTaskModal").style.display = "flex"; }
 
-        async function submitAssignTask() {
-            const userId = document.getElementById("assignUserId").value;
-            const title = document.getElementById("assignTitle").value.trim();
-            const description = document.getElementById("assignDesc").value.trim();
-            const dueDate = document.getElementById("assignDueDate").value;
-            if (!userId || !title || !description || !dueDate) { alert("Fill all fields"); return; }
-            try {
-                const res = await fetch(`${BASE_URL}/admin/assign-task`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-                    body: JSON.stringify({ userId: Number(userId), title, description, dueDate })
-                });
-                if (res.ok) {
-                    alert("Task assigned!");
-                    closeAssignModal();
-                    fetchAdminTasks();
-                } else {
-                    alert("Error: " + await res.text());
-                }
-            } catch (e) { alert("Error: " + e.message); }
-        }
+            function closeAssignModal() {
+                document.getElementById("assignTaskModal").style.display = "none";
+                document.getElementById("assignUserId").value = "";
+                document.getElementById("assignTitle").value = "";
+                document.getElementById("assignDesc").value = "";
+                document.getElementById("assignDueDate").value = "";
+            }
 
-        async function loadAuditLogs() {
-            const tbody = document.getElementById("adminAuditBody");
-            tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Analyzing activity...</td></tr>";
+            async function submitCreateUser() {
+                const username = document.getElementById("newUsername").value.trim();
+                const email = document.getElementById("newEmail").value.trim();
+                const password = document.getElementById("newPassword").value.trim();
+                const role = document.getElementById("newRole").value;
+                if (!username || !email || !password) { alert("Please fill all fields"); return; }
+                try {
+                    const res = await fetch(`${BASE_URL}/admin/create-user`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                        body: JSON.stringify({ username, email, password, role })
+                    });
+                    if (!res.ok) throw new Error(await res.text());
+                    alert("User created!");
+                    closeCreateUserModal();
+                    loadAdminUsers();
+                } catch (e) { alert("Error: " + e.message); }
+            }
 
-            try {
-                const res = await fetch(`${BASE_URL}/admin/audit`, {
-                    headers: { "Authorization": "Bearer " + token }
-                });
-                const allLogs = await res.json();
+            async function submitAssignTask() {
+                const userId = document.getElementById("assignUserId").value;
+                const title = document.getElementById("assignTitle").value.trim();
+                const description = document.getElementById("assignDesc").value.trim();
+                const dueDate = document.getElementById("assignDueDate").value;
+                if (!userId || !title || !description || !dueDate) { alert("Fill all fields"); return; }
+                try {
+                    const res = await fetch(`${BASE_URL}/admin/assign-task`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                        body: JSON.stringify({ userId: Number(userId), title, description, dueDate })
+                    });
+                    if (res.ok) {
+                        alert("Task assigned!");
+                        closeAssignModal();
+                        fetchAdminTasks();
+                    } else {
+                        alert("Error: " + await res.text());
+                    }
+                } catch (e) { alert("Error: " + e.message); }
+            }
 
-                // Group by userId
-                const groups = {};
-                allLogs.forEach(log => {
-                    if (!groups[log.userId]) groups[log.userId] = {
-                        username: log.username,
-                        logs: [],
-                        todayMinutes: 0,
-                        status: 'LOGOUT'
-                    };
-                    groups[log.userId].logs.push(log);
-                });
+            async function loadAuditLogs() {
+                const tbody = document.getElementById("adminAuditBody");
+                tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Analyzing activity...</td></tr>";
 
-                const startOfToday = new Date();
-                startOfToday.setHours(0, 0, 0, 0);
-                const now = new Date();
+                // Dynamic Header Update
+                const thead = document.querySelector("#contentAuditList thead tr");
+                if (thead) thead.innerHTML = "<th>User</th><th>Last Login</th><th>Status</th>";
 
-                tbody.innerHTML = "";
+                try {
+                    // Revert to UserLoginAudit
+                    const res = await fetch(`${BASE_URL}/admin/audit`, {
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+                    const allLogs = await res.json();
 
-                Object.keys(groups).forEach(userId => {
-                    const user = groups[userId];
-                    let currentStatus = 'LOGOUT';
-                    let totalToday = 0;
+                    // Group by userId for summary
+                    const groups = {};
+                    allLogs.forEach(log => {
+                        if (!groups[log.userId]) groups[log.userId] = {
+                            username: log.username,
+                            userId: log.userId,
+                            lastLogin: '-',
+                            status: 'LOGOUT'
+                        };
 
-                    user.logs.forEach(l => {
-                        const start = new Date(l.loginTime);
-                        const end = l.logoutTime ? new Date(l.logoutTime) : (l.status === 'ACTIVE' ? now : start);
-                        const durationMinutes = (end - start) / (1000 * 60);
-
-                        if (start >= startOfToday) {
-                            totalToday += durationMinutes;
+                        if (log.status === 'ACTIVE') {
+                            groups[log.userId].status = 'ACTIVE';
                         }
-
-                        if (l.status === 'ACTIVE') currentStatus = 'ACTIVE';
+                        // Find latest login
+                        if (log.loginTime && (!groups[log.userId].lastLogin || groups[log.userId].lastLogin === '-' || new Date(log.loginTime) > new Date(groups[log.userId].lastLogin))) {
+                            groups[log.userId].lastLogin = log.loginTime;
+                        }
                     });
 
-                    const totalTodayDisplay = formatDuration(totalToday);
-                    const statusStyle = currentStatus === 'ACTIVE' ? 'color:#38a169; font-weight:700;' : 'color:#718096;';
-                    const row = document.createElement("tr");
-                    row.style.cursor = "pointer";
-                    row.innerHTML = `
-                        <td><b>${user.username}</b><br><span style="font-size:10px; color:#aaa;">ID: ${userId}</span></td>
-                        <td><span style="color:var(--primary-orange); font-weight:600;">${totalTodayDisplay}</span></td>
-                        <td><span style="${statusStyle}">${currentStatus}</span></td>
-                    `;
-                    row.onclick = () => openUserAudit(userId, user.username);
-                    tbody.appendChild(row);
-                });
+                    tbody.innerHTML = "";
+                    const userIds = Object.keys(groups);
 
-                if (Object.keys(groups).length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>No activity recorded</td></tr>";
-                }
-            } catch (e) {
-                console.error(e);
-                tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red;'>Error loading data</td></tr>";
-            }
-        }
-
-        async function openUserAudit(userId, username) {
-            document.getElementById("auditModalTitle").innerText = `Activity: ${username}`;
-            document.getElementById("userAuditModal").style.display = "flex";
-            const tbody = document.getElementById("userAuditBody");
-            const todayDurationEl = document.getElementById("todayDuration");
-            const allTimeDurationEl = document.getElementById("allTimeDuration");
-
-            tbody.innerHTML = "<tr><td colspan='2' style='text-align:center'>Loading...</td></tr>";
-            todayDurationEl.innerText = "0 min";
-            allTimeDurationEl.innerText = "0 min";
-
-            try {
-                const res = await fetch(`${BASE_URL}/admin/audit/${userId}`, {
-                    headers: { "Authorization": "Bearer " + token }
-                });
-                const logs = await res.json();
-                tbody.innerHTML = "";
-
-                if (!logs || logs.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:20px;'>No logs found</td></tr>";
-                    return;
-                }
-
-                logs.sort((a, b) => new Date(b.loginTime) - new Date(a.loginTime));
-
-                const startOfToday = new Date();
-                startOfToday.setHours(0, 0, 0, 0);
-                const now = new Date();
-                let todayTotalMinutes = 0;
-                let allTimeTotalMinutes = 0;
-
-                logs.forEach(log => {
-                    const start = new Date(log.loginTime);
-                    const end = log.logoutTime ? new Date(log.logoutTime) : (log.status === 'ACTIVE' ? now : start);
-                    const durationMinutes = (end - start) / (1000 * 60);
-
-                    allTimeTotalMinutes += durationMinutes;
-                    if (start >= startOfToday) {
-                        todayTotalMinutes += durationMinutes;
+                    if (userIds.length === 0) {
+                        tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>No activity recorded</td></tr>";
+                        return;
                     }
 
-                    tbody.innerHTML += `
-                        <tr>
-                            <td style="font-size:12px;">${log.loginTime ? log.loginTime.replace('T', ' ').split('.')[0] : '-'}</td>
-                            <td style="font-size:12px;">${log.logoutTime ? log.logoutTime.replace('T', ' ').split('.')[0] : '-'}</td>
-                        </tr>
+                    userIds.forEach(uid => {
+                        const g = groups[uid];
+                        const isOnline = g.status === 'ACTIVE';
+                        const onlineText = isOnline ? "Active" : "Offline";
+                        const onlineColor = isOnline ? "var(--success)" : "var(--text-muted)";
+                        const onlineIcon = isOnline ? "zap" : "moon";
+                        const lastLoginDisplay = g.lastLogin === '-' ? '-' : g.lastLogin.replace('T', ' ').split('.')[0];
+
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                        <td>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <div class="avatar" style="width:28px; height:28px; font-size:0.75rem; margin:0;">${g.username.charAt(0).toUpperCase()}</div>
+                                <b style="color:var(--text-main);">${g.username}</b>
+                            </div>
+                        </td>
+                        <td style="font-size:12px; color:var(--text-muted);">${lastLoginDisplay}</td>
+                        <td>
+                            <span style="color:${onlineColor}; font-weight:700; display:flex; align-items:center; gap:4px; font-size:0.85rem;">
+                                <i data-lucide="${onlineIcon}" style="width:14px; height:14px;"></i> ${onlineText}
+                            </span>
+                        </td>
                     `;
-                });
+                        row.style.cursor = "pointer";
+                        row.onclick = () => openUserAudit(g.userId, g.username);
+                        tbody.appendChild(row);
+                    });
+                    lucide.createIcons();
 
-                todayDurationEl.innerText = formatDuration(todayTotalMinutes);
-                allTimeDurationEl.innerText = formatDuration(allTimeTotalMinutes);
-            } catch (e) {
-                console.error("Audit load error:", e);
-                tbody.innerHTML = "<tr><td colspan='2' style='text-align:center; color:red;'>Error loading logs</td></tr>";
+                } catch (e) {
+                    console.error(e);
+                    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red;'>Error loading data</td></tr>";
+                }
             }
-        }
 
-        function closeAuditModal() {
-            document.getElementById("userAuditModal").style.display = "none";
-        }
-    </script>
+            async function openUserAudit(userId, username) {
+                document.getElementById("auditModalTitle").innerText = `Statistics: ${username}`;
+                document.getElementById("userAuditModal").style.display = "flex";
+                const container = document.getElementById("auditStatsContainer");
+
+                container.innerHTML = '<div style="text-align:center; padding:20px;">Loading statistics...</div>';
+
+                try {
+                    // Fetch Stats
+                    const statsRes = await fetch(`${BASE_URL}/admin/users/${userId}/stats`, {
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+                    const stats = await statsRes.json();
+
+                    // Fetch Work Logs
+                    const logsRes = await fetch(`${BASE_URL}/admin/work-logs/${userId}`, {
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+                    const workLogs = await logsRes.json();
+
+                    // Breakdowns
+                    const bd = stats.statusBreakdown || {};
+                    const todo = bd['TO_DO'] || 0;
+                    const progress = bd['IN_PROGRESS'] || 0;
+                    const review = bd['REVIEW'] || 0;
+
+                    // Build Logs HTML
+                    let logsHtml = "";
+                    if (workLogs && workLogs.length > 0) {
+                        workLogs.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+                        const rows = workLogs.map(log => {
+                            const date = log.startTime ? log.startTime.split('T')[0] : '-';
+                            const taskTitle = log.task ? log.task.title : '-';
+                            const duration = log.durationMinutes + 'm';
+                            const comment = log.comment || '-';
+                            return `
+                            <tr style="border-bottom:1px solid #edf2f7;">
+                                <td style="padding:8px; color:#2d3748;">${date}</td>
+                                <td style="padding:8px; color:#2d3748;">${taskTitle}</td>
+                                <td style="padding:8px; color:#2d3748; font-weight:600;">${duration}</td>
+                                <td style="padding:8px; color:#718096; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px;" title="${comment}">${comment}</td>
+                            </tr>
+                        `;
+                        }).join('');
+
+                        logsHtml = `
+                    <div style="margin-top:20px;">
+                        <div style="font-size:12px; font-weight:600; color:#4a5568; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;">
+                            Timesheet History
+                        </div>
+                        <div style="max-height:200px; overflow-y:auto; border:1px solid #edf2f7; border-radius:8px;">
+                            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                                <thead style="background:#f7fafc; position:sticky; top:0;">
+                                    <tr>
+                                        <th style="padding:8px; text-align:left; color:#4a5568;">Date</th>
+                                        <th style="padding:8px; text-align:left; color:#4a5568;">Task</th>
+                                        <th style="padding:8px; text-align:left; color:#4a5568;">Duration</th>
+                                        <th style="padding:8px; text-align:left; color:#4a5568;">Activity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+                    } else {
+                        logsHtml = `<div style="margin-top:20px; text-align:center; color:#a0aec0; font-size:12px;">No timesheet entries found</div>`;
+                    }
+
+                    container.innerHTML = `
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom: 24px;">
+                        <div class="glass" style="padding:15px; text-align:center; border-radius:16px;">
+                            <div style="background:rgba(59, 130, 246, 0.1); width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; margin: 0 auto 8px;">
+                                <i data-lucide="layers" style="width:16px; color:#3b82f6;"></i>
+                            </div>
+                            <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase; font-weight:600; letter-spacing:0.5px;">Total</div>
+                            <div style="font-size:22px; font-weight:800; color:var(--text-main);">${stats.totalTasks}</div>
+                        </div>
+                        <div class="glass" style="padding:15px; text-align:center; border-radius:16px;">
+                            <div style="background:rgba(249, 115, 22, 0.1); width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; margin: 0 auto 8px;">
+                                <i data-lucide="clock" style="width:16px; color:#f97316;"></i>
+                            </div>
+                            <div style="font-size:10px; color:#f97316; text-transform:uppercase; font-weight:600; letter-spacing:0.5px;">Pending</div>
+                            <div style="font-size:22px; font-weight:800; color:#f97316;">${stats.pendingTasks}</div>
+                        </div>
+                        <div class="glass" style="padding:15px; text-align:center; border-radius:16px;">
+                            <div style="background:rgba(16, 185, 129, 0.1); width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; margin: 0 auto 8px;">
+                                <i data-lucide="check-circle" style="width:16px; color:#10b981;"></i>
+                            </div>
+                            <div style="font-size:10px; color:#10b981; text-transform:uppercase; font-weight:600; letter-spacing:0.5px;">Done</div>
+                            <div style="font-size:22px; font-weight:800; color:#10b981;">${stats.completedTasks}</div>
+                        </div>
+                    </div>
+
+                    <div style="background:var(--bg-main); padding:20px; border-radius:16px; margin-bottom:24px; border:1px solid var(--border);">
+                        <div style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                            <i data-lucide="bar-chart-3" style="width:16px;"></i> STATUS BREAKDOWN
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+                            <div style="text-align:center;">
+                                <div style="font-size:18px; font-weight:700; color:var(--text-main);">${todo}</div>
+                                <div style="font-size:9px; color:var(--text-muted); text-transform:uppercase;">To Do</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div style="font-size:18px; font-weight:700; color:var(--primary);">${progress}</div>
+                                <div style="font-size:9px; color:var(--text-muted); text-transform:uppercase;">In Progress</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div style="font-size:18px; font-weight:700; color:#ef4444;">${review}</div>
+                                <div style="font-size:9px; color:var(--text-muted); text-transform:uppercase;">In Review</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${logsHtml}
+                `;
+                    lucide.createIcons();
+
+                } catch (e) {
+                    console.error("Stats load error:", e);
+                    container.innerHTML = `<div style="text-align:center; color:red; padding:20px;">Error loading data</div>`;
+                }
+            }
+
+            function closeAuditModal() {
+                document.getElementById("userAuditModal").style.display = "none";
+            }
+        </script>
 </body>
 
 </html>

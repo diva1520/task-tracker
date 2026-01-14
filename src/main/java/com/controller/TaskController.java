@@ -19,7 +19,6 @@ import com.dto.TaskRequest;
 import com.dto.TaskResponse;
 import com.service.TaskService;
 
-
 @RestController
 @RequestMapping("/user/tasks")
 @CrossOrigin(origins = "*")
@@ -36,13 +35,19 @@ public class TaskController {
 	@PutMapping("/{taskId}")
 	public ResponseEntity<?> editTask(@PathVariable Long taskId, @RequestHeader("Authorization") String authHeader,
 			@RequestBody TaskRequest request) {
-		return taskService.editTaskDetails(taskId, authHeader,request);
+		return taskService.editTaskDetails(taskId, authHeader, request);
 	}
 
 	@PostMapping("/addtask")
 	public ResponseEntity<?> addTask(@RequestHeader("Authorization") String authHeader,
 			@RequestBody TaskRequest request) {
 		return taskService.addTask(authHeader, request);
+	}
+
+	@PostMapping("/log-work")
+	public ResponseEntity<?> logWork(@RequestHeader("Authorization") String authHeader,
+			@RequestBody com.dto.WorkLogRequest request) {
+		return taskService.logWork(authHeader, request);
 	}
 
 }

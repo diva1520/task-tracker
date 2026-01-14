@@ -1,7 +1,6 @@
 package com.service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +31,9 @@ public class AdminService {
 	private com.repo.UserLoginAuditRepository auditRepo;
 
 	@Autowired
+	private com.repo.WorkLogRepository workLogRepo;
+
+	@Autowired
 	private TaskService taskService;
 
 	@Autowired
@@ -52,6 +54,7 @@ public class AdminService {
 
 	public ResponseEntity<?> assignTask(AssignTaskDto request, Long adminId) {
 		User user = userRepo.findById(request.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+
 		if ("ROLE_ADMIN".equals(user.getRole())) {
 			return ResponseEntity.badRequest().body("Tasks cannot be assigned to Admins");
 		}
@@ -133,6 +136,10 @@ public class AdminService {
 				.orElseThrow(() -> new RuntimeException("User not found with username: " + username));
 	}
 
+	public List<com.entity.WorkLog> getWorkLogs() {
+		return workLogRepo.findAll();
+	}
+
 	public List<com.entity.UserLoginAudit> getAuditLogs() {
 		return auditRepo.findAll();
 	}
@@ -141,4 +148,104 @@ public class AdminService {
 		return auditRepo.findByUserId(userId);
 	}
 
+	public List<com.entity.WorkLog> getUserWorkLogs(Long userId) {
+		return workLogRepo.findByUserId(userId);
+	}
+
+	public ResponseEntity<?> updateUserStatus(Long userId, boolean active) {
+		User user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+		user.setActive(active);
+		userRepo.save(user);
+		return ResponseEntity.ok("User status updated");
+	}
+
+	public com.dto.UserTaskStatsDto getUserTaskStats(Long userId) {
+		User user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+		List<Task> tasks = taskRepo.findByUserId(userId);
+
+		com.dto.UserTaskStatsDto stats = new com.dto.UserTaskStatsDto();
+		stats.setUserId(user.getId());
+		stats.setUsername(user.getUsername());
+		stats.setTotalTasks(tasks.size());
+
+		int pending = 0;
+		int completed = 0;
+		java.util.Map<String, Integer> breakdown = new java.util.HashMap<>();
+
+		for (Task t : tasks) {
+			String s = t.getStatus().name();
+			breakdown.put(s, breakdown.getOrDefault(s, 0) + 1);
+			if (t.getStatus() == com.entity.Status.COMPLETED) {
+				completed++;
+			} else {
+				pending++;
+			}
+		}
+
+		stats.setPendingTasks(pending);
+		stats.setCompletedTasks(completed);
+		stats.setStatusBreakdown(breakdown);
+
+		return stats;
+	}
+
+	public com.dto.AdminSummaryDto getAdminSummary() {
+		List<User> allUsers = userRepo.findAll();
+		java.util.List<Long> totalIds = allUsers.stream().map(User::getId).toList();
+
+		java.util.List<Long> activeIds = auditRepo.findByStatus("ACTIVE").stream()
+				.map(a -> a.getUserId())
+				.distinct()
+				.toList();
+
+		java.util.List<Long> noTaskIds = allUsers.stream()
+				.filter(u -> u.getRole().equals("ROLE_USER"))
+				.filter(u -> !taskRepo.existsByUserId(u.getId()))
+				.map(User::getId)
+				.toList();
+
+		List<Task> allTasks = taskRepo.findAll();
+		long totalTasks = allTasks.size();
+		long todoCount = allTasks.stream().filter(t -> t.getStatus() == com.entity.Status.TO_DO).count();
+		long progressCount = allTasks.stream().filter(t -> t.getStatus() == com.entity.Status.IN_PROGRESS).count();
+		long reviewCount = allTasks.stream().filter(t -> t.getStatus() == com.entity.Status.REVIEW).count();
+		long completedCount = allTasks.stream().filter(t -> t.getStatus() == com.entity.Status.COMPLETED).count();
+
+		java.util.List<Long> todoIds = allTasks.stream()
+				.filter(t -> t.getStatus() == com.entity.Status.TO_DO)
+				.map(t -> t.getUser() != null ? t.getUser().getId() : null)
+				.filter(id -> id != null).distinct().toList();
+
+		java.util.List<Long> progressIds = allTasks.stream()
+				.filter(t -> t.getStatus() == com.entity.Status.IN_PROGRESS)
+				.map(t -> t.getUser() != null ? t.getUser().getId() : null)
+				.filter(id -> id != null).distinct().toList();
+
+		java.util.List<Long> reviewIds = allTasks.stream()
+				.filter(t -> t.getStatus() == com.entity.Status.REVIEW)
+				.map(t -> t.getUser() != null ? t.getUser().getId() : null)
+				.filter(id -> id != null).distinct().toList();
+
+		java.util.List<Long> completedIds = allTasks.stream()
+				.filter(t -> t.getStatus() == com.entity.Status.COMPLETED)
+				.map(t -> t.getUser() != null ? t.getUser().getId() : null)
+				.filter(id -> id != null).distinct().toList();
+
+		return new com.dto.AdminSummaryDto(
+				totalIds.size(),
+				activeIds.size(),
+				noTaskIds.size(),
+				totalIds,
+				activeIds,
+				noTaskIds,
+				totalTasks,
+				todoCount,
+				progressCount,
+				reviewCount,
+				completedCount,
+				todoIds,
+				progressIds,
+				reviewIds,
+				completedIds);
+	}
 }
