@@ -18,20 +18,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 	@Query("select t from Task t where t.user.id = :userId")
 	List<Task> fetchTasks(@Param("userId") Long userId);
 
-	// List<Task> findByCreatedAtBetween(LocalDate fromDate, LocalDate toDate);
-
-	// @Query("""
-	// SELECT t
-	// FROM Task t
-	// WHERE t.userId IN :userIds
-	// AND t.createdAt BETWEEN :fromDate AND :toDate
-	// """)
-	// List<Task> findByUserIdInAndCreatedAtBetween(
-	// @Param("userIds") List<Long> userIds,
-	// @Param("fromDate") LocalDate fromDate,
-	// @Param("toDate") LocalDate toDate
-	// );
-
 	@Query("""
 			SELECT t FROM Task t
 			WHERE t.user.id IN :userIds

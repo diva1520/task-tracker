@@ -26,51 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    // @Override
-    // protected void doFilterInternal(HttpServletRequest request,
-    // HttpServletResponse response,
-    // FilterChain chain)
-    // throws ServletException, IOException {
-    //
-    // String path = request.getServletPath();
-    //
-    //
-    // if (path.equals("/auth/login") || path.startsWith("/h2-console")) {
-    // chain.doFilter(request, response);
-    // return;
-    // }
-    //
-    // String header = request.getHeader("Authorization");
-    //
-    // if (header != null && header.startsWith("Bearer ")
-    // && SecurityContextHolder.getContext().getAuthentication() == null) {
-    //
-    // String token = header.substring(7);
-    // String username = jwtUtil.extractUsername(token);
-    //
-    // UserDetails userDetails =
-    // userDetailsService.loadUserByUsername(username);
-    //
-    // UsernamePasswordAuthenticationToken auth =
-    // new UsernamePasswordAuthenticationToken(
-    // userDetails,
-    // null,
-    // userDetails.getAuthorities()
-    // );
-    //
-    // SecurityContextHolder.getContext().setAuthentication(auth);
-    // }
-    //
-    //
-    //
-    // chain.doFilter(request, response);
-    // }
-
-    // @Override
-    // protected boolean shouldNotFilter(HttpServletRequest request) {
-    // return request.getServletPath().equals("/auth/login");
-    // }
-
+   
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
