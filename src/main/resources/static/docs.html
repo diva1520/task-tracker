@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker API Documentation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #f97316;
+            --primary-dark: #ea580c;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .endpoint-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .endpoint-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            width: 80px;
+            text-align: center;
+        }
+
+        .get {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .post {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .put {
+            background: #ffedd5;
+            color: #ea580c;
+        }
+
+        .delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .path {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-left: 1rem;
+            color: var(--text);
+        }
+
+        .desc {
+            margin-top: 1rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .details {
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+
+        .meta {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>API Reference</h1>
+            <p style="color: var(--text-muted);">Documentation for Task Tracker Application Endpoints</p>
+        </header>
+
+        <!-- AUTH MODULE -->
+        <div class="section-title">Authentication</div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge post">POST</span>
+                <span class="path">/auth/login</span>
+            </div>
+            <div class="desc">Authenticate user and retrieve a JWT token.</div>
+            <div class="details">
+                <div class="meta">Request Body</div>
+                <pre>{
+  "username": "user1",
+  "password": "password123"
+}</pre>
+                <div class="meta">Response</div>
+                <pre>{
+  "token": "eyJhbGciOiJIUzI1NiJ9..."
+}</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge post">POST</span>
+                <span class="path">/auth/logout</span>
+            </div>
+            <div class="desc">Log out the current user and record logout time in audit logs.</div>
+            <div class="details">
+                <div class="meta">Headers</div>
+                <pre>Authorization: Bearer <token></pre>
+                <div class="meta">Response</div>
+                <pre>200 OK (No Body)</pre>
+            </div>
+        </div>
+
+        <!-- ADMIN MODULE -->
+        <div class="section-title">Admin Management</div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/admin/users</span>
+            </div>
+            <div class="desc">Get a list of all registered users.</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>[
+  {
+    "id": 1,
+    "username": "admin1",
+    "email": "admin@test.com",
+    "role": "ROLE_ADMIN",
+    "active": true
+  },
+  {
+    "id": 2,
+    "username": "user1",
+    "email": "user1@test.com",
+    "role": "ROLE_USER",
+    "active": true
+  }
+]</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge post">POST</span>
+                <span class="path">/admin/task</span>
+            </div>
+            <div class="desc">Filter and search tasks for admin view. Accepts date range and user IDs.</div>
+            <div class="details">
+                <div class="meta">Request Body</div>
+                <pre>{
+  "fromDate": "2024-01-01",
+  "toDate": "2024-12-31",
+  "userIds": [1, 2] // Optional
+}</pre>
+                <div class="meta">Response</div>
+                <pre>[
+  {
+    "id": 101,
+    "userName": "user1",
+    "userId": 2,
+    "title": "Fix Bug",
+    "description": "Critical issue",
+    "createdAt": "2024-01-10",
+    "status": "IN_PROGRESS",
+    "completedAt": null,
+    "dueDate": "2024-01-20",
+    "comment": "Working on it",
+    "reassigned": false
+  }
+]</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge post">POST</span>
+                <span class="path">/admin/assign-task</span>
+            </div>
+            <div class="desc">Assign a new task to a specific user.</div>
+            <div class="details">
+                <div class="meta">Request Body</div>
+                <pre>{
+  "userId": 2,
+  "title": "Fix Login Bug",
+  "description": "Investigate 401 error",
+  "dueDate": "2024-02-15"
+}</pre>
+                <div class="meta">Response</div>
+                <pre>"Task added successfully"</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge post">POST</span>
+                <span class="path">/admin/create-user</span>
+            </div>
+            <div class="desc">Register a new user or admin account.</div>
+            <div class="details">
+                <div class="meta">Request Body</div>
+                <pre>{
+  "username": "newuser",
+  "email": "new@test.com",
+  "password": "password123",
+  "role": "ROLE_USER"
+}</pre>
+                <div class="meta">Response</div>
+                <pre>"User Created SucessFully UserID :: 15"</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/admin/audit</span>
+            </div>
+            <div class="desc">Retrieve all system login/logout audit logs.</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>[
+  {
+    "id": 501,
+    "userId": 2,
+    "username": "user1",
+    "loginTime": "2024-01-20T09:00:00",
+    "logoutTime": null,
+    "sessionDurationMinutes": 0,
+    "status": "ACTIVE"
+  }
+]</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/admin/summary</span>
+            </div>
+            <div class="desc">Get high-level dashboard statistics (total users, active users, task counts).</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>{
+  "totalUsers": 10,
+  "activeUsers": 3,
+  "usersWithoutTasks": 2,
+  "totalUserIds": [1, 2, 3],
+  "activeUserIds": [2, 3],
+  "noTaskUserIds": [4, 5],
+  "totalTasks": 50,
+  "todoTasks": 10,
+  "inProgressTasks": 15,
+  "reviewTasks": 5,
+  "completedTasks": 20,
+  "todoUserIds": [2],
+  "inProgressUserIds": [3],
+  "reviewUserIds": [2],
+  "completedUserIds": [2, 3]
+}</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/admin/users/{id}/stats</span>
+            </div>
+            <div class="desc">Get detailed task statistics for a specific user ID.</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>{
+  "userId": 2,
+  "username": "user1",
+  "totalTasks": 15,
+  "pendingTasks": 10,
+  "completedTasks": 5,
+  "statusBreakdown": {
+    "TO_DO": 4,
+    "IN_PROGRESS": 6,
+    "COMPLETED": 5
+  }
+}</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/admin/work-logs/{userId}</span>
+            </div>
+            <div class="desc">Get all work logs (timesheet entries) for a specific user.</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>[
+  {
+    "id": 1001,
+    "taskId": 101,
+    "taskTitle": "Fix Bug",
+    "startTime": "2024-01-20T10:00:00",
+    "endTime": "2024-01-20T12:00:00",
+    "durationMinutes": 120,
+    "comment": "Fixed the issue"
+  }
+]</pre>
+            </div>
+        </div>
+
+
+        <!-- USER MODULE -->
+        <div class="section-title">User Operations</div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/user/profile</span>
+            </div>
+            <div class="desc">Get the profile details of the currently logged-in user.</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>{
+  "userId": 2,
+  "username": "user1",
+  "email": "user1@test.com",
+  "role": "ROLE_USER"
+}</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/user/tasks</span>
+            </div>
+            <div class="desc">Get all tasks assigned to the current user.</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>[
+  {
+    "id": 101,
+    "userName": "user1",
+    "userId": 2,
+    "title": "Fix Bug",
+    "description": "Critical issue",
+    "createdAt": "2024-01-10",
+    "status": "IN_PROGRESS",
+    "dueDate": "2024-01-20",
+    "comment": "Working on it",
+    "reassigned": false
+  }
+]</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge post">POST</span>
+                <span class="path">/user/tasks/addtask</span>
+            </div>
+            <div class="desc">Create a personal task (self-assigned).</div>
+            <div class="details">
+                <div class="meta">Request Body</div>
+                <pre>{
+  "title": "My Personal Task",
+  "description": "Self study",
+  "dueDate": "2024-03-01"
+}</pre>
+                <div class="meta">Response</div>
+                <pre>"Task added successfully"</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge put">PUT</span>
+                <span class="path">/user/tasks/{taskId}</span>
+            </div>
+            <div class="desc">Update task status or details.</div>
+            <div class="details">
+                <div class="meta">Request Body</div>
+                <pre>{
+  "title": "Updated Title",
+  "description": "Updated Desc",
+  "status": "IN_PROGRESS",
+  "comment": "Started working" // Optional
+}</pre>
+                <div class="meta">Response</div>
+                <pre>"Task Updated Successfully"</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge post">POST</span>
+                <span class="path">/user/tasks/log-work</span>
+            </div>
+            <div class="desc">Log work hours for a specific task.</div>
+            <div class="details">
+                <div class="meta">Request Body</div>
+                <pre>{
+  "taskId": 101,
+  "startTime": "2024-01-20T10:00:00",
+  "endTime": "2024-01-20T12:00:00",
+  "comment": "Fixed bugs",
+  "status": "IN_PROGRESS"
+}</pre>
+                <div class="meta">Response</div>
+                <pre>"Work log added successfully"</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/user/tasks/stats</span>
+            </div>
+            <div class="desc">Get personal task statistics (Todo, In Progress, Completed counts).</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>{
+  "userId": 2,
+  "username": "user1",
+  "totalTasks": 15,
+  "pendingTasks": 10,
+  "completedTasks": 5,
+  "statusBreakdown": {
+    "TO_DO": 4,
+    "IN_PROGRESS": 6,
+    "COMPLETED": 5
+  }
+}</pre>
+            </div>
+        </div>
+
+        <!-- TIMESHEET MODULE -->
+        <div class="section-title">Timesheet & Files</div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/user/timesheet/template</span>
+            </div>
+            <div class="desc">Download the Excel timesheet template.</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>Binary File (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge post">POST</span>
+                <span class="path">/user/timesheet/upload</span>
+            </div>
+            <div class="desc">Upload a filled Excel timesheet.</div>
+            <div class="details">
+                <div class="meta">Request Part</div>
+                <pre>file: (Binary Excel File)</pre>
+                <div class="meta">Response</div>
+                <pre>"Timesheet processed successfully"</pre>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge post">POST</span>
+                <span class="path">/user/timesheet/save-weekly</span>
+            </div>
+            <div class="desc">Save weekly timesheet data from the grid UI.</div>
+            <div class="details">
+                <div class="meta">Request Body</div>
+                <pre>{
+  "weekStartDate": "2024-01-15",
+  "taskLogs": [
+    {
+      "taskId": 101,
+      "entries": [
+        { "date": "2024-01-15", "hours": 8, "comment": "Dev" }
+      ]
+    }
+  ]
+}</pre>
+                <div class="meta">Response</div>
+                <pre>"Weekly logs saved successfully"</pre>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

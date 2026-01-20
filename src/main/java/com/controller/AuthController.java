@@ -51,8 +51,12 @@ public class AuthController {
 		for (UserLoginAudit active : activeSessions) {
 			active.setLogoutTime(LocalDateTime.now());
 			active.setStatus("LOGOUT");
-			active.setSessionDurationMinutes(
-					Duration.between(active.getLoginTime(), active.getLogoutTime()).toMinutes());
+			if (active.getLoginTime() != null) {
+				active.setSessionDurationMinutes(
+						Duration.between(active.getLoginTime(), active.getLogoutTime()).toMinutes());
+			} else {
+				active.setSessionDurationMinutes(0L);
+			}
 			auditRepo.save(active);
 		}
 
@@ -89,8 +93,12 @@ public class AuthController {
 
 		if (audit != null) {
 			audit.setLogoutTime(LocalDateTime.now());
-			audit.setSessionDurationMinutes(
-					Duration.between(audit.getLoginTime(), audit.getLogoutTime()).toMinutes());
+			if (audit.getLoginTime() != null) {
+				audit.setSessionDurationMinutes(
+						Duration.between(audit.getLoginTime(), audit.getLogoutTime()).toMinutes());
+			} else {
+				audit.setSessionDurationMinutes(0L);
+			}
 			audit.setStatus("LOGOUT");
 			auditRepo.save(audit);
 		}

@@ -12,4 +12,7 @@ public interface WorkLogRepository extends JpaRepository<WorkLog, Long> {
     List<WorkLog> findByUserId(Long userId);
 
     List<WorkLog> findByTaskId(Long taskId);
+
+    List<WorkLog> findByUserIdAndStartTimeBetween(Long userId, java.time.LocalDateTime start,
+            java.time.LocalDateTime end);
 }

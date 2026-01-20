@@ -50,4 +50,8 @@ public class TaskController {
 		return taskService.logWork(authHeader, request);
 	}
 
+	@GetMapping("/stats")
+	public ResponseEntity<?> getUserStats(@RequestHeader("Authorization") String authHeader) {
+		return ResponseEntity.ok(taskService.getUserStats(authHeader));
+	}
 }

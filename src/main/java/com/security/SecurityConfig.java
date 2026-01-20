@@ -56,6 +56,7 @@ public class SecurityConfig {
 				                "/js/**",
 				                "/images/**",
 				                "/index.html",
+				                "/docs.html",
 				                "/auth/login",
 				                "/auth/logout", 
 				                "/h2-console/**")

@@ -142,9 +142,9 @@ public class TaskService {
 		} else if ("ROLE_ADMIN".equals(role)) {
 			// Rules for ADMIN
 			if (newStatus == Status.REASSIGN) {
-				if (oldStatus != Status.REVIEW) {
-					return ResponseEntity.status(403).body("Only tasks in REVIEW status can be reassigned");
-				}
+				// REMOVED: Restriction that oldStatus MUST be REVIEW. Admins can now reassign
+				// from any state.
+				// if (oldStatus != Status.REVIEW) { return ... }
 
 				if (taskDetailRepo.existsByTask_IdAndStatus(task.getId(), Status.REASSIGN)) {
 					return ResponseEntity.badRequest()
@@ -278,6 +278,37 @@ public class TaskService {
 
 	private List<TaskResponse> mapToTaskResponses(List<Task> tasks) {
 		return tasks.stream().map(TaskResponse::fromEntity).toList();
+	}
+
+	public com.dto.UserTaskStatsDto getUserStats(String authHeader) {
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			throw new RuntimeException("Invalid token");
+		}
+		String token = authHeader.substring(7);
+		Long userId = jwtUtil.extractUserId(token);
+		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+		com.dto.UserTaskStatsDto stats = new com.dto.UserTaskStatsDto();
+		stats.setUserId(userId);
+		stats.setUsername(user.getUsername());
+		stats.setTotalTasks((int) taskRepository.countByUserId(userId));
+
+		int todo = (int) taskRepository.countByUserIdAndStatus(userId, Status.TO_DO);
+		int inProgress = (int) taskRepository.countByUserIdAndStatus(userId, Status.IN_PROGRESS);
+		int review = (int) taskRepository.countByUserIdAndStatus(userId, Status.REVIEW);
+		int completed = (int) taskRepository.countByUserIdAndStatus(userId, Status.COMPLETED);
+
+		stats.setPendingTasks(todo + inProgress + review);
+		stats.setCompletedTasks(completed);
+
+		java.util.Map<String, Integer> breakdown = new java.util.HashMap<>();
+		breakdown.put("TO_DO", todo);
+		breakdown.put("IN_PROGRESS", inProgress);
+		breakdown.put("REVIEW", review);
+		breakdown.put("COMPLETED", completed);
+		stats.setStatusBreakdown(breakdown);
+
+		return stats;
 	}
 
 	public ResponseEntity<?> logWork(String authHeader, com.dto.WorkLogRequest request) {

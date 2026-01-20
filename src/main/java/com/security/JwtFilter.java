@@ -33,6 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
         return path.equals("/auth/login")
                 || path.equals("/auth/logout")
                 || path.startsWith("/h2-console");
+//              || path.equals("/docs.html");
     }
 
     @Override

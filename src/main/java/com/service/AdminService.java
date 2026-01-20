@@ -148,8 +148,18 @@ public class AdminService {
 		return auditRepo.findByUserId(userId);
 	}
 
-	public List<com.entity.WorkLog> getUserWorkLogs(Long userId) {
-		return workLogRepo.findByUserId(userId);
+	public List<com.dto.WorkLogDto> getUserWorkLogs(Long userId) {
+		return workLogRepo.findByUserId(userId).stream().map(log -> {
+			com.dto.WorkLogDto dto = new com.dto.WorkLogDto();
+			dto.setId(log.getId());
+			dto.setTaskId(log.getTask().getId());
+			dto.setTaskTitle(log.getTask().getTitle());
+			dto.setStartTime(log.getStartTime());
+			dto.setEndTime(log.getEndTime());
+			dto.setDurationMinutes(log.getDurationMinutes());
+			dto.setComment(log.getComment());
+			return dto;
+		}).toList();
 	}
 
 	public ResponseEntity<?> updateUserStatus(Long userId, boolean active) {
