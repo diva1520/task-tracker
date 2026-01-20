@@ -65,6 +65,40 @@
             overflow-x: hidden;
         }
 
+        /* Loader Overlay */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 20000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        [data-theme='dark'] .loader-overlay {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(249, 115, 22, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         /* Toast Notification */
         #toast {
             visibility: hidden;
@@ -1062,7 +1096,7 @@
             <div class="sidebar-nav" id="sidebarNav">
                 <!-- Links will be added here via JS -->
                 <div class="sidebar-section-title">Home</div>
-                <a href="#" class="nav-item active" onclick="location.reload()">
+                <a href="#" class="nav-item active" onclick="reloadDashboard()">
                     <i data-lucide="layout-dashboard"></i> Dashboard
                 </a>
 
@@ -1704,6 +1738,9 @@
     </div>
 
     <div id="toast"></div>
+    <div id="globalLoader" class="loader-overlay">
+        <div class="spinner"></div>
+    </div>
     <script>
         /**********************************************
          * THEME LOGIC
@@ -1734,6 +1771,15 @@
 
         initTheme();
 
+        // LOADER
+        function showLoader() { document.getElementById('globalLoader').style.display = 'flex'; }
+        function hideLoader() { document.getElementById('globalLoader').style.display = 'none'; }
+
+        function reloadDashboard() {
+            skipCloseWarning = true;
+            location.reload();
+        }
+
         /**********************************************
          * LOGIC PRESERVED FROM ORIGINAL
          **********************************************/
@@ -1748,6 +1794,10 @@
         let token = "";
         let editTaskId = "";
         let originalStatus = "";
+        let allUserTasks = [];
+        let skipCloseWarning = false;
+
+        const BASE_URL = window.location.origin;
         let adminUsersList = []; // Store users for reassign dropdown
         let currentUserRole = ""; // To store the role of the logged-in user
         let adminSummaryData = null;
@@ -1981,8 +2031,7 @@
             return `${y}-${m}-${d}`;
         }
 
-        // API
-        const BASE_URL = window.location.origin;
+
 
         async function fetchAdminTasks() {
             const from = document.getElementById("fromDate").value;
@@ -2281,7 +2330,7 @@
             } catch (e) { console.error(e); alert("Upload failed"); }
         }
 
-        let allUserTasks = []; // Global store for client-side filtering
+
 
         async function loadTasks(filterStatus = null) {
             try {
@@ -2367,6 +2416,7 @@
                 body.comment = comment;
             }
 
+            showLoader();
             try {
                 const res = await fetch(`${BASE_URL}/user/tasks/${editTaskId}`, {
                     method: "PUT",
@@ -2381,6 +2431,7 @@
                         fetchAdminTasks();
                     }
                     closeEditModal();
+                    showToast("Task updated successfully!");
                 } else if (res.status === 401) {
                     alert("Session expired. Please login again.");
                 } else {
@@ -2388,6 +2439,7 @@
                     alert("Update failed: " + error);
                 }
             } catch (err) { alert("Server error: " + err.message); }
+            finally { hideLoader(); }
         }
 
         function openEditModal(id) {
@@ -2454,15 +2506,25 @@
             const title = document.getElementById("taskTitle").value.trim();
             const desc = document.getElementById("taskDesc").value.trim();
             const date = document.getElementById("taskDueDate").value;
-            if (!title || !desc || !date) { alert("Fill all fields"); return; }
+            if (!title || !desc || !date) { showToast("Please fill all fields"); return; }
+
+            showLoader();
             try {
                 const res = await fetch(`${BASE_URL}/user/tasks/addtask`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
                     body: JSON.stringify({ title, description: desc, dueDate: date })
                 });
-                if (res.ok) { closeModal(); await loadTasks(); }
-            } catch (e) { alert(e.message); }
+                if (res.ok) {
+                    closeModal();
+                    await loadTasks();
+                    showToast("Task assigned successfully!");
+                } else {
+                    const txt = await res.text();
+                    showToast("Failed: " + txt);
+                }
+            } catch (e) { showToast("Error: " + e.message); }
+            finally { hideLoader(); }
         }
 
         let logWorkTaskId = null;
@@ -2777,7 +2839,9 @@
             const email = document.getElementById("newEmail").value.trim();
             const password = document.getElementById("newPassword").value.trim();
             const role = document.getElementById("newRole").value;
-            if (!username || !email || !password) { alert("Please fill all fields"); return; }
+            if (!username || !email || !password) { showToast("Please fill all fields"); return; }
+
+            showLoader();
             try {
                 const res = await fetch(`${BASE_URL}/admin/create-user`, {
                     method: "POST",
@@ -2785,10 +2849,11 @@
                     body: JSON.stringify({ username, email, password, role })
                 });
                 if (!res.ok) throw new Error(await res.text());
-                alert("User created!");
+                showToast("User created successfully!");
                 closeCreateUserModal();
                 loadAdminUsers();
-            } catch (e) { alert("Error: " + e.message); }
+            } catch (e) { showToast("Error: " + e.message); }
+            finally { hideLoader(); }
         }
 
         async function submitAssignTask() {
@@ -2796,7 +2861,9 @@
             const title = document.getElementById("assignTitle").value.trim();
             const description = document.getElementById("assignDesc").value.trim();
             const dueDate = document.getElementById("assignDueDate").value;
-            if (!userId || !title || !description || !dueDate) { alert("Fill all fields"); return; }
+            if (!userId || !title || !description || !dueDate) { showToast("Fill all fields"); return; }
+
+            showLoader();
             try {
                 const res = await fetch(`${BASE_URL}/admin/assign-task`, {
                     method: "POST",
@@ -2804,13 +2871,14 @@
                     body: JSON.stringify({ userId: Number(userId), title, description, dueDate })
                 });
                 if (res.ok) {
-                    alert("Task assigned!");
+                    showToast("Task assigned!");
                     closeAssignModal();
                     fetchAdminTasks();
                 } else {
-                    alert("Error: " + await res.text());
+                    showToast("Error: " + await res.text());
                 }
-            } catch (e) { alert("Error: " + e.message); }
+            } catch (e) { showToast("Error: " + e.message); }
+            finally { hideLoader(); }
         }
 
         // --- WEEKLY TIMESHEET LOGIC ---
@@ -3212,6 +3280,8 @@
 
         // Warn on browser close if logged in
         window.addEventListener('beforeunload', (e) => {
+            if (skipCloseWarning) return;
+
             const token = sessionStorage.getItem('token');
             // Check for valid token
             if (token && token !== "null" && token !== "undefined") {

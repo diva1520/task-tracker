@@ -39,7 +39,7 @@ public class AuthController {
 	private UserLoginAuditRepository auditRepo;
 
 	@PostMapping("/login")
-	public Map<String, String> login(@RequestBody LoginRequest req) {
+	public Map<String, String> login(@RequestBody LoginRequest req, HttpServletRequest request) {
 
 		Authentication auth = authManager
 				.authenticate(new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword()));
@@ -65,6 +65,7 @@ public class AuthController {
 		audit.setUsername(user.getUsername());
 		audit.setLoginTime(LocalDateTime.now());
 		audit.setStatus("ACTIVE");
+		audit.setIpAddress(request.getRemoteAddr());
 
 		auditRepo.save(audit);
 

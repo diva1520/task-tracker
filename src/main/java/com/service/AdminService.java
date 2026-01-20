@@ -101,15 +101,56 @@ public class AdminService {
 		} else if (userRepo.findByUsername(user.getUsername()).isPresent()) {
 			return ResponseEntity.badRequest().body("Username already exists");
 		} else {
+			// Capture raw password for email before encoding
+			String rawPassword = user.getPassword();
+
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 			user.setPassword(encoder.encode(user.getPassword()));
 			User res = userRepo.save(user);
 
 			if (res != null) {
+				// Send Welcome Email
+				String subject = "Welcome to Task Tracker - Your Account Details";
+				String serverUrl = getServerUrl();
+				String body = "<html>" +
+						"<body style='font-family: Arial, sans-serif; line-height: 1.6;'>" +
+						"<h2 style='color:#2E86C1;'>Welcome to Task Tracker!</h2>" +
+						"<p>Hi <strong>" + user.getUsername() + "</strong>,</p>" +
+						"<p>Your account has been created successfully. Here are your login credentials:</p>" +
+						"<table style='border-collapse: collapse; width: 100%; max-width: 400px;'>" +
+						"<tr><td style='border: 1px solid #ddd; padding: 8px;'><strong>Username</strong></td>" +
+						"<td style='border: 1px solid #ddd; padding: 8px;'>" + user.getUsername() + "</td></tr>" +
+						"<tr><td style='border: 1px solid #ddd; padding: 8px;'><strong>Password</strong></td>" +
+						"<td style='border: 1px solid #ddd; padding: 8px;'>" + rawPassword + "</td></tr>" +
+						"<tr><td style='border: 1px solid #ddd; padding: 8px;'><strong>Role</strong></td>" +
+						"<td style='border: 1px solid #ddd; padding: 8px;'>" + user.getRole() + "</td></tr>" +
+						"</table>" +
+						"<p style='margin-top:20px;'>You can login here: <a href='" + serverUrl + "'>" + serverUrl
+						+ "</a></p>" +
+						// "<p>Please change your password after logging in.</p>" +
+						"<p>Best Regards,<br/>Admin Team</p>" +
+						"</body>" +
+						"</html>";
+
+				try {
+					mailService.sendMail(user.getEmail(), subject, body);
+				} catch (Exception e) {
+					System.err.println("Failed to send welcome email: " + e.getMessage());
+					// Don't fail the creation, just log it
+				}
+
 				return ResponseEntity.ok("User Created SucessFully UserID :: " + res.getId());
 			} else {
 				return ResponseEntity.ok("User Not Created");
 			}
+		}
+	}
+
+	private String getServerUrl() {
+		try {
+			return "http://" + java.net.InetAddress.getLocalHost().getHostAddress() + ":8080/index.html";
+		} catch (Exception e) {
+			return "http://localhost:8080/index.html";
 		}
 	}
 
