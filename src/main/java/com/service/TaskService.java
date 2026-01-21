@@ -378,6 +378,104 @@ public class TaskService {
 		return ResponseEntity.ok("Work logged successfully");
 	}
 
+	public List<com.dto.TaskHistoryDTO> getTaskHistory(Long taskId) {
+		Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
+		List<com.dto.TaskHistoryDTO> history = new java.util.ArrayList<>();
+
+		// 1. Task Creation
+		com.dto.TaskHistoryDTO creation = new com.dto.TaskHistoryDTO();
+		creation.setEventType("CREATED");
+		if (task.getAssignedBy() != null) {
+			User admin = userRepository.findById(task.getAssignedBy()).orElse(null);
+			creation.setUsername(admin != null ? admin.getUsername() : "Admin");
+		} else {
+			creation.setUsername("System");
+		}
+		creation.setTimestamp(task.getCreatedAt().atStartOfDay());
+		creation.setComment(task.getDescription());
+		creation.setMetadata("Task Created");
+		history.add(creation);
+
+		// 2. Status History (TaskDetail)
+		List<com.entity.TaskDetail> details = taskDetailRepo.findByTask_Id(taskId);
+		// Sort details by startedAt for logic
+		details.sort(java.util.Comparator.comparing(com.entity.TaskDetail::getStartedAt));
+
+		for (com.entity.TaskDetail d : details) {
+			com.dto.TaskHistoryDTO h = new com.dto.TaskHistoryDTO();
+			h.setTimestamp(d.getStartedAt());
+			h.setComment(d.getComment());
+
+			if (d.getStatus() == com.entity.Status.REASSIGN) {
+				h.setEventType("REASSIGN");
+				h.setUsername("Admin");
+				h.setMetadata("Reassigned Task");
+			} else {
+				h.setEventType("STATUS_CHANGE");
+				h.setUsername(task.getUser().getUsername());
+				h.setMetadata("Changed to " + d.getStatus());
+			}
+			history.add(h);
+		}
+
+		// 3. Work Logs with Status Inference
+		List<com.entity.WorkLog> logs = workLogRepo.findByTaskId(taskId);
+		for (com.entity.WorkLog log : logs) {
+			com.dto.TaskHistoryDTO h = new com.dto.TaskHistoryDTO();
+			h.setEventType("WORK_LOG");
+			h.setUsername(log.getUser().getUsername());
+			h.setTimestamp(log.getStartTime());
+			h.setComment(log.getComment());
+
+			long hours = log.getDurationMinutes() / 60;
+			long mins = log.getDurationMinutes() % 60;
+			String duration = (hours > 0 ? hours + "h " : "") + mins + "m";
+
+			// Infer Status
+			String statusLabel = "To Do"; // Default (before any detail)
+			LocalDateTime logTime = log.getStartTime();
+
+			// Find the latest detail that started before or at logTime
+			com.entity.TaskDetail effectiveDetail = null;
+			for (com.entity.TaskDetail d : details) {
+				if (!d.getStartedAt().isAfter(logTime)) {
+					effectiveDetail = d;
+				} else {
+					break; // details are sorted, so we can stop
+				}
+			}
+
+			if (effectiveDetail != null) {
+				if (effectiveDetail.getStatus() == com.entity.Status.IN_PROGRESS) {
+					if (effectiveDetail.getEndedAt() == null || !logTime.isAfter(effectiveDetail.getEndedAt())) {
+						statusLabel = "In Progress";
+					} else {
+						// After In Progress ended -> Review
+						statusLabel = "Under Review";
+					}
+				} else if (effectiveDetail.getStatus() == com.entity.Status.REASSIGN) {
+					statusLabel = "Reassigned";
+				} else {
+					statusLabel = effectiveDetail.getStatus().toString();
+				}
+			}
+
+			// Check completed
+			if (task.getStatus() == com.entity.Status.COMPLETED && task.getCompletedAt() != null) {
+				// rough check: if log date >= completed date?
+				// Usually logs aren't made after completion, but if so, it's "Completed"
+			}
+
+			h.setMetadata("Logged " + duration + " [" + statusLabel + "]");
+			history.add(h);
+		}
+
+		// Sort by timestamp DESC
+		history.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
+
+		return history;
+	}
+
 	private String row(String key, String value) {
 		return "<tr><td style='border:1px solid #ddd;padding:8px;'><b>" + key + "</b></td>"
 				+ "<td style='border:1px solid #ddd;padding:8px;'>" + value + "</td></tr>";

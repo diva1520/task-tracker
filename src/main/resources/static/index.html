@@ -1725,6 +1725,100 @@
         </div>
     </div>
 
+    <!-- Task History Modal -->
+    <div id="taskHistoryModal" class="modal" style="display:none;">
+        <div class="modal-content"
+            style="max-width: 600px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column;">
+            <button class="close-x" onclick="closeHistoryModal()">×</button>
+            <h3 style="margin-bottom: 20px;">Task History</h3>
+            <div id="historyTimeline" style="overflow-y: auto; padding-right: 10px; flex: 1;">
+                <!-- Timeline items injected here -->
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            padding-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            /* Center of icon (30px / 2 - 1px) */
+            top: 30px;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item:last-child::before {
+            display: none;
+        }
+
+        .timeline-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            flex: 1;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
+
+        .timeline-user {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .timeline-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .timeline-meta {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .timeline-comment {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+    </style>
+
     <div id="toast"></div>
     <div id="globalLoader" class="loader-overlay">
         <div class="spinner"></div>
@@ -2089,7 +2183,14 @@
                             </td>
                             <td><span class="task-status" data-status="${t.status}">${displayStatus}</span></td>
                             <td><span style="display:flex; align-items:center; gap:4px; font-size:0.85rem;"><i data-lucide="calendar" style="width:14px;"></i> ${formatDate(t.dueDate)}</span></td>
-                            <td style="max-width:150px; font-size:12px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.comment || ''}">${t.comment || "-"}</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="max-width:100px; font-size:12px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.comment || ''}">${t.comment || "-"}</span>
+                                    <button onclick="viewHistory('${t.id}')" style="background:transparent; border:none; padding:4px; cursor:pointer; color:var(--primary);" title="View History">
+                                        <i data-lucide="history" style="width:14px; height:14px;"></i>
+                                    </button>
+                                </div>
+                            </td>
                             <td>
                                 <button onclick="openEditModal('${t.id}')" 
                                     class="action-btn-mini" style="width:auto; padding:6px 12px; margin:0;">
@@ -2320,6 +2421,84 @@
 
 
 
+
+        // History Logic
+        function closeHistoryModal() {
+            document.getElementById("taskHistoryModal").style.display = "none";
+        }
+
+        async function viewHistory(taskId) {
+            showLoader();
+            try {
+                const res = await fetch(`${BASE_URL}/user/tasks/${taskId}/history`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                if (res.ok) {
+                    const history = await res.json();
+                    renderHistory(history);
+                    document.getElementById("taskHistoryModal").style.display = "flex";
+                } else {
+                    alert("Failed to load history");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Error loading history");
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function renderHistory(history) {
+            const container = document.getElementById("historyTimeline");
+            container.innerHTML = "";
+
+            if (!history || history.length === 0) {
+                container.innerHTML = "<div style='text-align:center; padding:20px; color:var(--text-muted);'>No history found</div>";
+                return;
+            }
+
+            history.forEach(h => {
+                let icon = "activity";
+                let color = "var(--text-muted)";
+                let bg = "var(--bg-main)";
+                let metaClass = "";
+
+                if (h.eventType === "CREATED") {
+                    icon = "plus"; color = "#10b981"; bg = "rgba(16, 185, 129, 0.1)";
+                } else if (h.eventType === "STATUS_CHANGE") {
+                    icon = "refresh-cw"; color = "#3b82f6"; bg = "rgba(59, 130, 246, 0.1)";
+                } else if (h.eventType === "WORK_LOG") {
+                    icon = "clock"; color = "#f97316"; bg = "rgba(249, 115, 22, 0.1)";
+                } else if (h.eventType === "REASSIGN") {
+                    icon = "user-plus"; color = "#8b5cf6"; bg = "rgba(139, 92, 246, 0.1)";
+                }
+
+                const dateStr = new Date(h.timestamp).toLocaleString('en-US', {
+                    month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                });
+
+                const html = `
+                    <div class="timeline-item">
+                        <div class="timeline-icon" style="background:${bg}; box-shadow: 0 0 0 4px var(--bg-card);">
+                            <i data-lucide="${icon}" style="width:14px; color:${color};"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-user">${h.username || "System"}</span>
+                                <span class="timeline-date">${dateStr}</span>
+                            </div>
+                            <div class="timeline-meta" style="background:${bg}; color:${color};">
+                                ${h.metadata || h.eventType}
+                            </div>
+                            ${h.comment ? `<div class="timeline-comment">${h.comment}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+            lucide.createIcons();
+        }
+
         async function loadTasks(filterStatus = null) {
             try {
                 // Only fetch if we don't have tasks or if explicitly refreshing (handled by caller logic if needed)
@@ -2356,7 +2535,14 @@
                         <td><span style="display:flex; align-items:center; gap:4px; font-size:0.85rem;"><i data-lucide="clock" style="width:14px;"></i> ${t.createdAt ? t.createdAt.split('T')[0] : ""}</span></td>
                         <td><span style="display:flex; align-items:center; gap:4px; font-size:0.85rem; color: #ef4444; font-weight:700;"><i data-lucide="calendar" style="width:14px;"></i> ${t.dueDate ? t.dueDate.split('T')[0] : "-"}</span></td>
                         <td><span class="task-status" data-status="${t.status}">${displayStatus}</span></td>
-                        <td style="max-width:150px; font-size:12px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.comment || ''}">${t.comment || "-"}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="max-width:100px; font-size:12px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.comment || ''}">${t.comment || "-"}</span>
+                                <button onclick="viewHistory('${t.id}')" style="background:transparent; border:none; padding:4px; cursor:pointer; color:var(--primary);" title="View History">
+                                    <i data-lucide="history" style="width:14px; height:14px;"></i>
+                                </button>
+                            </div>
+                        </td>
                         <td>
                             <div style="display:flex; gap:6px;">
                                 <button onclick="openEditModal('${t.id}')" 

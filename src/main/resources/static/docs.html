@@ -633,6 +633,14 @@
             </div>
             <div class="desc">Log work hours for a specific task.</div>
             <div class="details">
+                <div class="meta" style="color:#dc2626;">Validation Rules</div>
+                <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;">
+                    <ul>
+                        <li><strong>Time Overlap:</strong> The system validates that the new time entry does not overlap
+                            with any existing logs for the user on the same day.</li>
+                        <li><strong>Sequence:</strong> End time must be after Start time.</li>
+                    </ul>
+                </div>
                 <div class="meta">Request Body</div>
                 <pre>{
   "taskId": 101,
@@ -645,8 +653,49 @@
                 <pre>"Work log added successfully"</pre>
                 <div class="meta">Database Context</div>
                 <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>work_logs</code> (Check for overlaps)<br>
                     <strong>Inserts:</strong> <code>work_logs</code> (Record time entry)<br>
                     <strong>Updates:</strong> <code>task</code> (Update total worked minutes)
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/user/tasks/{taskId}/history</span>
+            </div>
+            <div class="desc">Get the full history timeline of a task (Audit Trail).</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>[
+  {
+    "eventType": "CREATED",
+    "username": "Admin",
+    "comment": "Initial task setup",
+    "timestamp": "2024-01-10T09:00:00",
+    "metadata": "Task Created"
+  },
+  {
+    "eventType": "STATUS_CHANGE",
+    "username": "user1",
+    "comment": "Started working",
+    "timestamp": "2024-01-11T10:00:00",
+    "metadata": "Changed to IN_PROGRESS"
+  },
+  {
+    "eventType": "WORK_LOG",
+    "username": "user1",
+    "comment": "Fixed login bug",
+    "timestamp": "2024-01-11T12:00:00",
+    "metadata": "Logged 2h 0m [In Progress]"
+  }
+]</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>task</code> (Creation details)<br>
+                    <strong>Reads:</strong> <code>task_detail</code> (Status changes)<br>
+                    <strong>Reads:</strong> <code>work_logs</code> (Time entries)
                 </div>
             </div>
         </div>

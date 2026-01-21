@@ -54,4 +54,9 @@ public class TaskController {
 	public ResponseEntity<?> getUserStats(@RequestHeader("Authorization") String authHeader) {
 		return ResponseEntity.ok(taskService.getUserStats(authHeader));
 	}
+
+	@GetMapping("/{taskId}/history")
+	public ResponseEntity<?> getTaskHistory(@PathVariable Long taskId) {
+		return ResponseEntity.ok(taskService.getTaskHistory(taskId));
+	}
 }
