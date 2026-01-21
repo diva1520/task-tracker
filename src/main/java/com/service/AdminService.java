@@ -1,6 +1,7 @@
 package com.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -189,8 +190,28 @@ public class AdminService {
 		return auditRepo.findByUserId(userId);
 	}
 
+	@Autowired
+	private com.repo.TaskDetailRepository taskDetailRepo;
+
+	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public List<com.dto.WorkLogDto> getUserWorkLogs(Long userId) {
-		return workLogRepo.findByUserId(userId).stream().map(log -> {
+		List<com.entity.WorkLog> logs = workLogRepo.findByUserId(userId);
+
+		if (logs.isEmpty()) {
+			return java.util.Collections.emptyList();
+		}
+
+		// Batch fetch details
+		List<Long> taskIds = logs.stream().map(l -> l.getTask().getId()).distinct().toList();
+		List<com.entity.TaskDetail> allDetails = taskDetailRepo.findByTask_IdIn(taskIds);
+		java.util.Map<Long, List<com.entity.TaskDetail>> detailsByTask = allDetails.stream()
+				.collect(java.util.stream.Collectors.groupingBy(d -> d.getTask().getId()));
+
+		// Sort details inside each list
+		detailsByTask.values()
+				.forEach(list -> list.sort(java.util.Comparator.comparing(com.entity.TaskDetail::getStartedAt)));
+
+		return logs.stream().map(log -> {
 			com.dto.WorkLogDto dto = new com.dto.WorkLogDto();
 			dto.setId(log.getId());
 			dto.setTaskId(log.getTask().getId());
@@ -198,9 +219,41 @@ public class AdminService {
 			dto.setStartTime(log.getStartTime());
 			dto.setEndTime(log.getEndTime());
 			dto.setDurationMinutes(log.getDurationMinutes());
-			dto.setComment(log.getComment());
+
+			// Infer Status
+			String statusLabel = "To Do"; // Default
+			List<com.entity.TaskDetail> details = detailsByTask.getOrDefault(log.getTask().getId(),
+					java.util.Collections.emptyList());
+
+			LocalDateTime logTime = log.getStartTime();
+			com.entity.TaskDetail effectiveDetail = null;
+
+			for (com.entity.TaskDetail d : details) {
+				if (!d.getStartedAt().isAfter(logTime)) {
+					effectiveDetail = d;
+				} else {
+					break;
+				}
+			}
+
+			if (effectiveDetail != null) {
+				if (effectiveDetail.getStatus() == com.entity.Status.IN_PROGRESS) {
+					if (effectiveDetail.getEndedAt() == null || !logTime.isAfter(effectiveDetail.getEndedAt())) {
+						statusLabel = "In Progress";
+					} else {
+						statusLabel = "Under Review";
+					}
+				} else if (effectiveDetail.getStatus() == com.entity.Status.REASSIGN) {
+					statusLabel = "Reassigned";
+				} else {
+					statusLabel = effectiveDetail.getStatus().toString();
+				}
+			}
+
+			dto.setComment(log.getComment() + " [" + statusLabel + "]");
 			return dto;
-		}).toList();
+		}).sorted((a, b) -> b.getStartTime().compareTo(a.getStartTime())) // Sort DESC by time
+				.toList();
 	}
 
 	public ResponseEntity<?> updateUserStatus(Long userId, boolean active) {

@@ -3363,7 +3363,7 @@
                                 <td style="padding:8px; color:#2d3748;">${date}</td>
                                 <td style="padding:8px; color:#2d3748;">${taskTitle}</td>
                                 <td style="padding:8px; color:#2d3748; font-weight:600;">${duration}</td>
-                                <td style="padding:8px; color:#718096; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px;" title="${comment}">${comment}</td>
+                                <td style="padding:8px; color:#718096; min-width:180px; white-space:normal; line-height:1.4;" title="${comment}">${comment}</td>
                             </tr>
                         `;
                     }).join('');
@@ -3377,10 +3377,10 @@
                             <table style="width:100%; border-collapse:collapse; font-size:12px;">
                                 <thead style="background:#f7fafc; position:sticky; top:0;">
                                     <tr>
-                                        <th style="padding:8px; text-align:left; color:#4a5568;">Date</th>
-                                        <th style="padding:8px; text-align:left; color:#4a5568;">Task</th>
-                                        <th style="padding:8px; text-align:left; color:#4a5568;">Duration</th>
-                                        <th style="padding:8px; text-align:left; color:#4a5568;">Activity</th>
+                                        <th style="padding:8px; text-align:left; color:#4a5568;">DATE</th>
+                                        <th style="padding:8px; text-align:left; color:#4a5568;">TASK</th>
+                                        <th style="padding:8px; text-align:left; color:#4a5568;">DURATION</th>
+                                        <th style="padding:8px; text-align:left; color:#4a5568;">ACTIVITY</th>
                                     </tr>
                                 </thead>
                                 <tbody>${rows}</tbody>
