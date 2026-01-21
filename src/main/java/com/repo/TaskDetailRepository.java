@@ -24,6 +24,8 @@ public interface TaskDetailRepository extends JpaRepository<TaskDetail, Long> {
 
 	List<TaskDetail> findByTask_Id(Long taskId);
 
+	List<TaskDetail> findByTask_IdIn(List<Long> taskIds);
+
 	boolean existsByTask_IdAndStatus(Long taskId, com.entity.Status status);
 
 }
