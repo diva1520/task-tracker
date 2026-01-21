@@ -332,15 +332,37 @@ public class TaskService {
 		log.setStartTime(request.getStartTime());
 		log.setEndTime(request.getEndTime());
 
-		if (request.getStartTime() != null && request.getEndTime() != null) {
-			long minutes = Duration.between(request.getStartTime(), request.getEndTime()).toMinutes();
-			log.setDurationMinutes(Math.max(0, minutes));
-
-			// Update total worked minutes on task
-			task.setTotalWorkedMinutes(
-					(task.getTotalWorkedMinutes() == null ? 0 : task.getTotalWorkedMinutes()) + minutes);
-			taskRepository.save(task);
+		if (request.getStartTime() == null || request.getEndTime() == null) {
+			return ResponseEntity.badRequest().body("Start time and End time are required");
 		}
+		if (!request.getEndTime().isAfter(request.getStartTime())) {
+			return ResponseEntity.badRequest().body("End time must be after Start time");
+		}
+
+		// Overlap Validation
+		LocalDateTime start = request.getStartTime();
+		LocalDateTime end = request.getEndTime();
+		LocalDateTime dayStart = start.toLocalDate().atStartOfDay();
+		LocalDateTime dayEnd = start.toLocalDate().atTime(23, 59, 59);
+
+		List<com.entity.WorkLog> dailyLogs = workLogRepo.findByUserIdAndStartTimeBetween(userId, dayStart, dayEnd);
+
+		for (com.entity.WorkLog existing : dailyLogs) {
+			// Check if new interval overlaps with existing interval
+			// Overlap logic: (StartA < EndB) and (EndA > StartB)
+			if (start.isBefore(existing.getEndTime()) && end.isAfter(existing.getStartTime())) {
+				return ResponseEntity.badRequest().body("Time overlap detected with existing log: "
+						+ existing.getStartTime().toLocalTime() + " - " + existing.getEndTime().toLocalTime());
+			}
+		}
+
+		long minutes = Duration.between(start, end).toMinutes();
+		log.setDurationMinutes(Math.max(0, minutes));
+
+		// Update total worked minutes on task
+		task.setTotalWorkedMinutes(
+				(task.getTotalWorkedMinutes() == null ? 0 : task.getTotalWorkedMinutes()) + minutes);
+		taskRepository.save(task);
 
 		log.setComment(request.getComment());
 

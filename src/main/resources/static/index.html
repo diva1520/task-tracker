@@ -1652,19 +1652,7 @@
             <button class="close-x" onclick="closeLogWorkModal()">×</button>
             <h3 style="margin-bottom:1.5rem;">Update Timesheet</h3>
 
-            <label
-                style="font-size: 13px; margin-bottom: 0.5rem; display:block; color:var(--primary); font-weight:700;">Task
-                Status <span style="color:red;">*</span></label>
-            <div class="status-group" style="margin-bottom: 2rem; margin-top: 0;">
-                <label class="status-item">
-                    <input type="radio" name="logStatus" value="IN_PROGRESS">
-                    <span>In Progress</span>
-                </label>
-                <label class="status-item">
-                    <input type="radio" name="logStatus" value="REVIEW">
-                    <span>Review</span>
-                </label>
-            </div>
+
 
             <div class="field-group">
                 <textarea id="logComment" placeholder=" " maxlength="200" style="resize:none; height:80px;"></textarea>
@@ -2527,28 +2515,17 @@
             finally { hideLoader(); }
         }
 
+
         let logWorkTaskId = null;
+        let logWorkCurrentStatus = null; // Store current status
 
         function openLogWorkModal(taskId, currentStatus) {
             logWorkTaskId = taskId;
+            logWorkCurrentStatus = currentStatus; // Capture status
             document.getElementById("logWorkModal").style.display = "flex";
             document.getElementById("logComment").value = "";
 
-            // Pre-select current status or default
-            const radios = document.getElementsByName("logStatus");
-            let found = false;
-            radios.forEach(r => {
-                if (r.value === currentStatus) {
-                    r.checked = true;
-                    found = true;
-                } else {
-                    r.checked = false;
-                }
-            });
-            if (!found && currentStatus === 'REASSIGN') {
-                // If reassign, maybe default to IN_PROGRESS?
-                // But REASSIGN isn't an option.
-            }
+            // Removed Status UI logic (Radio buttons)
 
             // Default Date to today
             const now = new Date();
@@ -2607,6 +2584,7 @@
         function closeLogWorkModal() {
             document.getElementById("logWorkModal").style.display = "none";
             logWorkTaskId = null;
+            logWorkCurrentStatus = null;
         }
 
         async function submitLogWork() {
@@ -2621,7 +2599,7 @@
             const endAmpm = document.getElementById("logEndAmpm").value;
 
             const comment = document.getElementById("logComment").value.trim();
-            const statusInput = document.querySelector('input[name="logStatus"]:checked');
+            // Removed statusInput reading
 
             if (!dateVal) { alert("Date error"); return; }
 
@@ -2636,22 +2614,21 @@
             const eH24 = String(to24(endH, endAmpm)).padStart(2, '0');
 
             // Combine to ISO strings
-            // Combine to ISO strings with seconds
             const start = `${dateVal}T${sH24}:${startM}:00`;
             const end = `${dateVal}T${eH24}:${endM}:00`;
 
             if (new Date(start) > new Date(end)) { alert("Start time must be before end time"); return; }
             if (!comment) { alert("Please provide a description of the work done"); return; }
-            if (!statusInput) { alert("Please select a task status"); return; }
 
             const body = {
                 taskId: logWorkTaskId,
                 startTime: start,
                 endTime: end,
                 comment: comment,
-                status: statusInput.value
+                status: logWorkCurrentStatus // Use captured status
             };
 
+            showLoader();
             try {
                 const res = await fetch(`${BASE_URL}/user/tasks/log-work`, {
                     method: "POST",
@@ -2666,7 +2643,12 @@
                     const txt = await res.text();
                     showToast("Failed: " + txt);
                 }
-            } catch (e) { console.error(e); showToast("Error logging work"); }
+            } catch (e) {
+                console.error(e);
+                showToast("Error logging work");
+            } finally {
+                hideLoader();
+            }
         }
 
         // TOAST FUNCTION

@@ -171,6 +171,11 @@
                 <pre>{
   "token": "eyJhbGciOiJIUzI1NiJ9..."
 }</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>users</code> (Verify credentials)<br>
+                    <strong>Writes:</strong> <code>user_login_audit</code> (Log login event)
+                </div>
             </div>
         </div>
 
@@ -185,6 +190,10 @@
                 <pre>Authorization: Bearer <token></pre>
                 <div class="meta">Response</div>
                 <pre>200 OK (No Body)</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Updates:</strong> <code>user_login_audit</code> (Set logout time & duration)
+                </div>
             </div>
         </div>
 
@@ -215,6 +224,10 @@
     "active": true
   }
 ]</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>users</code> (Fetch all user records)
+                </div>
             </div>
         </div>
 
@@ -247,6 +260,42 @@
     "reassigned": false
   }
 ]</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>task</code> (Fetch filtered tasks)
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/admin/tasks</span>
+            </div>
+            <div class="desc">Filter tasks using query parameters (Alternative to POST /admin/task).</div>
+            <div class="details">
+                <div class="meta">Query Parameters</div>
+                <pre>fromDate=2024-01-01&toDate=2024-12-31&userIds=1,2</pre>
+                <div class="meta">Response</div>
+                <pre>[
+  {
+    "id": 101,
+    "userName": "user1",
+    "userId": 2,
+    "title": "Fix Bug",
+    "description": "Critical issue",
+    "createdAt": "2024-01-10",
+    "status": "IN_PROGRESS",
+    "completedAt": null,
+    "dueDate": "2024-01-20",
+    "comment": "Working on it",
+    "reassigned": false
+  }
+]</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>task</code> (Fetch filtered tasks)
+                </div>
             </div>
         </div>
 
@@ -266,6 +315,10 @@
 }</pre>
                 <div class="meta">Response</div>
                 <pre>"Task added successfully"</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Inserts:</strong> <code>task</code> (Create new task record assigned to a user)
+                </div>
             </div>
         </div>
 
@@ -285,6 +338,10 @@
 }</pre>
                 <div class="meta">Response</div>
                 <pre>"User Created SucessFully UserID :: 15"</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Inserts:</strong> <code>users</code> (Create new account)
+                </div>
             </div>
         </div>
 
@@ -307,6 +364,36 @@
     "status": "ACTIVE"
   }
 ]</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>user_login_audit</code> (Fetch login history)
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/admin/audit/{userId}</span>
+            </div>
+            <div class="desc">Retrieve audit logs for a specific user.</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>[
+  {
+    "id": 501,
+    "userId": 2,
+    "username": "user1",
+    "loginTime": "2024-01-20T09:00:00",
+    "logoutTime": null,
+    "sessionDurationMinutes": 0,
+    "status": "ACTIVE"
+  }
+]</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>user_login_audit</code> (Fetch user specific history)
+                </div>
             </div>
         </div>
 
@@ -335,6 +422,11 @@
   "reviewUserIds": [2],
   "completedUserIds": [2, 3]
 }</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>users</code>, <code>task</code>, <code>user_login_audit</code>
+                    (Aggregate statistics)
+                </div>
             </div>
         </div>
 
@@ -358,6 +450,54 @@
     "COMPLETED": 5
   }
 }</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>task</code> (Aggregate task counts for user)
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge post">POST</span>
+                <span class="path">/admin/users/{id}/status</span>
+            </div>
+            <div class="desc">Update user status (activate/deactivate).</div>
+            <div class="details">
+                <div class="meta">Query Parameters</div>
+                <pre>active=true</pre>
+                <div class="meta">Response</div>
+                <pre>"User status updated successfully"</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Updates:</strong> <code>users</code> (Set active/inactive flag)
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/admin/work-logs</span>
+            </div>
+            <div class="desc">Retrieve all work logs (timesheet entries) for all users.</div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>[
+  {
+    "id": 1001,
+    "taskId": 101,
+    "taskTitle": "Fix Bug",
+    "startTime": "2024-01-20T10:00:00",
+    "endTime": "2024-01-20T12:00:00",
+    "durationMinutes": 120,
+    "comment": "Fixed the issue"
+  }
+]</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>work_logs</code> (Fetch all time logs)
+                </div>
             </div>
         </div>
 
@@ -380,6 +520,10 @@
     "comment": "Fixed the issue"
   }
 ]</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>work_logs</code> (Fetch user specific time logs)
+                </div>
             </div>
         </div>
 
@@ -401,6 +545,10 @@
   "email": "user1@test.com",
   "role": "ROLE_USER"
 }</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>users</code> (Fetch current user details)
+                </div>
             </div>
         </div>
 
@@ -426,6 +574,10 @@
     "reassigned": false
   }
 ]</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>task</code> (Fetch tasks for current user)
+                </div>
             </div>
         </div>
 
@@ -444,6 +596,10 @@
 }</pre>
                 <div class="meta">Response</div>
                 <pre>"Task added successfully"</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Inserts:</strong> <code>task</code> (Create new self-assigned task)
+                </div>
             </div>
         </div>
 
@@ -463,6 +619,10 @@
 }</pre>
                 <div class="meta">Response</div>
                 <pre>"Task Updated Successfully"</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Updates:</strong> <code>task</code> (Modify title, status, description)
+                </div>
             </div>
         </div>
 
@@ -483,6 +643,11 @@
 }</pre>
                 <div class="meta">Response</div>
                 <pre>"Work log added successfully"</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Inserts:</strong> <code>work_logs</code> (Record time entry)<br>
+                    <strong>Updates:</strong> <code>task</code> (Update total worked minutes)
+                </div>
             </div>
         </div>
 
@@ -506,6 +671,10 @@
     "COMPLETED": 5
   }
 }</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>task</code> (Count tasks by status)
+                </div>
             </div>
         </div>
 
@@ -521,6 +690,10 @@
             <div class="details">
                 <div class="meta">Response</div>
                 <pre>Binary File (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>task</code> (Populate template with active tasks)
+                </div>
             </div>
         </div>
 
@@ -535,6 +708,11 @@
                 <pre>file: (Binary Excel File)</pre>
                 <div class="meta">Response</div>
                 <pre>"Timesheet processed successfully"</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Inserts:</strong> <code>work_logs</code> (Batch insert time entries)<br>
+                    <strong>Updates:</strong> <code>task</code> (Update total worked minutes)
+                </div>
             </div>
         </div>
 
@@ -559,7 +737,269 @@
 }</pre>
                 <div class="meta">Response</div>
                 <pre>"Weekly logs saved successfully"</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Inserts:</strong> <code>work_logs</code> (Batch insert weekly entries)<br>
+                    <strong>Updates:</strong> <code>task</code> (Update total worked minutes)
+                </div>
             </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
+                <span class="badge get">GET</span>
+                <span class="path">/user/timesheet/weekly</span>
+            </div>
+            <div class="desc">Get weekly timesheet logs for the grid view.</div>
+            <div class="details">
+                <div class="meta">Query Parameters</div>
+                <pre>startDate=2024-01-15</pre>
+                <div class="meta">Response</div>
+                <pre>{
+  "weekStartDate": "2024-01-15",
+  "taskLogs": [
+    {
+      "taskId": 101,
+      "entries": [
+        { "date": "2024-01-15", "hours": 8, "comment": "Dev" }
+      ]
+    }
+  ]
+}</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>work_logs</code> (Fetch logs for the week)<br>
+                    <strong>Reads:</strong> <code>task</code> (Fetch task details)
+                </div>
+            </div>
+        </div>
+
+        <!-- DATABASE SCHEMA -->
+        <div class="section-title">Database Schema</div>
+
+        <div class="endpoint-card">
+            <div class="path" style="margin-left:0; margin-bottom:10px;">Table: users</div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                <tr style="background:var(--code-bg); text-align:left;">
+                    <th style="padding:8px;">Column</th>
+                    <th style="padding:8px;">Type</th>
+                    <th style="padding:8px;">Description</th>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">id</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Primary Key</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">username</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Unique login ID</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">password</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Encrypted password</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">email</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">User email</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">role</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">ROLE_ADMIN or ROLE_USER</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">active</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BOOLEAN</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Account status</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="endpoint-card">
+            <div class="path" style="margin-left:0; margin-bottom:10px;">Table: task</div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                <tr style="background:var(--code-bg); text-align:left;">
+                    <th style="padding:8px;">Column</th>
+                    <th style="padding:8px;">Type</th>
+                    <th style="padding:8px;">Description</th>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">id</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Primary Key</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">title</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Task title</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">description</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">TEXT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Detailed description</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">status</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">TO_DO, IN_PROGRESS, etc.</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">user_id</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Assigned User (FK)</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">assigned_by</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Admin who assigned</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">created_at</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">DATE</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Creation date</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">due_date</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">DATE</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Deadline</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">total_worked_minutes</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Aggregated time</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="endpoint-card">
+            <div class="path" style="margin-left:0; margin-bottom:10px;">Table: work_logs</div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                <tr style="background:var(--code-bg); text-align:left;">
+                    <th style="padding:8px;">Column</th>
+                    <th style="padding:8px;">Type</th>
+                    <th style="padding:8px;">Description</th>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">id</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Primary Key</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">task_id</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Related Task (FK)</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">user_id</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">User (FK)</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">start_time</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">DATETIME</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Log start</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">end_time</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">DATETIME</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Log end</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">duration_minutes</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Calculated duration</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">comment</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Work description</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="endpoint-card">
+            <div class="path" style="margin-left:0; margin-bottom:10px;">Table: user_login_audit</div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                <tr style="background:var(--code-bg); text-align:left;">
+                    <th style="padding:8px;">Column</th>
+                    <th style="padding:8px;">Type</th>
+                    <th style="padding:8px;">Description</th>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">id</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Primary Key</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">user_id</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">User ID</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">login_time</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">DATETIME</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Login Timestamp</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">logout_time</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">DATETIME</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Logout Timestamp</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">ip_address</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">User IP</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">status</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">ACTIVE/LOGOUT</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="endpoint-card">
+            <div class="path" style="margin-left:0; margin-bottom:10px;">Table: task_detail</div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                <tr style="background:var(--code-bg); text-align:left;">
+                    <th style="padding:8px;">Column</th>
+                    <th style="padding:8px;">Type</th>
+                    <th style="padding:8px;">Description</th>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">id</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Primary Key</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">task_id</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">BIGINT</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Related Task (FK)</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">status</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Status Change</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">started_at</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">DATETIME</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Start of status/activity</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">ended_at</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">DATETIME</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">End of status/activity</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">comment</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">VARCHAR</td>
+                    <td style="padding:8px; border-bottom:1px solid var(--border);">Change comment</td>
+                </tr>
+            </table>
         </div>
 
     </div>
