@@ -2966,9 +2966,9 @@
                                     class="action-btn-mini" style="width:auto; padding:6px 10px; margin:0;">
                                     <i data-lucide="activity" style="width:14px;"></i> Activity
                                 </button>
-                                <button onclick="openUserAudit('${u.id}', '${u.username}')" 
+                                <button onclick="downloadUserReport('${u.id}')" 
                                     class="action-btn-mini" style="width:auto; padding:6px 10px; margin:0; background:var(--primary); color:white; border-color:var(--primary);">
-                                    <i data-lucide="file-clock" style="width:14px;"></i> Timesheet
+                                    <i data-lucide="download" style="width:14px;"></i> Report
                                 </button>
                             </div>
                         </td>
@@ -2982,6 +2982,33 @@
                 }
             });
             lucide.createIcons();
+        }
+
+        async function downloadUserReport(userId) {
+            showLoader();
+            try {
+                const res = await fetch(`${BASE_URL}/admin/users/${userId}/report`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `user_activity_report_${userId}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    showToast("Report downloaded successfully");
+                } else {
+                    showToast("Failed to download report");
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("Error downloading report");
+            } finally {
+                hideLoader();
+            }
         }
 
 

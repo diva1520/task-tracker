@@ -9,16 +9,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import com.dto.AssignTaskDto;
 import com.dto.GetTaskRequest;
 import com.entity.User;
 import com.service.AdminService;
+import com.service.ReportService;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -29,6 +34,9 @@ public class AdminController {
 
 	@Autowired
 	private AdminService service;
+	
+	@Autowired
+	ReportService reportService;
 
 	@GetMapping("/users")
 	public List<User> getAllUsers() {
@@ -101,5 +109,21 @@ public class AdminController {
 	@GetMapping("/summary")
 	public ResponseEntity<?> getAdminSummary() {
 		return ResponseEntity.ok(service.getAdminSummary());
+	}
+
+	@GetMapping("/users/{userId}/report")
+	public ResponseEntity<InputStreamResource> downloadUserReport(@PathVariable Long userId)
+			throws java.io.IOException {
+		
+		java.io.ByteArrayInputStream in = reportService.generateUserActivityReport(userId);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "attachment; filename=user_report_" + userId + ".xlsx");
+
+		return ResponseEntity.ok()
+				.headers(headers)
+				.contentType(
+						MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+				.body(new InputStreamResource(in));
 	}
 }

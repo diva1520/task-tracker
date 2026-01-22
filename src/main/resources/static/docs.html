@@ -459,6 +459,24 @@
 
         <div class="endpoint-card">
             <div>
+                <span class="badge get">GET</span>
+                <span class="path">/admin/users/{userId}/report</span>
+            </div>
+            <div class="desc">Download a comprehensive Excel report of user activity (Tasks, Work Logs, Login History).
+            </div>
+            <div class="details">
+                <div class="meta">Response</div>
+                <pre>Binary Excel file (.xlsx) with "Content-Disposition: attachment"</pre>
+                <div class="meta">Database Context</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">
+                    <strong>Reads:</strong> <code>users</code>, <code>task</code>, <code>work_logs</code>,
+                    <code>user_login_audit</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div>
                 <span class="badge post">POST</span>
                 <span class="path">/admin/users/{id}/status</span>
             </div>
