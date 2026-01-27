@@ -202,10 +202,8 @@ public class TaskService {
 				}
 				taskDetailRepo.save(inProgress);
 
-				long minutes = Math.max(1,
-						Duration.between(inProgress.getStartedAt(), inProgress.getEndedAt()).toMinutes());
-				task.setTotalWorkedMinutes(
-						(task.getTotalWorkedMinutes() != null ? task.getTotalWorkedMinutes() : 0) + minutes);
+				// REMOVED: Auto-calculation of minutes.
+				// Minutes are now only added via explicit WorkLog (manual entry).
 			}
 		}
 	}
@@ -398,27 +396,52 @@ public class TaskService {
 
 		// 2. Status History (TaskDetail)
 		List<com.entity.TaskDetail> details = taskDetailRepo.findByTask_Id(taskId);
-		// Sort details by startedAt for logic
 		details.sort(java.util.Comparator.comparing(com.entity.TaskDetail::getStartedAt));
 
 		for (com.entity.TaskDetail d : details) {
-			com.dto.TaskHistoryDTO h = new com.dto.TaskHistoryDTO();
-			h.setTimestamp(d.getStartedAt());
-			h.setComment(d.getComment());
+			// Event: Started State
+			com.dto.TaskHistoryDTO startEvent = new com.dto.TaskHistoryDTO();
+			startEvent.setTimestamp(d.getStartedAt());
+			startEvent.setEventType("STATUS_CHANGE");
+			startEvent.setUsername(task.getUser().getUsername()); // Assuming user started it
 
 			if (d.getStatus() == com.entity.Status.REASSIGN) {
-				h.setEventType("REASSIGN");
-				h.setUsername("Admin");
-				h.setMetadata("Reassigned Task");
+				startEvent.setEventType("REASSIGN");
+				startEvent.setUsername("Admin"); // Usually admin reassigns
+				startEvent.setMetadata("Reassigned to " + task.getUser().getUsername());
+				startEvent.setComment(d.getComment()); // Comment on reassign is valuable at start
 			} else {
-				h.setEventType("STATUS_CHANGE");
-				h.setUsername(task.getUser().getUsername());
-				h.setMetadata("Changed to " + d.getStatus());
+				startEvent.setMetadata("Moved to " + d.getStatus());
+				if (d.getEndedAt() == null && d.getComment() != null) {
+					// Only attach comment to start if it hasn't ended (active comment)
+					// OR if we assume comment was for start.
+					// But usually comment is overwritten on stop.
+					// Let's use logic: if endedAt is null, comment is current status comment.
+					startEvent.setComment(d.getComment());
+				}
 			}
-			history.add(h);
+			history.add(startEvent);
+
+			// Event: Ended State (Transition Out)
+			if (d.getEndedAt() != null) {
+				com.dto.TaskHistoryDTO endEvent = new com.dto.TaskHistoryDTO();
+				endEvent.setTimestamp(d.getEndedAt());
+				endEvent.setEventType("STATUS_CHANGE");
+				endEvent.setUsername(task.getUser().getUsername());
+
+				// Infer transition
+				if (d.getStatus() == com.entity.Status.IN_PROGRESS) {
+					endEvent.setMetadata("Submitted for Review");
+				} else {
+					endEvent.setMetadata("Ended " + d.getStatus());
+				}
+
+				endEvent.setComment(d.getComment()); // The comment explains why it ended/moved to review
+				history.add(endEvent);
+			}
 		}
 
-		// 3. Work Logs with Status Inference
+		// 3. Work Logs
 		List<com.entity.WorkLog> logs = workLogRepo.findByTaskId(taskId);
 		for (com.entity.WorkLog log : logs) {
 			com.dto.TaskHistoryDTO h = new com.dto.TaskHistoryDTO();
@@ -430,44 +453,35 @@ public class TaskService {
 			long hours = log.getDurationMinutes() / 60;
 			long mins = log.getDurationMinutes() % 60;
 			String duration = (hours > 0 ? hours + "h " : "") + mins + "m";
-
-			// Infer Status
-			String statusLabel = "To Do"; // Default (before any detail)
-			LocalDateTime logTime = log.getStartTime();
-
-			// Find the latest detail that started before or at logTime
-			com.entity.TaskDetail effectiveDetail = null;
-			for (com.entity.TaskDetail d : details) {
-				if (!d.getStartedAt().isAfter(logTime)) {
-					effectiveDetail = d;
-				} else {
-					break; // details are sorted, so we can stop
-				}
-			}
-
-			if (effectiveDetail != null) {
-				if (effectiveDetail.getStatus() == com.entity.Status.IN_PROGRESS) {
-					if (effectiveDetail.getEndedAt() == null || !logTime.isAfter(effectiveDetail.getEndedAt())) {
-						statusLabel = "In Progress";
-					} else {
-						// After In Progress ended -> Review
-						statusLabel = "Under Review";
-					}
-				} else if (effectiveDetail.getStatus() == com.entity.Status.REASSIGN) {
-					statusLabel = "Reassigned";
-				} else {
-					statusLabel = effectiveDetail.getStatus().toString();
-				}
-			}
-
-			// Check completed
-			if (task.getStatus() == com.entity.Status.COMPLETED && task.getCompletedAt() != null) {
-				// rough check: if log date >= completed date?
-				// Usually logs aren't made after completion, but if so, it's "Completed"
-			}
-
-			h.setMetadata("Logged " + duration + " [" + statusLabel + "]");
+			h.setMetadata("Logged " + duration);
 			history.add(h);
+		}
+
+		// 4. Completion (if not covered by details)
+		// If task is completed, but we might not have a TaskDetail for the transition
+		// to COMPLETED
+		// (e.g. from Review -> Completed, or direct Admin completion)
+		if (task.getStatus() == com.entity.Status.COMPLETED && task.getCompletedAt() != null) {
+			// Check if we already have an event near completion time?
+			// Usually Review -> Completed doesn't create a TaskDetail.
+			com.dto.TaskHistoryDTO completeEvent = new com.dto.TaskHistoryDTO();
+			completeEvent.setEventType("COMPLETED");
+			completeEvent.setTimestamp(task.getCompletedAt().atTime(23, 59)); // End of day fallback or modify entity to
+																				// have LocalDateTime
+
+			// Improve: If we find a 'stopTaskDetail' that ended recently, use that time?
+			// But Review -> Completed updates the Task, not TaskDetail.
+
+			if (task.getAssignedBy() != null) {
+				User admin = userRepository.findById(task.getAssignedBy()).orElse(null);
+				completeEvent.setUsername(admin != null ? admin.getUsername() : "Admin");
+			} else {
+				completeEvent.setUsername("System");
+			}
+
+			completeEvent.setMetadata("Task Completed");
+			// Prevent duplicate if logic roughly matches
+			history.add(completeEvent);
 		}
 
 		// Sort by timestamp DESC

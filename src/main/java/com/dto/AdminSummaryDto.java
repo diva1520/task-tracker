@@ -24,9 +24,13 @@ public class AdminSummaryDto {
     private long reviewTasks;
     private long completedTasks;
 
+    // Leave Stats
+
     // User IDs filtered by task status
     private List<Long> todoUserIds;
     private List<Long> inProgressUserIds;
     private List<Long> reviewUserIds;
     private List<Long> completedUserIds;
+
+    private long pendingLeaveRequests;
 }

@@ -40,6 +40,9 @@ public class AdminService {
 	@Autowired
 	private EmailService mailService;
 
+	@Autowired
+	private com.repo.LeaveRepository leaveRepo;
+
 	public List<TaskResponse> getTasks(@NotNull LocalDate fromDate, @NotNull LocalDate toDate,
 			List<Long> userIds) {
 
@@ -350,6 +353,7 @@ public class AdminService {
 				todoIds,
 				progressIds,
 				reviewIds,
-				completedIds);
+				completedIds,
+				leaveRepo.findAllPending().size()); // Added leave count
 	}
 }
