@@ -3645,70 +3645,148 @@
             container.innerHTML = '<div style="text-align:center; padding:20px;">Loading statistics...</div>';
 
             try {
-                // Fetch Stats
-                const statsRes = await fetch(`${BASE_URL}/admin/users/${userId}/stats`, {
-                    headers: { "Authorization": "Bearer " + token }
-                });
+                // Fetch Stats, Work Logs, AND Audit Logs
+                const [statsRes, logsRes, auditRes] = await Promise.all([
+                    fetch(`${BASE_URL}/admin/users/${userId}/stats`, { headers: { "Authorization": "Bearer " + token } }),
+                    fetch(`${BASE_URL}/admin/work-logs/${userId}`, { headers: { "Authorization": "Bearer " + token } }),
+                    fetch(`${BASE_URL}/admin/audit/${userId}`, { headers: { "Authorization": "Bearer " + token } })
+                ]);
+
                 const stats = await statsRes.json();
-
-                // Fetch Work Logs
-                const logsRes = await fetch(`${BASE_URL}/admin/work-logs/${userId}`, {
-                    headers: { "Authorization": "Bearer " + token }
-                });
                 const workLogs = await logsRes.json();
+                const auditLogs = await auditRes.json();
 
-                // Breakdowns
+                // Breakdowns for Cards
                 const bd = stats.statusBreakdown || {};
                 const todo = bd['TO_DO'] || 0;
                 const progress = bd['IN_PROGRESS'] || 0;
                 const review = bd['REVIEW'] || 0;
 
-                // Build Logs HTML
-                let logsHtml = "";
-                if (workLogs && workLogs.length > 0) {
-                    workLogs.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
-                    const rows = workLogs.map(log => {
-                        const date = log.startTime ? log.startTime.split('T')[0] : '-';
-                        const taskTitle = log.taskTitle || '-';
-                        const duration = log.durationMinutes + 'm';
-                        const comment = log.comment || '-';
+                // --- COMBINE EVENTS FOR TIMELINE ---
+                let events = [];
+
+                // 1. Process Work Logs
+                if (workLogs && Array.isArray(workLogs)) {
+                    workLogs.forEach(log => {
+                        events.push({
+                            type: 'WORK_LOG',
+                            date: new Date(log.startTime),
+                            title: log.taskTitle || 'Unknown Task',
+                            desc: log.comment || '',
+                            duration: log.durationMinutes,
+                            taskId: log.taskId
+                        });
+                    });
+                }
+
+                // 2. Process Audit Logs (Login/Logout)
+                if (auditLogs && Array.isArray(auditLogs)) {
+                    auditLogs.forEach(log => {
+                        // Login Event
+                        if (log.loginTime) {
+                            events.push({
+                                type: 'LOGIN',
+                                date: new Date(log.loginTime),
+                                ip: log.ipAddress || 'Unknown IP',
+                                userAgent: log.userAgent
+                            });
+                        }
+                        // Logout Event (if exists)
+                        if (log.logoutTime) {
+                            events.push({
+                                type: 'LOGOUT',
+                                date: new Date(log.logoutTime),
+                                duration: log.sessionDurationMinutes
+                            });
+                        }
+                    });
+                }
+
+                // Sort Descending
+                events.sort((a, b) => b.date - a.date);
+
+                // Build Timeline HTML
+                let timelineHtml = "";
+                if (events.length > 0) {
+                    const itemsHtml = events.map(e => {
+                        const dateStr = e.date.toLocaleString('en-US', {
+                            month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                        });
+
+                        let icon = "activity";
+                        let color = "var(--text-muted)";
+                        let bg = "var(--bg-main)";
+                        let contentHtml = "";
+
+                        if (e.type === 'WORK_LOG') {
+                            icon = "clock";
+                            color = "#f97316"; // Orange
+                            bg = "rgba(249, 115, 22, 0.1)";
+                            contentHtml = `
+                                <div style="font-weight:600; color:var(--text-main); margin-bottom:4px;">
+                                    Logged ${e.duration}m on "${e.title}"
+                                </div>
+                                <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;">${e.desc}</div>
+                            `;
+                        } else if (e.type === 'LOGIN') {
+                            icon = "log-in";
+                            color = "#10b981"; // Green
+                            bg = "rgba(16, 185, 129, 0.1)";
+                            contentHtml = `
+                                <div style="font-weight:600; color:var(--text-main);">System Login</div>
+                                <div style="font-size:0.8rem; color:var(--text-muted);">IP: ${e.ip}</div>
+                            `;
+                        } else if (e.type === 'LOGOUT') {
+                            icon = "log-out";
+                            color = "#64748b"; // Grey
+                            bg = "rgba(100, 116, 139, 0.1)";
+                            // Format session duration
+                            let durStr = e.duration + " min";
+                            if (e.duration > 60) {
+                                const h = Math.floor(e.duration / 60);
+                                const m = e.duration % 60;
+                                durStr = `${h}h ${m}m`;
+                            }
+                            contentHtml = `
+                                <div style="font-weight:600; color:var(--text-main);">System Logout</div>
+                                <div style="font-size:0.8rem; color:var(--text-muted);">Session: ${durStr}</div>
+                            `;
+                        }
+
                         return `
-                            <tr style="border-bottom:1px solid #edf2f7;">
-                                <td style="padding:8px; color:#2d3748;">${date}</td>
-                                <td style="padding:8px; color:#2d3748;">${taskTitle}</td>
-                                <td style="padding:8px; color:#2d3748; font-weight:600;">${duration}</td>
-                                <td style="padding:8px; color:#718096; min-width:180px; white-space:normal; line-height:1.4;" title="${comment}">${comment}</td>
-                            </tr>
+                             <div class="timeline-item">
+                                <div class="timeline-icon" style="background:${bg}; box-shadow: 0 0 0 4px var(--bg-card);">
+                                    <i data-lucide="${icon}" style="width:14px; color:${color};"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="timeline-meta" style="background:${bg}; color:${color}; margin:0;">${e.type.replace('_', ' ')}</span>
+                                        <span class="timeline-date">${dateStr}</span>
+                                    </div>
+                                    ${contentHtml}
+                                </div>
+                            </div>
                         `;
                     }).join('');
 
-                    logsHtml = `
-                    <div style="margin-top:20px;">
-                        <div style="font-size:12px; font-weight:600; color:#4a5568; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;">
-                            Timesheet History
+                    timelineHtml = `
+                        <div style="margin-top:24px;">
+                             <div style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                                <i data-lucide="history" style="width:16px;"></i> ACTIVITY TIMELINE
+                            </div>
+                            <div style="max-height:350px; overflow-y:auto; padding-right:5px; padding-left:5px;">
+                                ${itemsHtml}
+                            </div>
                         </div>
-                        <div style="max-height:200px; overflow-y:auto; border:1px solid #edf2f7; border-radius:8px;">
-                            <table style="width:100%; border-collapse:collapse; font-size:12px;">
-                                <thead style="background:#f7fafc; position:sticky; top:0;">
-                                    <tr>
-                                        <th style="padding:8px; text-align:left; color:#4a5568;">DATE</th>
-                                        <th style="padding:8px; text-align:left; color:#4a5568;">TASK</th>
-                                        <th style="padding:8px; text-align:left; color:#4a5568;">DURATION</th>
-                                        <th style="padding:8px; text-align:left; color:#4a5568;">ACTIVITY</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${rows}</tbody>
-                            </table>
-                        </div>
-                    </div>`;
+                    `;
                 } else {
-                    logsHtml = `<div style="margin-top:20px; text-align:center; color:#a0aec0; font-size:12px;">No timesheet entries found</div>`;
+                    timelineHtml = `<div style="margin-top:24px; text-align:center; color:#a0aec0; font-size:12px;">No activity recorded</div>`;
                 }
 
                 container.innerHTML = `
                     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom: 24px;">
                         <div class="glass" style="padding:15px; text-align:center; border-radius:16px;">
-                            <div style="background:rgba(59, 130, 246, 0.1); width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; margin: 0 auto 8px;">
+                             <div style="background:rgba(59, 130, 246, 0.1); width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; margin: 0 auto 8px;">
                                 <i data-lucide="layers" style="width:16px; color:#3b82f6;"></i>
                             </div>
                             <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase; font-weight:600; letter-spacing:0.5px;">Total</div>
@@ -3730,27 +3808,7 @@
                         </div>
                     </div>
 
-                    <div style="background:var(--bg-main); padding:20px; border-radius:16px; margin-bottom:24px; border:1px solid var(--border);">
-                        <div style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:15px; display:flex; align-items:center; gap:8px;">
-                            <i data-lucide="bar-chart-3" style="width:16px;"></i> STATUS BREAKDOWN
-                        </div>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
-                            <div style="text-align:center;">
-                                <div style="font-size:18px; font-weight:700; color:var(--text-main);">${todo}</div>
-                                <div style="font-size:9px; color:var(--text-muted); text-transform:uppercase;">To Do</div>
-                            </div>
-                            <div style="text-align:center;">
-                                <div style="font-size:18px; font-weight:700; color:var(--primary);">${progress}</div>
-                                <div style="font-size:9px; color:var(--text-muted); text-transform:uppercase;">In Progress</div>
-                            </div>
-                            <div style="text-align:center;">
-                                <div style="font-size:18px; font-weight:700; color:#ef4444;">${review}</div>
-                                <div style="font-size:9px; color:var(--text-muted); text-transform:uppercase;">In Review</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    ${logsHtml}
+                    ${timelineHtml}
                 `;
                 lucide.createIcons();
 
