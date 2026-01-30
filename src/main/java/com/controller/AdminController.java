@@ -34,12 +34,13 @@ public class AdminController {
 
 	@Autowired
 	private AdminService service;
-	
+
 	@Autowired
 	ReportService reportService;
 
 	@GetMapping("/users")
 	public List<User> getAllUsers() {
+		System.out.println("DEBUG: AdminController.getAllUsers called");
 		return service.getUsers();
 	}
 
@@ -114,7 +115,7 @@ public class AdminController {
 	@GetMapping("/users/{userId}/report")
 	public ResponseEntity<InputStreamResource> downloadUserReport(@PathVariable Long userId)
 			throws java.io.IOException {
-		
+
 		java.io.ByteArrayInputStream in = reportService.generateUserActivityReport(userId);
 
 		HttpHeaders headers = new HttpHeaders();

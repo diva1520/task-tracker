@@ -26,6 +26,13 @@ public class LeaveService {
 
     public LeaveRequest createRequest(Long userId, LeaveRequest leaveRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check for overlaps
+        boolean overlap = leaveRepository.existsByOverlap(userId, leaveRequest.getFromDate(), leaveRequest.getToDate());
+        if (overlap) {
+            throw new RuntimeException("Leave request overlaps with an existing request!");
+        }
+
         leaveRequest.setUser(user);
         leaveRequest.setStatus("PENDING");
         LeaveRequest savedLeave = leaveRepository.save(leaveRequest);
@@ -52,8 +59,29 @@ public class LeaveService {
         return leaveRepository.findByUserOrderByCreatedAtDesc(user);
     }
 
-    public List<LeaveRequest> getAllPending() {
-        return leaveRepository.findAllPending();
+    public List<com.dto.LeaveRequestResponse> getAllPending() {
+        return leaveRepository.findAllPending().stream().map(l -> {
+            Map<String, Object> balance = getLeaveBalance(l.getUser().getId());
+            return new com.dto.LeaveRequestResponse(l, balance);
+        }).collect(java.util.stream.Collectors.toList());
+    }
+
+    public List<com.dto.LeaveRequestResponse> getAllHistory() {
+        return leaveRepository.findAllHistory().stream().map(l -> {
+            Map<String, Object> balance = getLeaveBalance(l.getUser().getId());
+            return new com.dto.LeaveRequestResponse(l, balance);
+        }).collect(java.util.stream.Collectors.toList());
+    }
+
+    public List<com.dto.LeaveRequestResponse> searchLeaves(com.dto.LeaveSearchRequest request) {
+        List<Long> userIds = (request.getUserIds() == null || request.getUserIds().isEmpty()) ? null
+                : request.getUserIds();
+
+        return leaveRepository.searchLeaves(userIds, request.getFromDate(), request.getToDate())
+                .stream().map(l -> {
+                    Map<String, Object> balance = getLeaveBalance(l.getUser().getId());
+                    return new com.dto.LeaveRequestResponse(l, balance);
+                }).collect(java.util.stream.Collectors.toList());
     }
 
     public LeaveRequest updateStatus(Long leaveId, String status) {
@@ -99,5 +127,25 @@ public class LeaveService {
         response.put("lop", Math.max(0, occupiedDays - totalAllowed));
 
         return response;
+    }
+
+    public List<com.dto.UserLeaveSummaryDto> getUserLeaveSummaries(java.time.LocalDate from, java.time.LocalDate to) {
+        List<User> users;
+        if (from != null || to != null) {
+            users = leaveRepository.findUsersWithLeavesInRange(from, to);
+        } else {
+            users = userRepository.findAll();
+        }
+
+        return users.stream().map(u -> {
+            Map<String, Object> balance = getLeaveBalance(u.getId());
+            return new com.dto.UserLeaveSummaryDto(
+                    u.getId(),
+                    u.getUsername(),
+                    (Double) balance.get("taken"),
+                    (Double) balance.get("lop"),
+                    (Double) balance.get("balance"),
+                    (Double) balance.get("allowed"));
+        }).collect(java.util.stream.Collectors.toList());
     }
 }

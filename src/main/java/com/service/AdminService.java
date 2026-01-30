@@ -338,6 +338,13 @@ public class AdminService {
 				.map(t -> t.getUser() != null ? t.getUser().getId() : null)
 				.filter(id -> id != null).distinct().toList();
 
+		java.util.List<com.entity.LeaveRequest> activeLeaves = leaveRepo.findActiveLeaves(LocalDate.now());
+		long activeLeaveCount = activeLeaves.size();
+		java.util.List<Long> activeLeaveUserIds = activeLeaves.stream()
+				.map(l -> l.getUser().getId())
+				.distinct()
+				.toList();
+
 		return new com.dto.AdminSummaryDto(
 				totalIds.size(),
 				activeIds.size(),
@@ -354,6 +361,8 @@ public class AdminService {
 				progressIds,
 				reviewIds,
 				completedIds,
-				leaveRepo.findAllPending().size()); // Added leave count
+				leaveRepo.findAllPending().size(),
+				activeLeaveCount,
+				activeLeaveUserIds);
 	}
 }

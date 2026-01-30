@@ -36,8 +36,24 @@ public class LeaveController {
     // Admin Endpoints
 
     @GetMapping("/admin/pending")
-    public List<LeaveRequest> getPendingLeaves() {
+    public List<com.dto.LeaveRequestResponse> getPendingLeaves() {
         return leaveService.getAllPending();
+    }
+
+    public List<com.dto.LeaveRequestResponse> getLeaveHistory() {
+        return leaveService.getAllHistory();
+    }
+
+    @PostMapping("/admin/search")
+    public List<com.dto.LeaveRequestResponse> searchLeaves(@RequestBody com.dto.LeaveSearchRequest request) {
+        return leaveService.searchLeaves(request);
+    }
+
+    @GetMapping("/admin/summaries")
+    public java.util.List<com.dto.UserLeaveSummaryDto> getUserLeaveSummaries(
+            @RequestParam(required = false) java.time.LocalDate fromDate,
+            @RequestParam(required = false) java.time.LocalDate toDate) {
+        return leaveService.getUserLeaveSummaries(fromDate, toDate);
     }
 
     @PutMapping("/admin/{id}/status")

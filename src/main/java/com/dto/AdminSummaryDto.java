@@ -33,4 +33,6 @@ public class AdminSummaryDto {
     private List<Long> completedUserIds;
 
     private long pendingLeaveRequests;
+    private long usersOnLeaveToday;
+    private List<Long> usersOnLeaveIds;
 }

@@ -26,14 +26,13 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-   
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
         return path.equals("/auth/login")
                 || path.equals("/auth/logout")
                 || path.startsWith("/h2-console");
-//              || path.equals("/docs.html");
+        // || path.equals("/docs.html");
     }
 
     @Override
@@ -79,6 +78,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
+                System.out.println("DEBUG: JwtFilter loaded user: " + username);
+                System.out.println("DEBUG: Authorities: " + userDetails.getAuthorities());
+
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -86,6 +88,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception e) {
+                System.out.println("DEBUG: JwtFilter error: " + e.getMessage());
                 // Token invalid - allow request to proceed (will likely fail at endpoint
                 // protection)
                 // Log if necessary, but silencing stack trace for now
